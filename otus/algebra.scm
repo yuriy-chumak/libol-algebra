@@ -43,6 +43,8 @@
    (exports (otus algebra infix-notation))
    (exports (otus algebra vector))
 
+   (exports (otus algebra init))
+
 
    ;; print-ftensor
 
