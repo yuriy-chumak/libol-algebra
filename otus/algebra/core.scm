@@ -16,6 +16,7 @@
    etensor itensor
 
    scalar? vector? tensor? copy
+   ; TODO: rename tensor? to some internal name
 
    algebra ; ffi
 )

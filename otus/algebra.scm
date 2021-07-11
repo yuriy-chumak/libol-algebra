@@ -34,10 +34,10 @@
    vector evector fvector ivector
 
    ;; ; создать матрицу
-   ;; matrix ematrix fmatrix imatrix
+   matrix ematrix fmatrix imatrix
 
    ;; ; создать тензор
-   ;; tensor etensor ftensor itensor
+   tensor etensor ftensor itensor
 
    (exports (otus algebra shape))
    (exports (otus algebra infix-notation))

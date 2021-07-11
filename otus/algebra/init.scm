@@ -10,14 +10,17 @@
    ; init
    zeros ones
    zeros! ones!
+   fill fill!
 )
 
 (begin
    (setq ~copy (dlsym algebra "copy"))
-   (setq ~zeros (dlsym algebra "zeros"))
-   (setq ~ones (dlsym algebra "ones"))
-   (setq ~zerosE (dlsym algebra "zerosE"))
-   (setq ~onesE (dlsym algebra "onesE"))
+   (setq ~fill (dlsym algebra "fill"))
+   (setq ~fill! (dlsym algebra "fillE"))
+   ;; (setq ~zeros (dlsym algebra "zeros"))
+   ;; (setq ~ones (dlsym algebra "ones"))
+   ;; (setq ~zerosE (dlsym algebra "zerosE"))
+   ;; (setq ~onesE (dlsym algebra "onesE"))
 
 
    (define (copy array)
@@ -31,9 +34,8 @@
          ((tensor? array)
             (~copy array))))
 
-   ;; --------------------------------------------------------------
-   ; local function
-   (define (reset array N ~function)
+   ; internal
+   (define (fill array N)
       (cond
          ((vector? array)
             (let loop ((array array))
@@ -42,9 +44,9 @@
                else
                   (make-vector (size array) N))))
          ((tensor? array)
-            (~function array))))
+            (~fill array N))))
 
-   (define (reset! array N ~function!)
+   (define (fill! array N)
       (cond
          ((vector? array)
             (let loop ((array array))
@@ -56,19 +58,24 @@
                      (iota (size array) 1))))
             array)
          ((tensor? array)
-            (~function! array))))
+            (~fill! array N))))
 
+   ;; --------------------------------------------------------------
 
-   (define (zeros array)
-      (reset array 0 ~zeros))
+   ; * internal function
+   (define (filler N)
+      (case-lambda
+         ((array)
+            (if (vector? array)
+               (fill array N)
+            else
+               (fill (ematrix array) N))) ; TODO: change to etensor
+         (args
+            (fill (apply ematrix args) N)))) ; TODO: change to etensor
 
-   (define (zeros! array)
-      (reset! array 0 ~zerosE))
+   (define zeros (filler 0))
+   (define ones (filler 1))
 
-   (define (ones array)
-      (reset array 1 ~ones))
-
-   (define (ones! array)
-      (reset! array 1 ~onesE))
-
+   (define (zeros! array) (fill! array 0))
+   (define (ones! array) (fill! array 1))
 ))
