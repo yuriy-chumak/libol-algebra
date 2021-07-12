@@ -42,7 +42,10 @@
                (if (vector? (ref array 1))
                   (vector-map loop array)
                else
-                  (make-vector (size array) N))))
+                  (if (function? N)
+                     (vector-map (lambda (i) (N)) array)
+                  else
+                     (make-vector (size array) N)))))
          ((tensor? array)
             (~fill array N))))
 
@@ -69,7 +72,7 @@
             (if (vector? array)
                (fill array N)
             else
-               (fill (ematrix array) N))) ; TODO: change to etensor
+               (fill (evector array) N))) ; TODO: change to etensor
          (args
             (fill (apply ematrix args) N)))) ; TODO: change to etensor
 
