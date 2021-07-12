@@ -19,6 +19,7 @@
    ; TODO: rename tensor? to some internal name
 
    algebra ; ffi
+   mmap
 )
 
 (begin
@@ -101,4 +102,30 @@
       (itensor size))
 
    (define imatrix #false)
+   (define mmap
+      (case-lambda
+         ((f array)
+            (cond
+               ((vector? array)
+                  (let loop ((array array))
+                     (if (vector? (ref array 1))
+                        (vector-map loop array)
+                     else
+                        (vector-map f array))))
+               (else
+                  (runtime-error "TBD" f))))
+         ((f array1 array2)
+            ; TODO: test all arguments the same size
+            ; TODO: if different types - cast to the the first argument type
+            (cond
+               ((vector? array1)
+                  (let loop ((array1 array1) (array2 array2))
+                     (if (vector? (ref array1 1))
+                        (vector-map loop array1 array2)
+                     else
+                        (vector-map f array1 array2))))
+               (else
+                  (runtime-error "TBD" f))))
+         ((f . arrays)
+            (runtime-error "TBD" f))))
 ))

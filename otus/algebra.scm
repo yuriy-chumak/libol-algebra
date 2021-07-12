@@ -45,6 +45,7 @@
 
    (exports (otus algebra init))
 
+   mmap ; core
 
    ;; print-ftensor
 
