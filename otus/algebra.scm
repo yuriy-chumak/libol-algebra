@@ -45,7 +45,7 @@
 
    (exports (otus algebra init))
 
-   mmap ; core
+   rmap ; Recursive Map, * core
 
    ;; print-ftensor
 

@@ -19,7 +19,7 @@
    ; TODO: rename tensor? to some internal name
 
    algebra ; ffi
-   mmap
+   rmap
 )
 
 (begin
@@ -102,7 +102,9 @@
       (itensor size))
 
    (define imatrix #false)
-   (define mmap
+
+   ; --------------------
+   (define rmap ; TODO: tensor-map?
       (case-lambda
          ((f array)
             (cond
@@ -127,5 +129,17 @@
                (else
                   (runtime-error "TBD" f))))
          ((f . arrays)
-            (runtime-error "TBD" f))))
+            ; TODO: test all arguments the same size
+            ; TODO: if different types - cast to the the first argument type
+            (cond
+               ((vector? (car arrays))
+                  (let loop ((arrays arrays))
+                     (define (reloop . args) (loop args))
+                     (if (vector? (ref (car arrays) 1))
+                        (apply vector-map (cons reloop arrays))
+                     else
+                        (apply vector-map (cons f arrays)))))
+               (else
+                  (runtime-error "TBD" f)))) ))
+
 ))
