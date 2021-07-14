@@ -31,12 +31,15 @@
    ;; по умолчанию vector, matrix и tensor сделаны "exact"
 
    ; создать вектор
+   Vector
    vector evector fvector ivector
 
    ;; ; создать матрицу
+   Matrix
    matrix ematrix fmatrix imatrix
 
    ;; ; создать тензор
+   Tensor
    tensor etensor ftensor itensor
 
    (exports (otus algebra shape))
@@ -75,9 +78,13 @@
          ((tuple . args)
             (vm:new type-vector . args))))
 
-   (define vector evector)
-   (define matrix ematrix)
-   (define tensor etensor)
+   (define Vector evector)
+   (define Matrix ematrix)
+   (define Tensor etensor)
+
+   (define vector Vector)
+   (define matrix Matrix)
+   (define tensor Tensor)
 
    (define fvector ivector)
    (define fmatrix imatrix)
@@ -108,7 +115,7 @@
          (display "] ")))
 
    (define (print-ftensor tensor)
-      (define dim (shape tensor))
+      (define dim (Shape tensor))
       (pp tensor dim))
 
    (define ::print print)

@@ -6,11 +6,12 @@
    (otus ffi))
 
 (export
-   copy
+   Copy
    ; init
-   zeros ones
-   zeros! ones!
-   fill fill!
+   Zeros Ones
+   Zeros! Ones!
+   Fill Fill!
+   ;random
 )
 
 (begin
@@ -23,19 +24,19 @@
    ;; (setq ~onesE (dlsym algebra "onesE"))
 
 
-   (define (copy array)
+   (define (Copy array)
       (cond
          ((vector? array)
             (let loop ((array array))
                (if (vector? (ref array 1))
                   (vector-map loop array)
                else
-                  (vm:cast array (type array)))))
+                  (vm:cast array (type array))))) ; shallow copy
          ((tensor? array)
             (~copy array))))
 
    ; internal
-   (define (fill array N)
+   (define (Fill array N)
       (cond
          ((vector? array)
             (let loop ((array array))
@@ -49,7 +50,7 @@
          ((tensor? array)
             (~fill array N))))
 
-   (define (fill! array N)
+   (define (Fill! array N)
       (cond
          ((vector? array)
             (let loop ((array array))
@@ -70,15 +71,15 @@
       (case-lambda
          ((array)
             (if (vector? array)
-               (fill array N)
+               (Fill array N)
             else
-               (fill (evector array) N))) ; TODO: change to etensor
+               (Fill (evector array) N))) ; TODO: change to etensor
          (args
-            (fill (apply ematrix args) N)))) ; TODO: change to etensor
+            (Fill (apply ematrix args) N)))) ; TODO: change to etensor
 
-   (define zeros (filler 0))
-   (define ones (filler 1))
+   (define Zeros (filler 0))
+   (define Ones (filler 1))
 
-   (define (zeros! array) (fill! array 0))
-   (define (ones! array) (fill! array 1))
+   (define (Zeros! array) (Fill! array 0))
+   (define (Ones! array) (Fill! array 1))
 ))

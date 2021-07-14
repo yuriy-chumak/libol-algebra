@@ -5,6 +5,7 @@
    (otus ffi))
 
 (export
+   ; v/m/t aka array is a basic math object.
 
    ; создать вектор (Euclidean)
    evector ivector
@@ -15,7 +16,7 @@
    ; создать тензор
    etensor itensor
 
-   scalar? vector? tensor? copy
+   scalar? vector? tensor?
    ; TODO: rename tensor? to some internal name
 
    algebra ; ffi
@@ -43,8 +44,11 @@
 
    ; ================================================================
    ; создание вектора заданных размеров
-   (define (evector len)
-      (make-vector len 0))
+   (define (evector arg)
+      (if (vector? arg)
+         arg
+      else
+         (make-vector arg 0)))
 
    (setq copy (lambda (o) (vm:cast o (type o)))) ; * internal
 

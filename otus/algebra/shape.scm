@@ -11,8 +11,10 @@
    ; A tuple of integers indicating the size of the array in each dimension.
    ; For a matrix with n rows and m columns, shape will be (n,m).
 
-   shape ; "форма" тензора, его "размерность"
+   Shape ; "форма" тензора, его "размерность"
          ; always a list
+
+   Size  ; The count of all elements in the v/m/t.
 
    ; The number of axes (dimensions) of the array.
    ;  'ndim' in numpy
@@ -29,28 +31,32 @@
    (setq ~reshape (dlsym algebra "reshape"))
 
 
-   (define (shape array)
+   (define (Shape array)
       (cond
-         ((vector? array)
+         ((vector? array) ; builtin array
             (let loop ((el (ref array 1)) (dim (list (size array))))
-               (if (not (vector? el))
-                  then (reverse dim)
+               (if (not (vector? el)) then
+                  (reverse dim)
                else
                   (loop (ref el 1) (cons (size el) dim)))))
-         ((tensor? array)
+         ((tensor? array) ; external data
             (~shape array))))
+
+   (define (Size array)
+      (fold * 1 (Shape array)))
 
 
    ;; --------------------------------------------------------------
    (define (reshape array new-shape)
-      (unless (eq? (fold * 1 (shape array))
-                   (fold * 1 new-shape))
-         (runtime-error "new shape is not applicable" (list (shape array) " --> " new-shape)))
+      #f)
+      ;; (unless (eq? (fold * 1 (shape array))
+      ;;              (fold * 1 new-shape))
+      ;;    (runtime-error "new shape is not applicable" (list (shape array) " --> " new-shape)))
 
-      (cond
-         ((vector? array)
-            #f) ;
-         ((tensor? array)
-            (~reshape array new-shape))))
+      ;; (cond
+      ;;    ((vector? array)
+      ;;       #f) ;
+      ;;    ((tensor? array)
+      ;;       (~reshape array new-shape))))
 
 ))
