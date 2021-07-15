@@ -40,6 +40,9 @@
    Tensor
    etensor ftensor itensor
 
+   ; get an element
+   Ref
+
    (exports (otus algebra shape))
    (exports (otus algebra infix-notation))
    (exports (otus algebra vector))
@@ -78,6 +81,7 @@
    (define fmatrix imatrix)
    (define ftensor itensor)
 
+   (define Ref rref)
    ;; (define + +)
    ;; (define - -)
    ;; (define * *)

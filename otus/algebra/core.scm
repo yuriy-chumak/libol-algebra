@@ -20,7 +20,8 @@
    ; TODO: rename tensor? to some internal name
 
    algebra ; ffi
-   rmap
+   rmap ; recursive map
+   rref ; recursive ref
 )
 
 (begin
@@ -145,5 +146,12 @@
                         (apply vector-map (cons f arrays)))))
                (else
                   (runtime-error "TBD" f)))) ))
+
+   (define (rref array . args)
+      (let loop ((array array) (args args))
+         (if (null? args)
+            array
+         else
+            (loop (ref array (car args)) (cdr args)))))
 
 ))
