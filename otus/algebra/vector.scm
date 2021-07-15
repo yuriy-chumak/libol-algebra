@@ -14,6 +14,7 @@
 
    magnitude ; модуль вектора
    square-magnitude ; квадратный модуль вектора
+   det
 )
 
 (begin
@@ -40,6 +41,7 @@
    (define (at m i j)
       (ref (ref m i) j))
 
+   ; matrix determinant
    (define (det m)
       (cond
          ((eq? (size m) 1)
@@ -54,6 +56,7 @@
                         (* s (det (submatrix m 1 i)))))
                   (vector->list (ref m 1))
                   (iota (size (ref m 1)) 1))))))
+
 
    (define (cross-product . args)
       ; todo: size of all vectors should be identical

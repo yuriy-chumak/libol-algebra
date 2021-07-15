@@ -14,7 +14,7 @@
    (otus algebra init)
 
    (otus algebra vector)
-   
+   (otus algebra matrix)
    (otus algebra infix-notation))
 
 (export
@@ -46,6 +46,7 @@
    (exports (otus algebra shape))
    (exports (otus algebra infix-notation))
    (exports (otus algebra vector))
+   (exports (otus algebra matrix))
 
    (exports (otus algebra init))
 
@@ -82,6 +83,7 @@
    (define ftensor itensor)
 
    (define Ref rref)
+   
    ;; (define + +)
    ;; (define - -)
    ;; (define * *)
