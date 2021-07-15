@@ -19,8 +19,6 @@
 
 (export
 
-   tuple ; заменитель scheme (vector ...)
-
    ;; целочисленную математику мы будем организовывать силами самого ol
    ;; это будет не быстро, но зато точно. само собой, большие матрицы/вектора/тензоры
    ;; реально обрабатывать не выйдет, но будет легко читаемый код с алгоритмами работы
@@ -30,17 +28,17 @@
 
    ;; по умолчанию vector, matrix и tensor сделаны "exact"
 
-   ; создать вектор
+   ; create a Vector
    Vector
-   vector evector fvector ivector
+   evector fvector ivector
 
-   ;; ; создать матрицу
+   ; create a Matrix
    Matrix
-   matrix ematrix fmatrix imatrix
+   ematrix fmatrix imatrix
 
-   ;; ; создать тензор
+   ; create a Tensor
    Tensor
-   tensor etensor ftensor itensor
+   etensor ftensor itensor
 
    (exports (otus algebra shape))
    (exports (otus algebra infix-notation))
@@ -72,19 +70,9 @@
 (import (otus ffi))
 (begin
 
-   ; заменитель scheme (vector ...), если вдруг понадобится
-   (define-syntax tuple
-      (syntax-rules ()
-         ((tuple . args)
-            (vm:new type-vector . args))))
-
    (define Vector evector)
    (define Matrix ematrix)
    (define Tensor etensor)
-
-   (define vector Vector)
-   (define matrix Matrix)
-   (define tensor Tensor)
 
    (define fvector ivector)
    (define fmatrix imatrix)
