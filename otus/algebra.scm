@@ -42,6 +42,8 @@
 
    ; get an element
    Ref
+   ; map an elements by value
+   Map
 
    (exports (otus algebra shape))
    (exports (otus algebra infix-notation))
@@ -50,7 +52,7 @@
 
    (exports (otus algebra init))
 
-   rmap ; Recursive Map, * core
+   rmap ; Recursive Map, * core, * internal
 
    ;; print-ftensor
 
@@ -83,6 +85,7 @@
    (define ftensor itensor)
 
    (define Ref rref)
+   (define Map rmap)
    
    ;; (define + +)
    ;; (define - -)
