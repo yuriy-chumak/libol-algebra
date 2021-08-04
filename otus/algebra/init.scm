@@ -99,13 +99,13 @@
                   (vector-map vm array
                      (vector-map (lambda (i)
                            (append index (list i)))
-                        (Iota (size array))))
+                        (Iota (size array) 1)))
                else
                   (apply F index)))
             (vector-map vm array
                (vector-map (lambda (i)
                      (list i))
-                  (Iota (size array)))))
+                  (Iota (size array) 1))))
          (else
             (runtime-error "error" array))))
 
