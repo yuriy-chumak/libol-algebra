@@ -44,6 +44,8 @@
    Ref
    ; map an elements by value
    Map
+   ; map an elements by index
+   Index
 
    (exports (otus algebra shape))
    (exports (otus algebra infix-notation))

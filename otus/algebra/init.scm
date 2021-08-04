@@ -12,6 +12,10 @@
    Zeros! Ones!
    Fill Fill!
    ;random
+   Iota
+
+   Index
+
 )
 
 (begin
@@ -82,4 +86,27 @@
 
    (define (Zeros! array) (Fill! array 0))
    (define (Ones! array) (Fill! array 1))
+
+   ;; --------------------------------------------------------------
+   (define (Iota . args)
+      (list->vector (apply iota args)))
+
+   (define (Index array F)
+      (cond
+         ((vector? array)
+            (define (vm array index)
+               (if (vector? array)
+                  (vector-map vm array
+                     (vector-map (lambda (i)
+                           (append index (list i)))
+                        (Iota (size array))))
+               else
+                  (apply F index)))
+            (vector-map vm array
+               (vector-map (lambda (i)
+                     (list i))
+                  (Iota (size array)))))
+         (else
+            (runtime-error "error" array))))
+
 ))
