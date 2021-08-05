@@ -17,5 +17,8 @@ install: libol-algebra.so
 	install -m 644 libol-algebra.so $(DESTDIR)$(PREFIX)/lib/libol-algebra.so
 	@echo Ok
 
-check: all
-	@echo Nothing to do now
+check:
+	@$(MAKE) --always-make --quiet tests
+	@echo "Well done."
+
+-include tests/Makefile
