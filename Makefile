@@ -1,3 +1,5 @@
+# https://www.gnu.org/prep/standards/html_node/Standard-Targets.html
+
 all: libol-algebra.so
 
 libol-algebra.so: vector.c matrix.c tensor.c
@@ -14,3 +16,6 @@ install: libol-algebra.so
 	@echo Installing shared library...
 	install -m 644 libol-algebra.so $(DESTDIR)$(PREFIX)/lib/libol-algebra.so
 	@echo Ok
+
+check: all
+	@echo Nothing to do now
