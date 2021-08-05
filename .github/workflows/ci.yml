@@ -20,4 +20,6 @@ jobs:
     - run: sudo make install
 
     - uses: actions/checkout@v2
-    - run: make check
+    - run: |
+        export LD_LIBRARY_PATH=.
+        make all check
