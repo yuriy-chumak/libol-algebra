@@ -2,44 +2,62 @@
 (import (otus algebra))
 
 ; Vectors
-; -------
+; =======
+; Vector is a one-dimensional array.
+
 
 ; using native lisp syntax, and it's values can be any applicable number or boolean value
+; ---------------------------------------------------------------------------------------
 (print [1 2 3 4 5])
 (print [0 -3 3/7 16+4i 7.12 (inexact 7.12) 123456789876543213546576666777757575757444 +inf.0])
 
 ; as a copy of existing vector
+; ----------------------------
 (define v [1 2 3 4 5])
-(print v)
 
-(print (Copy v))
+(assert
+   (Copy v) ===> [1 2 3 4 5])
 
 ; as an uninializied vector of N elements
+; ---------------------------------------
 (print (Vector 14))
 
 ; as a vector of zeros
-(print (Zeros 14))
+; --------------------
+(assert
+   (Zeros 14) ===> [0 0 0 0 0 0 0 0 0 0 0 0 0 0])
 
 ; as a vector of `1`s
-(print (Ones 14))
+; -------------------
+(assert
+   (Ones 14)  ===> [1 1 1 1 1 1 1 1 1 1 1 1 1 1])
 
 ; as a vector of any applicable repeating value
-(print (Fill (Vector 17) -33))
+; ---------------------------------------------
+(assert
+   (Fill (Vector 17) -33)
+              ===> [-33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33])
+
 
 ; Matrices
-; --------
+; ========
+; Matrix is a two-dimensional array.
 
 ; using native lisp syntax, and it's values can be any applicable number or boolean value
+; ---------------------------------------------------------------------------------------
 (print [[1 2 3]
         [4 5 6]
         [7 8 9]])
 
 ; as a copy of existing matrix
+; ----------------------------
 (define m [[1 2 3] [4 5 6] [7 8 9]])
-(print m)
-(print (Copy m))
+(assert (Copy m) ===> [[1 2 3]
+                       [4 5 6]
+                       [7 8 9]])
 
 ; as a matrix of N same vectors
+; -----------------------------
 (print (Matrix [1 2 3] 4))
 
 ; as an uninializied matrix of N(rows) * M(columns) elements (it's not guaranteed that the vector will be initialized with zeros, it can be a #false constants for example)
@@ -56,6 +74,31 @@
 
 ; as a matrix of any applicable repeating value
 (print (Fill (Matrix 2 3) -1))
+
+; we can create any form of matrix based on matrix indices
+; for example, let's create a Chessboard matrix with 1 for white cells
+(assert (Index (Matrix 8 8)
+            (lambda (x y)
+               (if (zero? (mod (+ x y) 2)) 1 0)))
+
+ ===> [[1 0 1 0 1 0 1 0]
+       [0 1 0 1 0 1 0 1]
+       [1 0 1 0 1 0 1 0]
+       [0 1 0 1 0 1 0 1]
+       [1 0 1 0 1 0 1 0]
+       [0 1 0 1 0 1 0 1]
+       [1 0 1 0 1 0 1 0]
+       [0 1 0 1 0 1 0 1]])
+
+; or just an identity matrix
+(assert (Index (Matrix 5 5)
+            (lambda (x y)
+               (if (= x y) 1 0)))
+ ===> [[1 0 0 0 0]
+       [0 1 0 0 0]
+       [0 0 1 0 0]
+       [0 0 0 1 0]
+       [0 0 0 0 1]])
 
 ; Tensors
 ; -------
