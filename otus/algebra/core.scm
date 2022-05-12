@@ -83,7 +83,7 @@
                         (eq? (length args) 2)
                         (integer? (car args))
                         (integer? (cadr args)))
-               (runtime-error "неправильно заданные парамтры. смотрите хелп." args))
+               (runtime-error "неправильно заданные параметры. смотрите хелп." args))
             (list->vector (map (lambda (_) (make-vector (cadr args) 0)) (iota (car args)))))))
 
    ; пока что тензор умеет только создавать по размерам

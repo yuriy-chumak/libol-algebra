@@ -8,6 +8,8 @@ TOC
 - [Creation](#creation)
 - [Info](#vector-info)
 - [Mapping functions](#mapping-functions)
+- [Vector products](#vector-products)
+- [Other functions](#other-functions)
 
 Creation
 --------
@@ -118,6 +120,20 @@ Vector Info
 5
 ```
 
+* vector element
+```scheme
+> (Ref [11 12 13 14 15] 1)
+11
+
+> (Ref [11 12 13 14 15] -1)
+15
+
+> (Ref [11 12 13 14 15] 0)
+#false
+
+> (Ref [11 12 13 14 15] 3)
+13
+```
 
 Mapping Functions
 -----------------
@@ -164,4 +180,55 @@ Mapping Functions
 #(10 15 20 25 30 35 40 45)
 > (Map + (Iota 8 1) (Iota 8 10 5))
 #(11 17 23 29 35 41 47 53)
+```
+
+Vector Products
+---------------
+
+* Dot (scalar) product
+```scheme
+; `dot-product` accepts two vectors with same dimensions
+> (dot-product [1 3 -5] [4 -2 -1])
+3
+
+> (dot-product [4 -2 -1] [1 3 -5])
+3
+
+> (scalar-product [1 3 -5] [4 -2 -1])
+3
+```
+
+* Cross Product
+```scheme
+; `cross-product` accepts two vectors with same dimensions
+> (cross-product [-2 3 1] [0 4 0])
+#(-4 0 8)
+```
+
+* Triple product
+```scheme
+; `triple-product` accepts three vectors with same dimensions
+> (triple-product [-2 3 1] [0 4 0] [-1 3 3])
+-20
+```
+
+Other Functions
+---------------
+
+* Magnitude
+```scheme
+> (magnitude [1 2 3 7])
+32257/4064
+
+> (inexact (magnitude [1 2 3 9]))
+9.74679434
+```
+
+* Square magnitude
+```scheme
+> (square-magnitude [1 2 3 7])
+63
+
+> (inexact (square-magnitude [1 2 3 9]))
+95.0
 ```

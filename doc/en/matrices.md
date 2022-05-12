@@ -8,6 +8,8 @@ TOC
 - [Creation](#creation)
 - [Info](#matrix-info)
 - [Mapping functions](#mapping-functions)
+- [Matrix products](#matrix-products)
+- [Other functions](#other-functions)
 
 Creation
 --------
@@ -72,6 +74,28 @@ Matrix Info
 6
 ```
 
+* matrix element
+```scheme
+> (Ref [[1 2]
+        [3 4]
+        [5 6]] 1)
+#(1 2)
+
+> (Ref [[1 2]
+        [3 4]
+        [5 6]] -1)
+#(5 6)
+
+> (Ref [[1 2]
+        [3 4]
+        [5 6]] 2 1)
+3
+
+> (Ref [[1 2]
+        [3 4]
+        [5 6]] -1 -1)
+6
+```
 
 Mapping Functions
 -----------------
@@ -121,3 +145,56 @@ Mapping Functions
      (Fill (Matrix 3 4) rnd))
 #(#(4 19 21 15) #(12 19 17 11) #(11 14 17 11))
 ```
+
+Matrix Products
+---------------
+
+* Matrix Product
+```scheme
+> (matrix-product
+     [[1 2 3]
+      [4 5 6]]
+
+     [[11 12]
+      [13 14]
+      [15 16]] )
+#(#(82 88) #(199 214))
+
+> (matrix-product [[2]] [[7]])
+#(#(14))
+
+> (matrix-product
+     [[3 4 2]]
+
+     [[13  9  7 15]
+      [ 8  7  4  6]
+      [ 6  4  0  3]] )
+#(#(83 63 37 75))
+```
+
+Other Functions
+---------------
+
+* determinant (det)
+```scheme
+> (determinant [[2 -3  1]
+                [2  0 -1]
+                [1  4  5]])
+49
+
+> (det [[2 -3]
+        [1  4]])
+11
+```
+
+* transpose
+```scheme
+> (transpose [[1 2]])
+#(#(1) #(2))
+
+> (transpose [[1 2]
+              [4 5]
+              [7 8]])
+#(#(1 4 7) #(2 5 8))
+```
+

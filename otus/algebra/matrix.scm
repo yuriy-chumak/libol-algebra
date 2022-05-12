@@ -8,17 +8,17 @@
 
 (export
 
-   Determinant
-   Transpose
+   determinant
+   transpose
 
    matrix-product
 )
 
 (begin
 
-   (define Determinant det)
+   (define determinant det)
 
-   (define (Transpose m)
+   (define (transpose m)
       (define shape (Shape m))
       (list->vector
          (map (lambda (i)

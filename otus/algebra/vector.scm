@@ -21,6 +21,7 @@
 
    (define (dot-product a b)
       (vector-fold + 0 (vector-map * a b)))
+   (define scalar-product dot-product)
 
    ; -- cross-product ----------
    ; удалить n-й элемент вектора (начиная с 1-го)
@@ -58,15 +59,15 @@
                   (iota (size (ref m 1)) 1))))))
 
 
-   (define (cross-product . args)
+   (define (cross-product a b)
       ; todo: size of all vectors should be identical
       (list->vector
          (map (lambda (i)
                ((if (eq? (band i 1) 1) + -) ; sign
                   (det (list->vector (map (lambda (row)
                               (cut row i))
-                        args)))))
-            (iota (size (car args)) 1))))
+                        (list a b))))))
+            (iota (size a) 1))))
 
    ; -- tripple-product ----------
    (define (triple-product a b c)
