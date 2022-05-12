@@ -11,8 +11,9 @@
    Zeros Ones
    Zeros! Ones!
    Fill Fill!
+   ; todo: Empty ()
    ;random
-   Iota
+   Iota Arange Linspace
 
    Index
 
@@ -90,6 +91,31 @@
    ;; --------------------------------------------------------------
    (define (Iota . args)
       (list->vector (apply iota args)))
+
+   ; (Arange count)
+   ; (Arange from to)
+   ; (Arange from to step)
+   (define (Arange from to step)
+      (let loop ((from from) (p #null))
+         (if (>= from to)
+            (make-vector (reverse p))
+         else
+            (loop (+ from step) (cons from p)))))
+   (define Arange (case-lambda
+      ((count)
+         (Arange 0 count 1))
+      ((from to)
+         (Arange from to 1))
+      ((from to step)
+         (Arange from to step))))
+
+   (define (Linspace from step count)
+      (let loop ((from from) (count count) (p #null))
+         (if (zero? count)
+            (make-vector (reverse p))
+         else
+            (loop (+ from step) (- count 1) (cons from p)))))
+
 
    (define (Index array F)
       (cond
