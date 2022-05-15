@@ -68,17 +68,20 @@
 
    ; Обратная матрица
    (define (inverse-matrix A)
-      ; naive implementation
-      ;; (define d (det A))
-      ;; (rmap (lambda (a) (/ a d)) (adjoint-matrix A)))
+      (if (equal? (Shape A) '(1 1))
+         [[(/ 1 (ref (ref A 1) 1))]]
+      else
+         ; naive implementation
+         ;; (define d (det A))
+         ;; (rmap (lambda (a) (/ a d)) (adjoint-matrix A)))
 
-      ; speedy implementation
-      (define adj (adjoint-matrix A))
-      (define det (vector-fold (lambda (f a b)
-                  (+ f (* a b)))
-               0         ; 1st column of adj. matrix is a row of cofactor matrix
-               (ref A 1) (vector-map (lambda (row) (ref row 1)) adj)))
-      (rmap (lambda (a) (/ a det)) adj))
+         ; speedy implementation
+         (define adj (adjoint-matrix A))
+         (define det (vector-fold (lambda (f a b)
+                           (+ f (* a b)))
+                        0         ; 1st column of adj. matrix is a row of cofactor matrix
+                        (ref A 1) (vector-map (lambda (row) (ref row 1)) adj)))
+         (rmap (lambda (a) (/ a det)) adj)))
 
    (define matrix-inverse inverse-matrix)
 

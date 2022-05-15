@@ -47,6 +47,8 @@
    ; map an elements by index
    Index
 
+   Add Sub
+
    (exports (otus algebra shape))
    (exports (otus algebra infix-notation))
    (exports (otus algebra vector))
@@ -88,6 +90,8 @@
 
    (define Ref rref)
    (define Map rmap)
+   (define Add radd)
+   (define Sub rsub)
    
    ;; (define + +)
    ;; (define - -)

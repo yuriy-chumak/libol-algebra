@@ -22,6 +22,9 @@
    algebra ; ffi
    rmap ; recursive map
    rref ; recursive ref
+
+   radd ; recursive add
+   rsub ; recursive add
 )
 
 (begin
@@ -153,5 +156,11 @@
             array
          else
             (loop (ref array (car args)) (cdr args)))))
+
+   (define (radd . args)
+      (apply rmap (cons + args)))
+
+   (define (rsub . args)
+      (apply rsub (cons + args)))
 
 ))
