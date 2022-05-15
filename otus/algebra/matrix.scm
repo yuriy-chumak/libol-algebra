@@ -3,6 +3,7 @@
 (import
    (otus lisp)
    (otus algebra core)
+   (otus algebra init)
    (otus algebra vector)
    (otus algebra shape))
 
@@ -12,6 +13,12 @@
    transpose
 
    matrix-product
+   hadamard-product
+
+   matrix-power
+
+   cracovian-product
+   kronecker-product
 )
 
 (begin
@@ -66,5 +73,58 @@
                                     (loop (++ k) (+ c (* (at A i k) (at B k j)))))) ; speedup for (+ k 1)
                               row))))
                   rows)))))
+
+   ; https://en.wikipedia.org/wiki/Hadamard_product_(matrices)
+   (define (hadamard-product A B)
+      (assert (equal? (Shape A) (Shape B)) ===> #true)
+
+      (rmap (lambda (a b) (* a b)) A B))
+
+   ; https://en.wikipedia.org/wiki/Matrix_multiplication#Powers_of_a_matrix
+   (define (matrix-power A k)
+      ;(assert ...
+      (case k
+         (0 (Index A (lambda (i j) (if (eq? i j) 1 0))))
+         (1 A)
+         (else ; naive algorithm
+               ; todo: https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+            (let loop ((B A) (k k))
+               (if (eq? k 1)
+                  B
+                  (loop (matrix-product A B) (-- k)))))))
+
+   ; https://en.wikipedia.org/wiki/Cracovian
+   (define (cracovian-product A B)
+      (matrix-product (transpose B) A))
+
+   ;
+   (define (submerge v) ; * internal
+      (define N (size (ref v 1)))
+      (list->vector
+         (vector-foldr (lambda (vec f)
+               (let loop ((n N) (o f))
+                  (if (eq? n 0)
+                     o
+                  else
+                     (loop (-- n) (cons (ref vec n) o)))))
+            #null
+            v)))
+
+   (define (kronecker-product A B)
+      (define C (rmap (lambda (a)
+                        (rmap (lambda (b) (* a b)) B))
+                  A))
+      (submerge
+         (let loop ((n (size A)) (o #null))
+            (if (eq? n 0)
+               (list->vector o)
+            else
+               (let subloop ((m (size B)) (p #null))
+                  (if (eq? m 0)
+                     (loop (-- n) (cons (list->vector p) o))
+                  else
+                     (define a (submerge (vector-map (lambda (c) (ref c m)) (ref C n))))
+                     (subloop (-- m)
+                        (cons a p))))))))
 
 ))
