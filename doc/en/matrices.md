@@ -62,6 +62,7 @@ Matrix Info
 ```scheme
 > (Shape [[3 3 7 7][1 2 3 4]])
 '(2 4)
+
 > (Shape [[3 3][1 2][3 3]])
 '(3 2)
 ```
@@ -70,6 +71,7 @@ Matrix Info
 ```scheme
 > (Size [[3 3 7 7][1 2 3 4]])
 8
+
 > (Size [[3 3][1 2][3 3]]))
 6
 ```
@@ -106,24 +108,27 @@ Mapping Functions
 #(#(7 7 7) #(7 7 7))
 ```
 
-* make a same dimensional matrix with dynamically computed values
+* make a same dimensional matrix with dynamically computed (randomized, for example) values
 ```scheme
-> (import (otus random!))
-> (Fill (Matrix 3 4)
-     (lambda ()
-        (rand! 123)))
-#(#(97 75 21 17) #(23 73 117 113) #(120 102 63 33))
+(import (scheme srfi-27))
+> (Fill (Matrix 3 2) random-real)
+#(#(0.414190420 0.681261342) #(0.911988653 0.887599243) #(0.427052309 0.344429402))
 
-> (Fill (Matrix 4 3)
+> (Fill (Matrix 4 4)
      (lambda ()
-        (inexact (/ (rand! 10000) 100))))
-#(#(22.1799999 44.6599999 36.53) #(63.7599999 31.8399999 17.1799999) #(24.44 66.7699999 32.57) #(46.2299999 49.4099999 33.0099999))
+        (random-integer 2)))
+#(#(0 1 1 1) #(1 0 0 1) #(1 0 0 0) #(1 1 0 0))
+
+> (Index (Matrix 4 4)
+     (lambda (i j)
+        (random-integer (* i j))))
+#(#(0 1 2 2) #(1 1 3 7) #(2 5 5 1) #(0 1 7 14))
 ```
 
 * make a same dimensional matrix with dynamically computed values, based on a vector element index
 ```scheme
 > (Index (Matrix 3 3)
-    (lambda (i j)
+     (lambda (i j)
         (if (= i j) 1 0)))
 #(#(1 0 0) #(0 1 0) #(0 0 1))
 ```
@@ -136,7 +141,7 @@ Mapping Functions
 > (define (sqr x) (* x x))
 > (define (rnd) (rand! 9))
 
-> (Map sqr (Fill (Matrix 3 4) rnd))
+> (Map square (Fill (Matrix 3 4) rnd))
 #(#(0 0 25 16) #(49 0 49 49) #(9 36 0 36))
 
 > (Map +

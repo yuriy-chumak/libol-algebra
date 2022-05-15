@@ -11,7 +11,7 @@
    ;;          matrix2))
    ;;    matrix1))
 
-(print (Transpose [[1 2]
+(print (transpose [[1 2]
                    [4 5]
                    [7 8]]))
 
