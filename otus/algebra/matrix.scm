@@ -149,9 +149,9 @@
                ((or (eq? (type k) type-enum+)
                     (eq? (type k) type-int+))
                   (expt-loop A (sub k 1) A))
-               ;; ((or (eq? (type k) type-enum-)
-               ;;      (eq? (type k) type-int-))
-               ;;    (/ 1 (expt A (negate k))))
+               ((or (eq? (type k) type-enum-)
+                    (eq? (type k) type-int-))
+                  (inverse-matrix (expt-loop A (sub (negate k) 1) A)))
                (else
                   (runtime-error "power is not an integer:" k))))))
 
