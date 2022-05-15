@@ -14,18 +14,17 @@
 
    magnitude ; модуль вектора
    square-magnitude ; квадратный модуль вектора
+   
+   ; * internal matrix functions
+   minor
    det
+   negate
+   cofactor
 )
 
 (begin
 
-   (define (dot-product a b)
-      (vector-fold + 0 (vector-map * a b)))
-   (define scalar-product dot-product)
-
-   ; -- cross-product ----------
-   ; удалить n-й элемент вектора (начиная с 1-го)
-   ; todo: process errors
+   ; remove n-th element of a vector
    (define (cut vec n)
       (let loop ((l '()) (r (vector->list vec)) (n (-- n)))
          (if (eq? n 0)
@@ -33,11 +32,11 @@
          else
             (loop (cons (car r) l) (cdr r) (-- n)))))
 
-   (define (submatrix m row column)
+   ; minor matrix of the matrix
+   (define (minor m row column)
       (cut (vector-map (lambda (row)
                (cut row column))
             m) row))
-
 
    (define (at m i j)
       (ref (ref m i) j))
@@ -54,11 +53,28 @@
             (fold + 0
                (map (lambda (s i)
                      ((if (eq? (band i 1) 1) + -) ; sign
-                        (* s (det (submatrix m 1 i)))))
+                        (* s (det (minor m 1 i)))))
                   (vector->list (ref m 1))
                   (iota (size (ref m 1)) 1))))))
 
+   ; negate tensor/scalar
+   (define /negate negate)
+   (define (negate A)
+      (if (vector? A)
+         (rmap (lambda (a) (negate a)) A)
+      else
+         (/negate A)))
 
+   ; https://www.cuemath.com/algebra/cofactor-matrix/
+   (define (cofactor A i j)
+      ((if (eq? (band (bxor i j) 1) 0) idf negate) (minor A i j)))
+
+   ; -------------------------------------------------------------
+   (define (dot-product a b)
+      (vector-fold + 0 (vector-map * a b)))
+   (define scalar-product dot-product)
+
+   ; -- cross-product ----------
    (define (cross-product a b)
       ; todo: size of all vectors should be identical
       (list->vector

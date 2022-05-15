@@ -19,6 +19,11 @@
 
    cracovian-product
    kronecker-product
+
+   minor-matrix
+   cofactor-matrix
+   adjugate-matrix
+   inverse-matrix
 )
 
 (begin
@@ -127,4 +132,27 @@
                      (subloop (-- m)
                         (cons a p))))))))
 
+   ; https://en.wikipedia.org/wiki/Minor_(linear_algebra)
+   (define (minor-matrix A)
+      (Index A (lambda (i j) (cofactor A i j))))
+
+   ; https://en.wikipedia.org/wiki/Adjugate_matrix
+   (define (cofactor-matrix A)
+      (Index A (lambda (i j)
+         ((if (eq? (band (bxor i j) 1) 0) idf negate)
+            (det (minor A i j))))))
+   (define (adjugate-matrix A)
+      (Index A (lambda (i j)
+         ((if (eq? (band (bxor i j) 1) 0) idf negate)
+            (det (minor A j i))))))
+
+   ; test
+   (assert (let ((M [[-3 2 -5]
+                     [-1 0 -2]
+                     [3 -4 1]]))
+         (matrix-product M (adjugate-matrix M)))  ===> [[-6 0 0]
+                                                        [0 -6 0]
+                                                        [0 0 -6])
+
+   (define inverse-matrix matrix-inverse)
 ))
