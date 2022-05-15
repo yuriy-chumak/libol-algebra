@@ -54,17 +54,20 @@
       (Index A (lambda (i j) (cofactor A i j))))
 
    ; https://en.wikipedia.org/wiki/Adjugate_matrix
+   ; Присоединённая матрица (союзная, взаимная)
    (define (cofactor-matrix A)
       (Index A (lambda (i j)
          ((if (eq? (band (bxor i j) 1) 0) idf negate)
             (det (minor A i j))))))
 
+   ; Алгебраическое дополнение
    (define (adjoint-matrix A) ; (adjugate M)
       (Index A (lambda (i j)
          ((if (eq? (band (bxor i j) 1) 0) idf negate)
             (det (minor A j i))))))
 
-   (define (matrix-inverse A)
+   ; Обратная матрица
+   (define (inverse-matrix A)
       ; naive implementation
       ;; (define d (det A))
       ;; (rmap (lambda (a) (/ a d)) (adjoint-matrix A)))
@@ -77,20 +80,21 @@
                (ref A 1) (vector-map (lambda (row) (ref row 1)) adj)))
       (rmap (lambda (a) (/ a det)) adj))
 
-   (define inverse-matrix matrix-inverse)
-
-   ; short sample matrix multiplication version (list of lists)
-   ;; (define (matrix-multiply matrix1 matrix2)
-   ;; (map
-   ;;    (lambda (row)
-   ;;       (apply map
-   ;;          (lambda column
-   ;;             (apply + (map * row column)))
-   ;;          matrix2))
-   ;;    matrix1))
+   (define matrix-inverse inverse-matrix)
 
    ; long matrix multiplication version (vector of vectors)
    (define (matrix-product A B)
+      ; simplest implementation:
+      ; rows and columns count limited to 255
+      ;; (vector-map
+      ;;    (lambda (row)
+      ;;       (apply vector-map
+      ;;          (lambda column
+      ;;             (apply + (map * row column)))
+      ;;          matrix2))
+      ;;    matrix1))
+
+      ; universal implementation
       (define m (size A))
       (define n (size (ref A 1)))
       (assert (eq? (size B) n) ===> #true)
@@ -102,28 +106,27 @@
       (let mloop ((i m) (rows #null))
          (if (eq? i 0)
             (list->vector rows)
+         else
             (mloop
                (-- i) ; speedup for (- i 1)
                (cons
                   (let rloop ((j q) (row #null))
                      (if (eq? j 0)
                         (list->vector row)
+                     else
                         (rloop
                            (-- j) ; speedup for (- j 1)
                            (cons
                               (let loop ((k 1) (c 0))
                                  (if (less? n k) ; speedup for (> k n)
                                     c
-                                    (loop (++ k) (+ c (* (at A i k) (at B k j)))))) ; speedup for (+ k 1)
+                                 else
+                                    (loop (++ k) (+ c (* (at A i k) (at B k j))))))
                               row))))
                   rows)))))
 
-   ; https://en.wikipedia.org/wiki/Matrix_exponential
-   (define (matrix-exponential X)
-      #false
-   )
-
    ; https://en.wikipedia.org/wiki/Matrix_multiplication#Powers_of_a_matrix
+   ; Возведение в степень
    (define (matrix-power A k)
       ;(assert ...
       (case k
@@ -156,10 +159,12 @@
                   (runtime-error "power is not an integer:" k))))))
 
    ; https://en.wikipedia.org/wiki/Cracovian
+   ; "Краковское" произведение
    (define (cracovian-product A B)
       (matrix-product (transpose B) A))
 
-   ;
+   ; https://en.wikipedia.org/wiki/Kronecker_product
+   ; Произведение Кронекера
    (define (submerge v) ; * internal
       (define N (size (ref v 1)))
       (list->vector
@@ -189,12 +194,10 @@
                      (subloop (-- m)
                         (cons a p))))))))
 
-   ; -------------------------------------------------------------------------
-   ; tests
-   (assert (let ((M [[-3 2 -5]
-                     [-1 0 -2]
-                     [3 -4 1]]))
-         (matrix-product M (adjoint-matrix M)))  ===> [[-6 0 0]
-                                                       [0 -6 0]
-                                                       [0 0 -6]])
+   ; https://en.wikipedia.org/wiki/Matrix_exponential
+   ; Экспонента матрицы
+   (define (matrix-exponential X)
+      #false
+   )
+
 ))

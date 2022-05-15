@@ -41,18 +41,19 @@
    (define (at m i j)
       (ref (ref m i) j))
 
-   ; matrix determinant
+   ; https://en.wikipedia.org/wiki/Determinant
+   ; Определитель матрицы
    (define (det m)
       (cond
          ((eq? (size m) 1)
             (ref (ref m 1) 1))
-         ((eq? (size m) 2) ; just speedup for [2 x 2] matrix
+         ((eq? (size m) 2) ; speedup for [2 x 2] matrix
             (- (* (at m 1 1) (at m 2 2))
                (* (at m 1 2) (at m 2 1))))
          (else
             (fold + 0
                (map (lambda (s i)
-                     ((if (eq? (band i 1) 1) + -) ; sign
+                     ((if (eq? (band i 1) 1) idf negate) ; sign
                         (* s (det (minor m 1 i)))))
                   (vector->list (ref m 1))
                   (iota (size (ref m 1)) 1))))))
@@ -66,6 +67,7 @@
          (/negate A)))
 
    ; https://www.cuemath.com/algebra/cofactor-matrix/
+   ; submatrix formed by deleting the i th row and j th column
    (define (cofactor A i j)
       ((if (eq? (band (bxor i j) 1) 0) idf negate) (minor A i j)))
 
