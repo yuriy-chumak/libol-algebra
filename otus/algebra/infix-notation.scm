@@ -69,27 +69,31 @@
                            (values a (cdr queue))))
                      ((symbol? a) ; function? (todo: check list of functions, or do (function? (eval a)))
                         (cond
-                           ((null? (cdr queue)) ; variable, not a function
+                           ((null? (cdr queue)) ; single symbol can't be function call
                               (values a (cdr queue)))
                            ((and (pair? (cadr queue)) (eq? (caadr queue) 'unquote)) ; stop on comma
                               (values a (cdr queue)))
-                           (else ; function()
-                              (define args (cadr queue))
-                              (if (null? args) ; no arguments
-                                 (values (list a) (cddr queue)) ; always cddr
+                           ((pair? (cadr queue))
+                              (if (eq? (caadr queue) 'unquote)
+                                 (values a (cdr queue)) ; stop on comma
                               else
-                                 (assert (pair? args))
-                                 (let* ((arg args (math args)))
-                                    (values
-                                       (cons a
-                                          (let loop ((out (list arg)) (args args))
-                                             (if (null? args)
-                                                (reverse out)
-                                             else
-                                                (assert (pair? args))
-                                                (let* ((arg args (math args)))
-                                                   (loop (cons arg out) args)))))
-                                       (cddr queue))))))) ))) )
+                                 (define args (cadr queue))
+                                 (if (null? args) ; no arguments
+                                    (values (list a) (cddr queue)) ; always cddr
+                                 else
+                                    (let* ((arg args (math args)))
+                                       (values
+                                          (cons a
+                                             (let loop ((out (list arg)) (args args))
+                                                (if (null? args)
+                                                   (reverse out)
+                                                else
+                                                   (assert (pair? args))
+                                                   (let* ((arg args (math args)))
+                                                      (loop (cons arg out) args)))))
+                                          (cddr queue))))))
+                           (else
+                              (values a (cdr queue))) )) ))) )
             (math args)) ))
          (assert (null? tail))
          expr))
