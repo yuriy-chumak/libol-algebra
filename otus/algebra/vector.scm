@@ -6,9 +6,9 @@
 
 (export
 
-   dot-product    ; скалярное произведение
-      ; todo: псевдоскалярное произведение
-   cross-product  ; векторное произведение
+   • dot-product  ; скалярное произведение, ·∙•
+                  ; todo: псевдоскалярное произведение
+   ✕ cross-product; векторное произведение, ×✕
    triple-product ; смешанное произведение
    ; inner-product ??
 
@@ -20,6 +20,8 @@
    det
    negate
    cofactor
+
+   ; todo: ÷°∇
 )
 
 (begin
@@ -74,6 +76,8 @@
    ; -------------------------------------------------------------
    (define (dot-product a b)
       (vector-fold + 0 (vector-map * a b)))
+
+   (define • dot-product)
    (define scalar-product dot-product)
 
    ; -- cross-product ----------
@@ -86,6 +90,8 @@
                               (cut row i))
                         (list a b))))))
             (iota (size a) 1))))
+
+   (define ✕ cross-product)
 
    ; -- tripple-product ----------
    (define (triple-product a b c)

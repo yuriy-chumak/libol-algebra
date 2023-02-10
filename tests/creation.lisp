@@ -6,8 +6,8 @@
 ; Vector is a one-dimensional array.
 
 
-; using native lisp syntax, and it's values can be any applicable number or boolean value
-; ---------------------------------------------------------------------------------------
+; using native lisp syntax, and it values can be any applicable number or boolean value
+; -------------------------------------------------------------------------------------
 (print [1 2 3 4 5])
 (print [0 -3 3/7 16+4i 7.12 (inexact 7.12) 123456789876543213546576666777757575757444 +inf.0])
 
@@ -25,7 +25,7 @@
 ; as a vector of zeros
 ; --------------------
 (assert
-   (Zeros 14) ===> [0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+   (Zeros 10) ===> [0 0 0 0 0 0 0 0 0 0])
 
 ; as a vector of `1`s
 ; -------------------

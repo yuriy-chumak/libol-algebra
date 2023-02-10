@@ -1,4 +1,5 @@
 # https://www.gnu.org/prep/standards/html_node/Standard-Targets.html
+export LD_LIBRARY_PATH=$(shell pwd)
 
 all: libol-algebra.so
 
@@ -17,8 +18,9 @@ install: libol-algebra.so
 	install -m 644 libol-algebra.so $(DESTDIR)$(PREFIX)/lib/libol-algebra.so
 	@echo Ok
 
-check:
-	@$(MAKE) --always-make --quiet tests
+check: check-reference
+	LD_LIBRARY_PATH=`pwd` $(MAKE) --always-make --quiet tests
 	@echo "Well done."
 
 -include tests/Makefile
+-include reference/Makefile
