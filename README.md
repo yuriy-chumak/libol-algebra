@@ -1,16 +1,32 @@
 libol-algebra
 =============
 
-Trying to make a one more package for math computing in Lisp.
-
-Current function descriptions can be found at the [~~project wiki~~](https://github.com/yuriy-chumak/libol-algebra/wiki) and in [tests](tests) folder.
+Trying to make a one more package for math computing in Lisp.  
+Should be used with [Ol (Otus Lisp)](https://github.com/yuriy-chumak/ol).
 
 <a href="https://github.com/yuriy-chumak/libol-algebra/actions">
    <img align="right" src="https://github.com/yuriy-chumak/libol-algebra/actions/workflows/ci.yml/badge.svg">
 </a>
 
-Index
-=====
+Usage
+-----
+
+```shell
+$ make
+$ sudo make install
+
+$ ol
+Welcome to Otus Lisp 2.4
+type ',help' to help, ',quit' to end session.
+> (import (otus algebra))
+> (dot-product [1 2 3] [8 -3 5])
+17
+> ,quit
+bye-bye.
+```
+
+Functions Reference
+===================
 
 (en)
 ----
@@ -29,12 +45,3 @@ Index
 - [Tensors](reference/en/tensors.md)
   - TBD.
 
-
-(ru)
-----
-- Vertices
-  - TBD
-- Matrices
-  - TBD
-- Tensors
-  - TBD

@@ -165,8 +165,8 @@ Vector Info
   > (Ref [11 12 13 14 15] -1)
   15
 
-  ; incorrect indexing
-  ; (#false is common error indicator)
+  ; incorrect indexing examples
+  ; (#false is a common error indicator)
   > (Ref [11 12 13 14 15] 0)
   #false
 
@@ -232,17 +232,16 @@ Vector Products
   > (dot-product [4 -2 -1] [1 3 -5])
   3
 
-  ; `scalar-product` and `•` are same as `dot-product`
+  ; `scalar-product` is a same as `dot-product`
   > (scalar-product [1 3 -5] [4 -2 -1])
   3
 
-  ; using infix notation
+  ; using infix notation and a short operator:
   > (infix-notation
        vector(1,3,-5) • vector(4,-2,-1)
     )
   3
 
-  ; using infix notation and short operators
   > (infix-notation
        [1,3,-5] • [4,-2,-1]
     )
