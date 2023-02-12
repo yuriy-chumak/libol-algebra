@@ -23,40 +23,67 @@
 
    ; todo: reshapings:
    ; todo: repeat_linear, repeat_interleave, expand
-   reshape
+   Reshape
 )
 
 (begin
    (setq ~shape (dlsym algebra "shape"))
    (setq ~reshape (dlsym algebra "reshape"))
 
+   (define (shape array)
+      (let loop ((el (ref array 1)) (dim (list (size array))))
+         (if (not (vector? el)) then
+            (reverse dim)
+         else
+            (loop (ref el 1) (cons (size el) dim)))))
 
    (define (Shape array)
       (cond
          ((vector? array) ; builtin array
-            (let loop ((el (ref array 1)) (dim (list (size array))))
-               (if (not (vector? el)) then
-                  (reverse dim)
-               else
-                  (loop (ref el 1) (cons (size el) dim)))))
+            (shape array))
          ((tensor? array) ; external data
             (~shape array))))
 
    (define (Size array)
       (fold * 1 (Shape array)))
 
+   ; -> list
+   (define (flatten x tail)
+      (if (vector? x)
+         (vector-foldr flatten tail x)
+      else
+         (cons x tail)))
 
-   ;; --------------------------------------------------------------
-   (define (reshape array new-shape)
-      #f)
-      ;; (unless (eq? (fold * 1 (shape array))
-      ;;              (fold * 1 new-shape))
-      ;;    (runtime-error "new shape is not applicable" (list (shape array) " --> " new-shape)))
+   ; - Reshape -------------------------------------------------------------
+   (define (reshape A shapes)
+      (define shape (/ (length A) (car shapes)))
+      (unless (integer? shape)
+         (runtime-error "impossible shape " (car shapes)))
+      (if (eq? shape 1)
+         A
+         (let loop ((row (reverse A)) (tmp #null) (out #null) (n shape))
+            (if (eq? n 0)
+               (if (null? row)
+                  (cons
+                     (list->vector (if (null? (cdr shapes)) tmp (reshape tmp (cdr shapes))))
+                     out)
+               else
+                  (loop row #null (cons
+                        (list->vector (if (null? (cdr shapes)) tmp (reshape tmp (cdr shapes))))
+                        out)
+                     shape))
+            else
+               (loop (cdr row) (cons (car row) tmp) out (- n 1))))))
 
-      ;; (cond
-      ;;    ((vector? array)
-      ;;       #f) ;
-      ;;    ((tensor? array)
-      ;;       (~reshape array new-shape))))
+   (define (Reshape array vector-shape)
+      (unless (eq? (fold * 1 (Shape array))
+                   (fold * 1 vector-shape))
+         (runtime-error "new shape is not applicable" (list (Shape array) " --> " vector-shape)))
+      (cond
+         ((vector? array) ; builtin array
+            (print (flatten array #n))
+            (list->vector (reshape (flatten array #n) vector-shape)))
+         ((tensor? array) ; external data
+            (~reshape array vector-shape))))
 
 ))
