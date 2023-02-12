@@ -14,13 +14,19 @@ Usage
 ```shell
 $ make
 $ sudo make install
+```
 
+And now let's code.
+```shell
 $ ol
 Welcome to Otus Lisp 2.4
 type ',help' to help, ',quit' to end session.
 > (import (otus algebra))
 > (dot-product [1 2 3] [8 -3 5])
 17
+> (infix-notation
+     [1,3,-5] • [4,-2,-1]  )
+3
 > ,quit
 bye-bye.
 ```
