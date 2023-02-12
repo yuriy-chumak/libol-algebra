@@ -14,19 +14,19 @@ Index
 
 (en)
 ----
-- [Vectors](doc/en/vectors.md)
-  - [Creation](doc/en/vectors.md#creation)
-  - [Vector Info](doc/en/vectors.md#vector-info)
-  - [Mapping functions](doc/en/vectors.md#mapping-functions)
-  - [Vector products](doc/en/vectors.md#vector-products)
-  - [Other functions](doc/en/vectors.md#other-functions)
-- [Matrices](doc/en/matrices.md)
-  - [Creation](doc/en/matrices.md#creation)
-  - [Matrix Info](doc/en/matrices.md#matrix-info)
-  - [Mapping functions](doc/en/matrices.md#mapping-functions)
-  - [Matrix products](doc/en/matrices.md#matrix-products)
-  - [Other functions](doc/en/matrices.md#other-functions)
-- [Tensors](doc/en/tensors.md)
+- [Vectors](reference/en/vectors.md)
+  - [Creation](reference/en/vectors.md#creation)
+  - [Vector Info](reference/en/vectors.md#vector-info)
+  - [Mapping functions](reference/en/vectors.md#mapping-functions)
+  - [Vector products](reference/en/vectors.md#vector-products)
+  - [Other functions](reference/en/vectors.md#other-functions)
+- [Matrices](reference/en/matrices.md)
+  - [Creation](reference/en/matrices.md#creation)
+  - [Matrix Info](reference/en/matrices.md#matrix-info)
+  - [Mapping functions](reference/en/matrices.md#mapping-functions)
+  - [Matrix products](reference/en/matrices.md#matrix-products)
+  - [Other functions](reference/en/matrices.md#other-functions)
+- [Tensors](reference/en/tensors.md)
   - TBD.
 
 
