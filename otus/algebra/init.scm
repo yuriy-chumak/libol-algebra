@@ -109,7 +109,8 @@
       ((from to step)
          (Arange from to step))))
 
-   (define (Linspace from step count)
+   (define (Linspace from to count)
+      (define step (/ (- to from) (- count 1)))
       (let loop ((from from) (count count) (p #null))
          (if (zero? count)
             (make-vector (reverse p))

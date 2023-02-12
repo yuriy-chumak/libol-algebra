@@ -5,12 +5,12 @@
    (otus algebra core))
 
 (export
-
    • dot-product  ; скалярное произведение, ·∙•
-                  ; todo: псевдоскалярное произведение
+     scalar-product
    ✕ cross-product; векторное произведение, ×✕
    triple-product ; смешанное произведение
    ; inner-product ??
+   ; todo: псевдоскалярное произведение
 
    magnitude ; модуль вектора
    square-magnitude ; квадратный модуль вектора
@@ -22,6 +22,7 @@
    cofactor
 
    ; todo: ÷°∇
+   ; todo: sort
 )
 
 (begin

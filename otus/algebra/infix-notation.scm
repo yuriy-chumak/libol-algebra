@@ -13,19 +13,22 @@
 )
 
 (begin
-   (define priority {
-      '+ 1 '- 1
-      '* 2 '/ 2
-      '• 2 '✕ 2
-   })
-   (define (operator? op)
-      (priority op #false))
-
    ;; (define left-associative? { ; TODO
    ;;    '* 1
    ;; })
 
-   (define-macro (infix-notation . args)
+   ; todo: add associtiveness
+   ; todo: add vectors
+
+   (define-macro infix-notation (lambda args
+      (define priority {
+         '+ 1 '- 1
+         '* 2 '/ 2
+         '• 2 '✕ 2
+      })
+      (define (operator? op)
+         (priority op #false))
+
       (let* ((expr tail (letrec (
                (math (lambda (queue) ; expression handler
                   (define-values (a queue) (walk queue))
@@ -62,6 +65,9 @@
                         (values a (cdr queue)))
                      ((operator? a)
                         (values a (cdr queue)))
+                     ; special case of "[...]" vector declaration
+                     ((eq? a 'make-vector)
+                        (walk (list 'vector (cdadr queue))))
 
                      ((pair? a) ; parentheses
                         (let*((a t (math a)))
@@ -96,6 +102,6 @@
                               (values a (cdr queue))) )) ))) )
             (math args)) ))
          (assert (null? tail))
-         expr))
+         expr)))
 
 ))

@@ -11,124 +11,170 @@ TOC
 - [Vector products](#vector-products)
 - [Other functions](#other-functions)
 
+
 Creation
 --------
 
-A Vector can be declared:
+A Vector can be created
 
-* using native Ol (Scheme) syntax,
+* using `Vector` function
+  ```scheme
+  ; uninializied vector of N elements,
+  ; it's not guaranteed that the vector will be initialized with zeros.
+  > (Vector 7)
+  #(0 0 0 0 0 0 0)
+  ```
+
+* using native Ol syntax
   ```scheme
   ; inializied vector
-  (vector 1 2 3 4 5)       ==>  #(1 2 3 4 5)
-  
-  ; nicer notation
-  [1 2 3 4 5]              ==>  #(1 2 3 4 5)
-  
+  > (vector 1 2 3 4 5)
+  #(1 2 3 4 5)
+
+  ; nicer notation,
+  ; we'll use such notation widely
+  > [1 2 3 4 5]
+  #(1 2 3 4 5)
+
   ; uninializied vector of N elements
-  (make-vector 7)          ==>  #(#f #f #f #f #f #f #f)
-  
+  > (make-vector 7)
+  #(#false #false #false #false #false #false #false)
+
   ; inializied vector of any applicable repeating value
-  (make-vector 4 8)        ==>  #(8 8 8 8)
-  
-  ; as convertion of a list to a vector
-  (make-vector '(3 4 5))   ==>  #(3 4 5)
+  > (make-vector 4 8)
+  #(8 8 8 8)
+
+  ; as convertion of a list to vector
+  > (make-vector '(3 4 5))
+  #(3 4 5)
+
+
+  ; you can use any number as vector arguments,
+  ; including ratios, complex, looong integers, NaN and Infinity
+  > [-3 3/7 16+4i 7.12 (inexact 7.12) 618970019642290147449562111 +inf.0]
+  #(-3 3/7 16+4i 178/25 7.12 618970019642290147449562111 +inf.0)
   ```
 
-* using `Vector` function,
+* using infix-notation
   ```scheme
-  ; uninializied vector of N elements
-  ; (it's not guaranteed that the vector will be initialized with zeros)
-  (Vector 7)               ==>  #(0 0 0 0 0 0 0)
-  ```
+  > (infix-notation
+       vector(1,2,3,4,5)
+    )
+  #(1 2 3 4 5)
 
-* using vector `evector` and `fvector` specificators,
-  ```scheme
-  ; exact vector, same as `Vector`
-  (evector 7)              ==>  #(0 0 0 0 0 0 0)
-
-  ; fast inexact vector, not implemented yet
-  ;(fvector 7 3 5 1)        ==>  #<wtf>
+  > (infix-notation
+       [3,4,5,6,7]
+    )
+  #(3 4 5 6 7)
   ```
 
 * as a vector of `Zeros`
   ```scheme
-  (Zeros 7)                ==>  #(0 0 0 0 0 0 0)
+  > (Zeros 7)
+  #(0 0 0 0 0 0 0)
   ```
 
 * as a vector of `Ones`
   ```scheme
-  (Ones 42)                ==>  #(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+  > (Ones 42)
+  #(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
   ```
 
 * as a `Copy` of existing vector
   ```scheme
-  (begin
-     (define v [1 2.3 4 5e8])
-  
-     (Copy v))             ==>  #(1 2.3 4 500000000)
+  > (define V₁ [1 2.3 #i2.3 4 5e8])
+
+  > (Copy V₁)
+  #(1 23/10 2.29999999 4 500000000)
   ```
 
-* as a copy of existing vector using  
-  [vector mapping functions](#mapping-functions)
+* as a copy of existing vector using [vector mapping functions](#mapping-functions)
 
 * as a vector of consecutive values, using `Iota` functon
   ```scheme
   ; from 0 with step 1
-  (Iota 5)                 ==>  #(0 1 2 3 4)
-  
-  ; from N with step 1
-  (Iota 10 8)              ==>  #(8 9 10 11 12 13 14 15 16 17)
-  
-  ; from N with step M
-  (Iota 6 10 20)           ==>  #(10 30 50 70 90 110)
+  > (Iota 5)
+  #(0 1 2 3 4)
+
+  ; from 8 with step 1
+  > (Iota 10 8)
+  #(8 9 10 11 12 13 14 15 16 17)
+
+  ; from 10 with step 12.3
+  > (Iota 6 10 #i12.3)
+  #(10 22.3 34.6 46.9 59.2 71.5)
   ```
 
 * as a vector of consecutive values, using `Arange` function
   ```scheme
-  ; from [A to B) with step C
-  (Arange 10 30 5)         ==>  #(10 15 20 25)
-  
-  (Arange 0 2 0.3)         ==>  #(0 3/10 3/5 9/10 6/5 3/2 9/5)
+  ; from 0 to 4 with step 1
+  > (Arange 4)
+  #(0 1 2 3)
+
+  ; from 5 to 9 with step 1
+  > (Arange 5 9)
+  #(5 6 7 8)
+
+  ; from 10 to 30 with step 5
+  > (Arange 10 30 5)
+  #(10 15 20 25)
   ```
 
 * as a vector of consecutive values, using `Linspace` function
   ```scheme
-  ; C elements from A with step B
-  (Linspace 0 2 9)         ==>  #(0 2 4 6 8 10 12 14 16)
-  
-  (begin
-    (define pi 3.14159265359)
-    (Linspace 1 (* 2 pi) 3))
-                           ==>  #(1 7.28318530718 13.56637061436)
+  ; 4 elements from 2 to 3
+  > (Linspace 2 3 4)
+  #(2 7/3 8/3 3)
+
+  ; 4 elements from 2.0 to 3.0
+  > (Linspace #i2 3 4)
+  #(2.0 2.33333333 2.66666666 3.0)
+
+  ; 3 elements from 1 to 2π
+  > (define pi #i3.14159265359)
+  > (Linspace 1 (* 2 pi) 3)
+  #(1 3.64159265 6.28318530)
   ```
 
 
 Vector Info
 -----------
 
-* `Shape` (size) of a vector
+* `Shape` (size of a vector)
   ```scheme
-  (Shape [7 7 7 7])     ==>  '(4)
+  > (Shape [7 7 7 7])
+  (4)
   ```
 
-* `Size` (count of elements) of a vector
+* `Size` (number of elements in a vector)
   ```scheme
-  (Size [2 2 2 2 2])    ==>  5
+  > (Size [2 2 2 2 2])
+  5
   ```
 
-* `Ref`erencing vector elements
+* `Ref`erencing vector elements, counting starts from 1
   ```scheme
-  ; from the beginning
-  (Ref [11 12 13 14 15] 1)  ==>  11
-  (Ref [11 12 13 14 15] 3)  ==>  13
-  
-  ; from the end
-  (Ref [11 12 13 14 15] -1) ==>  15
-  
-  ; invalid index
-  (Ref [11 12 13 14 15] 0)  ==>  #false
-  (Ref [11 12 13 14 15] 70) ==>  #false
-  (Ref [11 12 13 14 15] -9) ==>  #false
+  ; from the begin of a vector
+  > (Ref [11 12 13 14 15] 1)
+  11
+
+  > (Ref [11 12 13 14 15] 3)
+  13
+
+  ; from the end, counting starts from 1
+  > (Ref [11 12 13 14 15] -1)
+  15
+
+  ; incorrect indexing
+  ; (#false is common error indicator)
+  > (Ref [11 12 13 14 15] 0)
+  #false
+
+  > (Ref [11 12 13 14 15] 70)
+  #false
+
+  > (Ref [11 12 13 14 15] -9)
+  #false
   ```
 
 Mapping Functions
@@ -136,94 +182,118 @@ Mapping Functions
 
 * make a same dimensional vector with any applicable repeating value
   ```scheme
-  (Fill (Vector 17) -33)   ==>  [-33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33]
+  > (Fill (Vector 17) -33)
+  #(-33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33)
   ```
 
 * make a same dimensional vector with dynamically computed values
-  ```lisp
+  ```scheme
   > (import (otus random!))
-  > (Fill (Vector 17)
-       (lambda ()
-          (rand! 123)))
-  #(110 8 119 79 8 75 111 93 87 15 63 122 87 46 110 74 94)
-  
-  > (Fill (Vector 7)
-       (lambda ()
-          (inexact (/ (rand! 10000) 100))))
-  #(98.62 41.7199999 20.37 73.59 9.82 93.81 96.9599999)
+  > (define (rand-i123) (rand! 123))
+  > (define (rand-f100) (/ (rand! 10000) #i100))
+
+  > (Fill (Vector 17) rand-i123)
+  #(22 27 55 7 110 19 66 61 12 18 21 122 101 121 78 53 86)
+
+  > (Fill (Vector 7) rand-f100)
+  #(21.8799999 21.9899999 20.4499999 50.1599999 51.3299999 37.5399999 83.64)
   ```
 
 * make a same dimensional vector with dynamically computed values, based on a vector element index
-```schem
-> (Index (Vector 8)
-    (lambda (i)
-        (if (zero? (modulo i 2)) i 0)))
-#(0 2 0 4 0 6 0 8)
-```
+  ```scheme
+  > (Index (Vector 8)
+       (lambda (i)
+          (if (zero? (modulo i 2)) i 0)))
+  #(0 2 0 4 0 6 0 8)
+  ```
 
 * make a vector with dynamically computed values, based on a vector(s) elements
-```schem
-; `Map` accepts any number of vectors, all vectors must have same dimension
+  ```scheme
+  ; `Map` accepts any number of vectors, all vectors must have same dimension (is sense of `Shape`) and `Size`.
 
-> (define (sqr x) (* x x))
-> (Map sqr (Iota 8))
-#(0 1 4 9 16 25 36 49)
+  > (define (sqr x) (* x x))
+  > (Map sqr (Iota 8))
+  #(0 1 4 9 16 25 36 49)
 
-> (print (Iota 8 1))
-#(1 2 3 4 5 6 7 8)
-> (print (Iota 8 10 5))
-#(10 15 20 25 30 35 40 45)
-> (Map + (Iota 8 1) (Iota 8 10 5))
-#(11 17 23 29 35 41 47 53)
-```
+  ; add two vectors manually
+  > (Map + (Iota 8 1) (Iota 8 10 5))
+  #(11 17 23 29 35 41 47 53)
+  ```
 
 Vector Products
 ---------------
 
 * Dot (scalar) product
-```schem
-; `dot-product` accepts two vectors with same dimensions
-> (dot-product [1 3 -5] [4 -2 -1])
-3
+  ```scheme
+  ; `dot-product` accepts two vectors with same dimension and size
+  > (dot-product [1 3 -5] [4 -2 -1])
+  3
 
-> (dot-product [4 -2 -1] [1 3 -5])
-3
+  > (dot-product [4 -2 -1] [1 3 -5])
+  3
 
-> (scalar-product [1 3 -5] [4 -2 -1])
-3
-```
+  ; `scalar-product` and `•` are same as `dot-product`
+  > (scalar-product [1 3 -5] [4 -2 -1])
+  3
+
+  ; using infix notation
+  > (infix-notation
+       vector(1,3,-5) • vector(4,-2,-1)
+    )
+  3
+
+  ; using infix notation and short operators
+  > (infix-notation
+       [1,3,-5] • [4,-2,-1]
+    )
+  3
+  ```
 
 * Cross Product
-```schem
-; `cross-product` accepts two vectors with same dimensions
-> (cross-product [-2 3 1] [0 4 0])
-#(-4 0 8)
-```
+  ```scheme
+  ; `cross-product` accepts two vectors with same dimension and size
+  > (cross-product [-2 3 1] [0 4 0])
+  #(-4 0 -8)
+
+  ; using infix notation and short operators
+  > (infix-notation
+       [-2,3,1] ✕ [0,4,0]
+    )
+  #(-4 0 -8)
+  ```
 
 * Triple product
-```schem
-; `triple-product` accepts three vectors with same dimensions
-> (triple-product [-2 3 1] [0 4 0] [-1 3 3])
--20
-```
+  ```scheme
+  ; `triple-product` accepts three vectors with same dimension and size
+  > (triple-product [-2 3 1] [0 4 0] [-1 3 3])
+  -20
+
+  ; using infix notation and short operators
+  > (infix-notation
+       [-2,3,1] • ([0,4,0] ✕ [-1,3,3])
+    )
+  -20
+  ```
+
 
 Other Functions
 ---------------
 
 * Magnitude
-```schem
-> (magnitude [1 2 3 7])
-32257/4064
+  ```scheme
+  > (magnitude [1 2 3 7])
+  32257/4064
 
-> (inexact (magnitude [1 2 3 9]))
-9.74679434
-```
+  > (inexact (magnitude [1 2 3 7]))
+  7.93725393
+  ```
 
 * Square magnitude
-```schem
-> (square-magnitude [1 2 3 7])
-63
+  ```scheme
+  > (square-magnitude [1 2 3 7])
+  63
 
-> (inexact (square-magnitude [1 2 3 9]))
-95.0
-```
+  > (inexact (square-magnitude [1 2 3 7]))
+  63.0
+  ```
+

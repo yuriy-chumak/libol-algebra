@@ -9,7 +9,9 @@
    √ ; Square Root
    ∞ ; Positive Infinity
 
-   ; todo: ∛ ∜
+   ; todo: ∛ ∜ ½ ⅓ ... ⅚ ...₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ ... ¹²³⁴⁵... ０１...
+   ; https://www.compart.com/en/unicode/decomposition/%3Csub%3E
+   ; https://www.compart.com/en/unicode/decomposition/%3Csuper%3E
    ; https://www.compart.com/en/unicode/block/U+2200
 )
 
