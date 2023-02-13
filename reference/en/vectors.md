@@ -27,13 +27,13 @@ A Vector can be created
 
 * using native Ol syntax
   ```scheme
-  ; inializied vector
-  > (vector 1 2 3 4 5)
-  #(1 2 3 4 5)
-
-  ; nicer notation,
+  ; short notation,
   ; we'll use such notation widely
   > [1 2 3 4 5]
+  #(1 2 3 4 5)
+
+  ; lisp notation
+  > (vector 1 2 3 4 5)
   #(1 2 3 4 5)
 
   ; uninializied vector of N elements
@@ -193,10 +193,10 @@ Mapping Functions
   > (define (rand-f100) (/ (rand! 10000) #i100))
 
   > (Fill (Vector 17) rand-i123)
-  #(22 27 55 7 110 19 66 61 12 18 21 122 101 121 78 53 86)
+  #(18 21 122 101 121 78 53 86 48 96 65 10 4 15 74 9 2)
 
   > (Fill (Vector 7) rand-f100)
-  #(21.8799999 21.9899999 20.4499999 50.1599999 51.3299999 37.5399999 83.64)
+  #(7.70999999 4.82 64.51 6.32 47.89 64.6899999 10.47)
   ```
 
 * make a same dimensional vector with dynamically computed values, based on a vector element index
