@@ -81,7 +81,6 @@
          (runtime-error "new shape is not applicable" (list (Shape array) " --> " vector-shape)))
       (cond
          ((vector? array) ; builtin array
-            (print (flatten array #n))
             (list->vector (reshape (flatten array #n) vector-shape)))
          ((tensor? array) ; external data
             (~reshape array vector-shape))))
