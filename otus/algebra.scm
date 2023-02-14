@@ -13,8 +13,10 @@
    (otus algebra shape)
    (otus algebra init)
 
+   (otus algebra scalar)
    (otus algebra vector)
    (otus algebra matrix)
+
    (otus algebra infix-notation))
 
 (export
@@ -50,10 +52,11 @@
    Add Sub
 
    (exports (otus algebra shape))
-   (exports (otus algebra infix-notation))
+   (exports (otus algebra scalar))
    (exports (otus algebra vector))
    (exports (otus algebra matrix))
 
+   (exports (otus algebra infix-notation))
    (exports (otus algebra init))
 
    rmap ; Recursive Map, * core, * internal
