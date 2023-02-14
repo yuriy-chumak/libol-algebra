@@ -25,6 +25,8 @@
 
    radd ; recursive add
    rsub ; recursive add
+
+   iref ; inexact ref
 )
 
 (begin
@@ -35,6 +37,8 @@
 
    (define ~create (dlsym algebra "create"))
    (define ~at (dlsym algebra "at"))
+
+   (define iref ~at)
 
 
    ; floating point tensor type

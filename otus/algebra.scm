@@ -92,7 +92,13 @@
    (define fmatrix imatrix)
    (define ftensor itensor)
 
-   (define Ref rref)
+   (define (Ref array . index)
+      (apply
+         (cond
+            ((vector? array) rref)
+            ((tensor? array) iref))
+         (cons array index)))
+
    (define Map rmap)
    (define Add radd)
    (define Sub rsub)
