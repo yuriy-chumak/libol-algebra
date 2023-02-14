@@ -35,20 +35,22 @@
       (runtime-error "libol-algebra.so not found. Please, install one. For example 'kiss i libol-algebra'."
                      "https://github.com/yuriy-chumak/ol-packages"))
 
-   (define ~create (dlsym algebra "create"))
+   (define ~create (dlsym algebra "create_tensor")) ; dims,data|0
    (define ~at (dlsym algebra "at"))
 
    (define iref ~at)
 
 
    ; floating point tensor type
-   (define type-tensor 28)
+   ;; (define type-tensor ..)
 
    (define (scalar? s)
       (number? s))
    (define vector? vector?)
    (define (tensor? t)
-      (eq? (type t) type-tensor))
+      (and
+         (eq? (type t) type-pair)
+         (eq? (type (cdr t)) type-vptr)))
 
    ; ================================================================
    ; создание вектора заданных размеров
@@ -108,7 +110,20 @@
             (cdr dimension))))
 
    ; ...
-   (define itensor ~create)
+   (define (itensor . args)
+      (define dimensions
+         (foldr (lambda (x tail)
+               (if (vector? x) ; вектор всегда последний
+                  (reverse (let loop ((x (ref x 1))
+                                    (out (cons (size x) #n)))
+                     (if (vector? x)
+                        (loop (ref x 1) (cons (size x) out))
+                        out)))
+                  (cons x tail)))
+            #null
+            args))
+      (cons dimensions (~create dimensions args)))
+
 
    (define (ivector size)
       (itensor size))
