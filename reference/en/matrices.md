@@ -11,7 +11,7 @@ TOC
 - [Matrix products](#matrix-products)
 - [Other functions](#other-functions)
 
-Note: The output in examples can be reformatted to be more readable.
+Note: The output in examples may be reformatted to make it more readable.
 
 Creation
 --------

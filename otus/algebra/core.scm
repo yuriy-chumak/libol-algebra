@@ -32,8 +32,9 @@
 (begin
    (define algebra (dlopen "libol-algebra.so"))
    (unless algebra
-      (runtime-error "libol-algebra.so not found. Please, install one. For example 'kiss i libol-algebra'."
-                     "https://github.com/yuriy-chumak/ol-packages"))
+      (print "Warning: 'libol-algebra.so' not found.
+   Please install one, otherwise fast math functions will be unavailable.
+   https://github.com/yuriy-chumak/libol-algebra"))
 
    (define ~create (dlsym algebra "create_tensor")) ; dims,data|0
    (define ~at (dlsym algebra "at"))
@@ -63,7 +64,11 @@
    (setq copy (lambda (o) (vm:cast o (type o)))) ; * internal
 
    ; создание (и инициализация, если вдруг) матрицы заданных размеров
-   ; если первый элемент - вектор, то либо остальные тоже вектора, либо второй - количество столбцов, и эту строку надо размножить, либо второго нет и это транспонированный вектор (матрица из одной строки)
+   ; если первый элемент - вектор, то либо остальные тоже вектора,
+   ; либо второй - количество столбцов, и эту строку надо размножить,
+   ; либо второго нет и это транспонированный вектор (матрица из одной строки)
+   ; TODO: изменить порядок на реверс данных инициализации
+   ;       (ematix 2 [1 2 3]) -> [[1 2 3] [1 2 3]]
    (define (ematrix . args)
       (unless (null? args)
          ; если первый элемент - вектор
