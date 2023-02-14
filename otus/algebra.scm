@@ -51,11 +51,12 @@
 
    Add Sub
 
-   (exports (otus algebra shape))
+   ; geometries
    (exports (otus algebra scalar))
    (exports (otus algebra vector))
    (exports (otus algebra matrix))
 
+   (exports (otus algebra shape))
    (exports (otus algebra infix-notation))
    (exports (otus algebra init))
 

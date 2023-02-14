@@ -16,20 +16,15 @@
 
    Size  ; The count of all elements in the v/m/t.
 
-   ; The number of axes (dimensions) of the array.
-   ;  'ndim' in numpy
+   ; The number of axes (dimensions) of the array:
+   ; use `(size (Shape .))
 
-   ; use `(size (shape .))
-
-   ; todo: reshapings:
    ; todo: repeat_linear, repeat_interleave, expand
    Reshape
+   Flatten ; convert array to 1-dimensional
 )
 
 (begin
-   (setq ~shape (dlsym algebra "shape"))
-   (setq ~reshape (dlsym algebra "reshape"))
-
    (define (shape array)
       (let loop ((el (ref array 1)) (dim (list (size array))))
          (if (not (vector? el)) then
@@ -42,7 +37,7 @@
          ((vector? array) ; builtin array
             (shape array))
          ((tensor? array) ; external data
-            (~shape array))))
+            (car array))))
 
    (define (Size array)
       (fold * 1 (Shape array)))
@@ -53,6 +48,13 @@
          (vector-foldr flatten tail x)
       else
          (cons x tail)))
+
+   (define (Flatten array)
+      (cond
+         ((vector? array) ; builtin array
+            (list->vector (flatten array)))
+         ((tensor? array) ; external data
+            (cons (list (fold * 1 (car array))) (cdr array)))))
 
    ; - Reshape -------------------------------------------------------------
    (define (reshape A shapes)
@@ -83,6 +85,6 @@
          ((vector? array) ; builtin array
             (list->vector (reshape (flatten array #n) vector-shape)))
          ((tensor? array) ; external data
-            (~reshape array vector-shape))))
+            (cons vector-shape (cdr array)))))
 
 ))
