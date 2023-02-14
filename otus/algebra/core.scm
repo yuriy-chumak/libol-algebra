@@ -42,79 +42,37 @@
    (define iref ~at)
 
 
-   ; floating point tensor type
-   ;; (define type-tensor ..)
-
+   ; ----------------
    (define (scalar? s)
       (number? s))
-   (define vector? vector?)
-   (define (tensor? t)
+   
+   (setq vector? vector?) ; lisp vector
+   (define (tensor? t) ; c vector
       (and
          (eq? (type t) type-pair)
          (eq? (type (cdr t)) type-vptr)))
 
    ; ================================================================
-   ; создание вектора заданных размеров
-   (define (evector arg)
-      (if (vector? arg)
-         arg
-      else
-         (make-vector arg 0)))
+   ; универсальные функции создания массивов
 
-   (setq copy (lambda (o) (vm:cast o (type o)))) ; * internal
+   (setq shallowcopy (lambda (o) (vm:cast o (type o)))) ; * internal
+   (define (deepcopy o) ; * internal
+      (if (vector? o)
+         (vector-map deepcopy o)
+         (shallowcopy o)))
 
-   ; создание (и инициализация, если вдруг) матрицы заданных размеров
-   ; если первый элемент - вектор, то либо остальные тоже вектора,
-   ; либо второй - количество столбцов, и эту строку надо размножить,
-   ; либо второго нет и это транспонированный вектор (матрица из одной строки)
-   ; TODO: изменить порядок на реверс данных инициализации
-   ;       (ematix 2 [1 2 3]) -> [[1 2 3] [1 2 3]]
-   (define (ematrix . args)
-      (unless (null? args)
-         ; если первый элемент - вектор
-         (if (vector? (car args))
-         then
-            ; транспонированный вектор, матрица из одной строки?
-            (if (null? (cdr args))
-               (car args)
-            else
-               ; число? значит количество столбцов
-               (if (integer? (cadr args))
-               then
-                  (unless (null? (cddr args)
-                     (runtime-error "После количества столбцов аргументы игнорируются" #f)))
-                  (list->vector (map (lambda (_) (copy (car args))) (iota (cadr args))))
-               else
-                  (unless (all vector? (cdr args))
-                     (runtime-error "Элементами матрицы могут быть только вектора" #f))
-                  (list->vector (map (lambda (row)
-                                       (unless (eq? (size row) (size (car args)))
-                                          (runtime-error "Элементами матрицы могут быть только вектора одинакового размера. Проблемный вектор: " row))
-                                       row)
-                                 args))))
-         else
-            (unless (and
-                        (eq? (length args) 2)
-                        (integer? (car args))
-                        (integer? (cadr args)))
-               (runtime-error "неправильно заданные параметры. смотрите хелп." args))
-            (list->vector (map (lambda (_) (make-vector (cadr args) 0)) (iota (car args)))))))
-
-   ; пока что тензор умеет только создавать по размерам
+   ; exact (lisp) tensor creation
    (define (etensor . args)
-      (if (and
-            (null? (cdr args))
-            (vector? (car args)))
-         (car args)
-      else
-         (define dimension (reverse args))
-         (fold (lambda (t arg)
-                  (list->vector (map (lambda (_)
-                     (copy t)) (iota arg))))
-            (make-vector (car dimension) 0)
-            (cdr dimension))))
+      (foldr (lambda (dim tail)
+            (if (vector? dim)
+            ;  (deepcopy dim)
+               dim
+            else
+               (list->vector (map (lambda (i) (deepcopy tail)) (iota dim)))))
+         0
+         args))
 
-   ; ...
+   ; inexact (cc) tensor creation
    (define (itensor . args)
       (define dimensions
          (foldr (lambda (x tail)
@@ -129,11 +87,39 @@
             args))
       (cons dimensions (~create dimensions args)))
 
+   ; -- matrix -----------------------------------
+   ; создание (и инициализация, если есть чем) матрицы заданных размеров
+   ; если первый элемент - вектор, то это матрица; иначе количество строк
+   ; если второй элемент - вектор, то это строка и ее надо размножить на количество строк
+   ; если второй элемент - число, то создаем пустую матрицу rows * cols
+   (define ematrix (case-lambda
+      ; todo: assertions
+      ((matrix) (
+         matrix))
+      ((rows columns)
+         (if (vector? columns)
+            (list->vector (map (lambda (i) (deepcopy columns)) (iota rows)))
+         else
+            (list->vector (map (lambda (i) (make-vector columns 0)) (iota rows))))) ))
 
-   (define (ivector size)
-      (itensor size))
+   (define imatrix (case-lambda
+      ; todo: assertions
+      ((matrix) (itensor matrix))
+      ((rows columns)
+         (itensor rows columns))))
 
-   (define imatrix #false)
+   ; -- vector -----------------------------------
+   (define (evector arg)
+      (if (vector? arg)
+         arg
+      else
+         (make-vector arg 0)))
+
+   (define (ivector dim)
+      (assert (or
+         (scalar? dim)
+         (and (vector? dim) (scalar? (ref dim 1)))))
+      (itensor dim))
 
    ; --------------------
    (define rmap ; TODO: tensor-map?

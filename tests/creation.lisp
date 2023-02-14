@@ -58,7 +58,7 @@
 
 ; as a matrix of N same vectors
 ; -----------------------------
-(print (Matrix [1 2 3] 4))
+(print (Matrix 4 [1 2 3]))
 
 ; as an uninializied matrix of N(rows) * M(columns) elements (it's not guaranteed that the vector will be initialized with zeros, it can be a #false constants for example)
 (print (Matrix 3 4))

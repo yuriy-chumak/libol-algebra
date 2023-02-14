@@ -1,7 +1,8 @@
 Matrices
 ========
 
-Matrix is a two-dimensional array arranged in rows. Vector of vectors, in other words.
+Matrix is a two-dimensional array arranged in rows. Vector of vectors, in other words.  
+Ol's matrices are in row-major order.
 
 TOC
 ---
@@ -18,14 +19,6 @@ Creation
 
 A Matrix can be declared as a vector of vectors. Same rules as a [vector creation](vectors.md#creation) are applicable.
 
-* using `Matrix` function
-  ```scheme
-  ; uninializied matrix of N rows and M columns,
-  ; it's not guaranteed that the matrix elements will be initialized with zeros.
-  > (Matrix 7 3)
-  #(#(0 0 0) #(0 0 0) #(0 0 0) #(0 0 0) #(0 0 0) #(0 0 0) #(0 0 0))
-  ```
-
 * using native Ol syntax
   ```scheme
   ; short notation,
@@ -35,17 +28,24 @@ A Matrix can be declared as a vector of vectors. Same rules as a [vector creatio
       [7 8 9] ]
   #(#(1 2 3) #(4 5 6) #(7 8 9))
 
-  ; lisp notation
-  > (vector
-       (vector 1 2 3)
-       (vector 4 5 6)
-       (vector 7 8 9))
-  #(#(1 2 3) #(4 5 6) #(7 8 9))
+* using `Matrix` function
+  ```scheme
+  ; uninializied matrix of 7 rows and 3 columns,
+  ; it's not guaranteed that the matrix elements will be initialized with zeros.
+  > (Matrix 3 7)
+  #(#(0 0 0 0 0 0 0)
+    #(0 0 0 0 0 0 0)
+    #(0 0 0 0 0 0 0))
 
-  ; inializied matrix of any applicable repeating vector
-  > (Matrix [1 2 3] 4)
-  #(#(1 2 3) #(1 2 3) #(1 2 3) #(1 2 3))
+  ; inializied matrix of any applicable repeating row
+  > (Matrix 4 [1 2 3])
+  #(#(1 2 3)
+    #(1 2 3)
+    #(1 2 3)
+    #(1 2 3))
+  ```
 
+  ```scheme
   ; you can use any number as matrix arguments,
   ; including ratios, complex, looong integers, NaN and Infinity
   > [ [-3 3/7 16+4i]
@@ -54,6 +54,13 @@ A Matrix can be declared as a vector of vectors. Same rules as a [vector creatio
   #(#(-3 3/7 16+4i)
     #(178/25 7.12 618970019642290147449562111)
     #(+inf.0 -inf.0 +nan.0))
+
+  ; lisp notation is available, sure
+  > (vector
+       (vector 1 2 3)
+       (vector 4 5 6)
+       (vector 7 8 9))
+  #(#(1 2 3) #(4 5 6) #(7 8 9))
   ```
 
 * using infix-notation

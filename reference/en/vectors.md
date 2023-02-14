@@ -15,7 +15,15 @@ TOC
 Creation
 --------
 
-A Vector can be created
+A Vector can be created:
+
+* using native Ol syntax
+  ```scheme
+  ; short notation,
+  ; we'll use such notation widely
+  > [1 2 3 4 5]
+  #(1 2 3 4 5)
+  ```
 
 * using `Vector` function
   ```scheme
@@ -25,13 +33,8 @@ A Vector can be created
   #(0 0 0 0 0 0 0)
   ```
 
-* using native Ol syntax
+* using regular Scheme and Ol functions
   ```scheme
-  ; short notation,
-  ; we'll use such notation widely
-  > [1 2 3 4 5]
-  #(1 2 3 4 5)
-
   ; lisp notation
   > (vector 1 2 3 4 5)
   #(1 2 3 4 5)
@@ -51,7 +54,7 @@ A Vector can be created
 
   ; you can use any number as vector arguments,
   ; including ratios, complex, looong integers, NaN and Infinity
-  > [-3 3/7 16+4i 7.12 (inexact 7.12) 618970019642290147449562111 +inf.0]
+  > [-3 3/7 16+4i 7.12 #i7.12 618970019642290147449562111 +inf.0]
   #(-3 3/7 16+4i 178/25 7.12 618970019642290147449562111 +inf.0)
   ```
 

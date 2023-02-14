@@ -31,16 +31,16 @@
    ;; по умолчанию vector, matrix и tensor сделаны "exact"
 
    ; create a Vector
-   Vector
-   evector fvector ivector
+   Vector ; exact vector (lisp)
+   Vector~ ; inexact vector (c)
 
    ; create a Matrix
-   Matrix
-   ematrix fmatrix imatrix
+   Matrix ; exact matrix (lisp)
+   Matrix~ ; inexact matrix (c)
 
    ; create a Tensor
-   Tensor
-   etensor ftensor itensor
+   Tensor ; exact tensor (lisp)
+   Tensor~ ; inexact tensor (c)
 
    ; get an element
    Ref
@@ -51,7 +51,6 @@
 
    Add Sub
 
-   ; geometries
    (exports (otus algebra scalar))
    (exports (otus algebra vector))
    (exports (otus algebra matrix))
@@ -88,9 +87,9 @@
    (define Matrix ematrix)
    (define Tensor etensor)
 
-   (define fvector ivector)
-   (define fmatrix imatrix)
-   (define ftensor itensor)
+   (define Vector~ ivector)
+   (define Matrix~ imatrix)
+   (define Tensor~ itensor)
 
    (define (Ref array . index)
       (apply
