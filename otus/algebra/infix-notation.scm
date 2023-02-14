@@ -13,10 +13,6 @@
 )
 
 (begin
-   ;; (define left-associative? { ; TODO
-   ;;    '* 1
-   ;; })
-
    ; todo: add associtiveness
    ; todo: add vectors
 
@@ -28,6 +24,10 @@
       })
       (define (operator? op)
          (priority op #false))
+      (define right-associativity? {
+         '* #t ; multiply
+         '^ #t ; power
+      })
 
       (let* ((expr tail (letrec (
                (math (lambda (queue) ; expression handler
@@ -50,9 +50,11 @@
                            else
                               (define-values (op2 queue) (walk queue))
                               (assert (operator? op2))
+                              (define-values (pop1 pop2) (values (priority op1) (priority op2)))
 
                               ; todo: специальный случай для правоассоциативных операций (чтобы умножение матриц работало правильно, например)
-                              (if (> (priority op2) (priority op1))
+                              (if (or (> pop2 pop1)
+                                      (and (= pop2 pop1) (right-associativity? op1)))
                               then
                                  (define-values (b queue) (loop b (cons op2 queue)))
                                  (values (list op1 a b) queue)
