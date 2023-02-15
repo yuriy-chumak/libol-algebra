@@ -259,7 +259,7 @@ Vector Products
 
   ; using infix notation and short operators
   > (infix-notation
-       [-2,3,1] ✕ [0,4,0]
+       [-2,3,1] ⨯ [0,4,0]
     )
   #(-4 0 -8)
   ```

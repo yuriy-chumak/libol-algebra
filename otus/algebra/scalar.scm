@@ -6,9 +6,7 @@
 
 (export
 
-   √ ; Square Root
-   ∞ ; Positive Infinity
-   ^ power ; expt
+   power ; expt
 
    ; todo: ∛ ∜ ½ ⅓ ... ⅚ ...₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ ... ¹²³⁴⁵... ０１...
    ; https://www.compart.com/en/unicode/decomposition/%3Csub%3E
@@ -17,9 +15,5 @@
 )
 
 (begin
-   (define √ sqrt)
-   (define ∞ +inf.0)
-
-   (define ^ expt)
    (define power expt)
 ))
