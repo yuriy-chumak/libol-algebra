@@ -12,14 +12,15 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         repository: yuriy-chumak/ol
         ref: master
     - run: make
     - run: sudo make install
 
-    - uses: actions/checkout@v2
-    - run: |
+    - uses: actions/checkout@v3
+    - name: make check
+      run: |
         export LD_LIBRARY_PATH=.
         make all check
