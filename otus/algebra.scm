@@ -91,19 +91,23 @@
    (define Matrix ematrix)
    (define Tensor etensor)
 
-   (define Vector~ ivector)
-   (define Matrix~ imatrix)
-   (define Tensor~ itensor)
+   (define Vector~ (if algebra ivector Vector))
+   (define Matrix~ (if algebra imatrix Matrix))
+   (define Tensor~ (if algebra itensor Tensor))
 
    (define (Ref array . index)
-      (apply
-         (cond
+      (apply (cond
             ((vector? array) rref)
-            ((tensor? array) iref))
+            ((tensor? array) ~ref))
          (cons array index)))
 
    (define Map rmap)
-   (define Add radd)
+   (define (Add array . rest)
+      (apply (cond
+            ((vector? array) radd)
+            ((tensor? array) ~add))
+         (cons array rest)))
+
    (define Sub rsub)
    
    ;; (define + +)

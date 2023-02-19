@@ -9,7 +9,7 @@
 
 ; https://www.compart.com/en/unicode/block/U+2200
 (export
-   • ; скалярное произведение, ·∙•
+   • ; скалярное произведение, ·∙
    ⨯ ; векторное произведение
 
    ^ ; power of (степень числа)
@@ -17,8 +17,11 @@
 
    ∞ ; Positive Infinity
 
-   ; todo: ÷°∇
+   ; todo: ÷°∇●○‣◦⦾⦿
    ; todo: sort
+
+   ; дополнительные символы:
+   · ; тоже скалярное произведение
 )
 
 (begin
@@ -30,4 +33,7 @@
    (define ∞ +inf.0)
 
    (define ^ expt)
+
+   ; 
+   (define · •) ; interpunct symbol
 ))

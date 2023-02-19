@@ -26,20 +26,20 @@
    radd ; recursive add
    rsub ; recursive add
 
-   iref ; inexact ref
+   ~ref ; inexact ref
+   ~add ; inexact add
 )
 
 (begin
    (define algebra (dlopen "libol-algebra.so"))
    (unless algebra
       (print "Warning: 'libol-algebra.so' not found.
-   Please install one, otherwise fast math functions will be unavailable.
+   Please install one, otherwise fast math will be unavailable.
    https://github.com/yuriy-chumak/libol-algebra"))
 
-   (define ~create (dlsym algebra "create_tensor")) ; dims,data|0
-   (define ~at (dlsym algebra "at"))
-
-   (define iref ~at)
+   (define ~create (dlsym algebra "create_tensor")) ; dims, data|0
+   (define ~ref (dlsym algebra "Ref"))
+   (define ~add (dlsym algebra "Add"))
 
 
    ; ----------------
@@ -50,7 +50,8 @@
    (define (tensor? t) ; c vector
       (and
          (eq? (type t) type-pair)
-         (eq? (type (cdr t)) type-vptr)))
+         (eq? (type (cdr t)) type-bytevector)))
+   ; note: we can compare sizes, btw.
 
    ; ================================================================
    ; универсальные функции создания массивов
@@ -167,8 +168,13 @@
          else
             (loop (ref array (car args)) (cdr args)))))
 
-   (define (radd . args)
-      (apply rmap (cons + args)))
+   (define (radd array . args)
+      (if (vector? array)
+         (apply rmap (cons* + array args))
+      else
+         (cons (car array) (apply ~add (cons array args)))))
+
+      
 
    (define (rsub . args)
       (apply rsub (cons + args)))

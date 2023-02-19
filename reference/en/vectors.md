@@ -31,6 +31,10 @@ A Vector can be created:
   ; it's not guaranteed that the vector will be initialized with zeros.
   > (Vector 7)
   #(0 0 0 0 0 0 0)
+
+  ; fast math vector (if libol-algebra.so loaded), otherwise regular Vector used.
+  ; it's not guaranteed that the vector will be initialized with zeros.
+  > (Vector~ 7)
   ```
 
 * using regular Scheme and Ol functions
@@ -272,7 +276,7 @@ Vector Products
 
   ; using infix notation and short operators
   > (infix-notation
-       [-2,3,1] • ([0,4,0] ✕ [-1,3,3])
+       [-2,3,1] • ([0,4,0] ⨯ [-1,3,3])
     )
   -20
   ```

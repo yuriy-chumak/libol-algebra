@@ -20,7 +20,6 @@
 )
 
 (begin
-   (setq ~copy (dlsym algebra "copy"))
    (setq ~fill (dlsym algebra "fill"))
    (setq ~fill! (dlsym algebra "fillE"))
    ;; (setq ~zeros (dlsym algebra "zeros"))
@@ -31,14 +30,15 @@
 
    (define (Copy array)
       (cond
-         ((vector? array)
+         ((vector? array) ; deep copy
             (let loop ((array array))
                (if (vector? (ref array 1))
                   (vector-map loop array)
                else
-                  (vm:cast array (type array))))) ; shallow copy
+                  (vm:cast array (type array)))))
          ((tensor? array)
-            (~copy array))))
+            (cons (car array)
+                  (vm:cast (cdr array) type-bytevector)))))
 
    ; internal
    (define (Fill array N)
@@ -52,7 +52,7 @@
                      (vector-map (lambda (i) (N)) array)
                   else
                      (make-vector (size array) N)))))
-         ((tensor? array)
+         ((tensor? array) ; todo:
             (~fill array N))))
 
    (define (Fill! array N)
