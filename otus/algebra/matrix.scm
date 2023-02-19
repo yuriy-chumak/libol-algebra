@@ -5,7 +5,8 @@
    (otus algebra core)
    (otus algebra init)
    (otus algebra vector)
-   (otus algebra shape))
+   (otus algebra shape)
+   (otus ffi))
 
 (export
 
@@ -29,6 +30,8 @@
 )
 
 (begin
+   (define ~mdot (dlsym algebra "mdot"))
+
 
    ; https://en.wikipedia.org/wiki/Hadamard_product_(matrices)
    (define (hadamard-product A B)
@@ -87,46 +90,53 @@
 
    ; long matrix multiplication version (vector of vectors)
    (define (matrix-product A B)
-      ; simplest implementation:
-      ; rows and columns count limited to 255
-      ;; (vector-map
-      ;;    (lambda (row)
-      ;;       (apply vector-map
-      ;;          (lambda column
-      ;;             (apply + (map * row column)))
-      ;;          matrix2))
-      ;;    matrix1))
+      (if (tensor? A)
+         (cond
+            ((tensor? B)
+               (~mdot A B))
+            ((vector? B)
+               (~mdot A (imatrix B))))
+      else
+         ; simplest implementation:
+         ; rows and columns count limited to 255
+         ;; (vector-map
+         ;;    (lambda (row)
+         ;;       (apply vector-map
+         ;;          (lambda column
+         ;;             (apply + (map * row column)))
+         ;;          matrix2))
+         ;;    matrix1))
 
-      ; universal implementation
-      (define m (size A))
-      (define n (size (ref A 1)))
-      (assert (eq? (size B) n) ===> #true)
-      (define q (size (ref B 1)))
-      (define (at m x y)
-         (ref (ref m x) y))
+         ; universal implementation
+         (define m (size A))
+         (define n (size (ref A 1)))
+         (assert (eq? (size B) n) ===> #true)
+         (define q (size (ref B 1)))
+         (define (at m x y)
+            (ref (ref m x) y))
 
 
-      (let mloop ((i m) (rows #null))
-         (if (eq? i 0)
-            (list->vector rows)
-         else
-            (mloop
-               (-- i) ; speedup for (- i 1)
-               (cons
-                  (let rloop ((j q) (row #null))
-                     (if (eq? j 0)
-                        (list->vector row)
-                     else
-                        (rloop
-                           (-- j) ; speedup for (- j 1)
-                           (cons
-                              (let loop ((k 1) (c 0))
-                                 (if (less? n k) ; speedup for (> k n)
-                                    c
-                                 else
-                                    (loop (++ k) (+ c (* (at A i k) (at B k j))))))
-                              row))))
-                  rows)))))
+         (let mloop ((i m) (rows #null))
+            (if (eq? i 0)
+               (list->vector rows)
+            else
+               (mloop
+                  (-- i) ; speedup for (- i 1)
+                  (cons
+                     (let rloop ((j q) (row #null))
+                        (if (eq? j 0)
+                           (list->vector row)
+                        else
+                           (rloop
+                              (-- j) ; speedup for (- j 1)
+                              (cons
+                                 (let loop ((k 1) (c 0))
+                                    (if (less? n k) ; speedup for (> k n)
+                                       c
+                                    else
+                                       (loop (++ k) (+ c (* (at A i k) (at B k j))))))
+                                 row))))
+                     rows))))))
 
    ; https://en.wikipedia.org/wiki/Matrix_multiplication#Powers_of_a_matrix
    ; Возведение в степень

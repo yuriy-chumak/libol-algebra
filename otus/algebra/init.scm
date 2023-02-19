@@ -7,10 +7,12 @@
 
 (export
    Copy
-   ; init
+
    Zeros Ones
-   Zeros! Ones!
-   Fill Fill!
+   ;; Zeros! Ones!
+   Zeros~ Ones~
+
+   Fill ;; Fill!
    ; todo: Empty ()
    ;random
    Iota Arange Linspace
@@ -20,8 +22,8 @@
 )
 
 (begin
-   (setq ~fill (dlsym algebra "fill"))
-   (setq ~fill! (dlsym algebra "fillE"))
+   (setq ~fill (dlsym algebra "Fill"))
+   (setq ~fill! (dlsym algebra "FillE"))
    ;; (setq ~zeros (dlsym algebra "zeros"))
    ;; (setq ~ones (dlsym algebra "ones"))
    ;; (setq ~zerosE (dlsym algebra "zerosE"))
@@ -70,23 +72,28 @@
             (~fill! array N))))
 
    ;; --------------------------------------------------------------
-
    ; * internal function
-   (define (filler N)
+   ; fill, tensor - default functions
+   (define (make-filler tensor N)
       (case-lambda
-         ((array)
-            (if (vector? array)
-               (Fill array N)
-            else
-               (Fill (evector array) N))) ; TODO: change to etensor
-         (args
-            (Fill (apply ematrix args) N)))) ; TODO: change to etensor
+         ((array) ; copy of existing tensor
+            (cond
+               ((vector? array)
+                  (Fill array N))
+               ((tensor? array)
+                  (Fill array N))
+               ((integer? array)
+                  (Fill (tensor array) N))))
+         (array
+            (Fill (apply tensor array) N))))
 
-   (define Zeros (filler 0))
-   (define Ones (filler 1))
+   (define Zeros (make-filler etensor 0))
+   (define Zeros~ (make-filler itensor #i0))
+   (define Ones (make-filler etensor 1))
+   (define Ones~ (make-filler itensor #i1))
 
-   (define (Zeros! array) (Fill! array 0))
-   (define (Ones! array) (Fill! array 1))
+   ;; (define (Zeros! array) (Fill! array 0))
+   ;; (define (Ones! array) (Fill! array 1))
 
    ;; --------------------------------------------------------------
    (define (Iota . args)

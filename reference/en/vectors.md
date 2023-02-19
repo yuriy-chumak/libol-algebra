@@ -32,9 +32,15 @@ A Vector can be created:
   > (Vector 7)
   #(0 0 0 0 0 0 0)
 
-  ; fast math vector (if libol-algebra.so loaded), otherwise regular Vector used.
+  ; fast (inexact) math vector (if libol-algebra.so loaded),
+  ;  otherwise regular Vector type used.
   ; it's not guaranteed that the vector will be initialized with zeros.
   > (Vector~ 7)
+  ((7) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+
+  ; fast (inexact) version of a regular vector
+  > (Vector~ [1 2 3 4])
+  ((4) . #u8(0 0 128 63 0 0 0 64 0 0 64 64 0 0 128 64))
   ```
 
 * using regular Scheme and Ol functions
@@ -48,22 +54,22 @@ A Vector can be created:
   #(#false #false #false #false #false #false #false)
 
   ; inializied vector of any applicable repeating value
-  > (make-vector 4 8)
-  #(8 8 8 8)
+  > (make-vector 4 2/3)
+  #(2/3 2/3 2/3 2/3)
 
-  ; as convertion of a list to vector
+  ; convertion of a list to vector
   > (make-vector '(3 4 5))
   #(3 4 5)
 
 
-  ; you can use any number as vector arguments,
-  ; including ratios, complex, looong integers, NaN and Infinity
+  ; note: you can use any number as a vector arguments,
+  ; including negatives, ratios, complex, inexact numbers (floats),
+  ;  looong integers, NaN and Infinity
+  ; note: #i is a short for (inexact) function
   > [-3 3/7 16+4i 7.12 #i7.12 618970019642290147449562111 +inf.0]
   #(-3 3/7 16+4i 178/25 7.12 618970019642290147449562111 +inf.0)
-  ```
 
-* using infix-notation
-  ```scheme
+  ; note: you can use infix-notation
   > (infix-notation
        vector(1,2,3,4,5)
     )
@@ -79,15 +85,37 @@ A Vector can be created:
   ```scheme
   > (Zeros 7)
   #(0 0 0 0 0 0 0)
+
+  > (Zeros [1 2 3 4])
+  #(0 0 0 0)
+
+  ; fast zeros vector
+  > (Zeros~ 4)
+  ((4) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+
+  ; regular vector with inexact zeros
+  > (Zeros~ (Vector 7))
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0)
   ```
 
 * as a vector of `Ones`
   ```scheme
-  > (Ones 42)
-  #(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+  > (Ones 11)
+  #(1 1 1 1 1 1 1 1 1 1 1)
+
+  > (Ones [3 4 3 4 3 4])
+  #(1 1 1 1 1 1)
+
+  ; fast vector
+  > (Ones~ 3)
+  ((3) . #u8(0 0 128 63 0 0 128 63 0 0 128 63))
+
+  ; regular vector with inexact ones
+  > (Ones~ (Vector 8))
+  #(1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
   ```
 
-* as a `Copy` of existing vector
+* as a deep `Copy` of existing vector
   ```scheme
   > (define V₁ [1 2.3 #i2.3 4 5e8])
 
@@ -143,7 +171,6 @@ A Vector can be created:
   #(1 3.64159265 6.28318530)
   ```
 
-
 Vector Info
 -----------
 
@@ -191,6 +218,9 @@ Mapping Functions
   ```scheme
   > (Fill (Vector 17) -33)
   #(-33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33)
+
+  > (Fill (Vector~ 3) 1.2)
+  ((3) . #u8(154 153 153 63 154 153 153 63 154 153 153 63))
   ```
 
 * make a same dimensional vector with dynamically computed values

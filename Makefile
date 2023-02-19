@@ -3,10 +3,12 @@ export LD_LIBRARY_PATH=$(shell pwd)
 
 all: libol-algebra.so
 
-libol-algebra.so: vector.c matrix.c tensor.c
+libol-algebra.so: vector.c matrix.c tensor.c $(wildcard src/*.c)
 	gcc $^ -shared -fPIC -o $@ \
 	-Xlinker --export-dynamic \
-	-fopenmp -O0 -g3
+	-I. -fopenmp -O0 -g3 \
+	-fopenmp
+#	-fvisibility=default
 
 install: libol-algebra.so
 	@echo Installing libol-algebra libraries...

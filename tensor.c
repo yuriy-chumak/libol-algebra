@@ -1,22 +1,10 @@
-#include <math.h>
-
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-
-#include <stdio.h>
-#include <ol/vm.h>
-double OL2D(word arg); float OL2F(word arg); // implemented in olvm.c
-
-
 #include "tensor.h"
 
 typedef int bool;
 #define true 1
 #define false 0
 
-static
+__attribute__((visibility("hidden")))
 word* new_tensor_(olvm_t* this, size_t size, size_t n, ...)
 {
     heap_t* heap = (struct heap_t*)this;
@@ -41,15 +29,11 @@ word* new_tensor_(olvm_t* this, size_t size, size_t n, ...)
 
     fp = heap->fp;
 	word* floats = new_bytevector(size);
+    memset(payload(floats), 0, size); // DEBUG
     heap->fp = fp;
 
     return floats;
 }
-#define NARG(...) NARG_N(_, ## __VA_ARGS__,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
-#define NARG_N(_,n0,n1,n2,n3,n4,n5,n6,n7,n8,n9,mn10,n11,n12,n13,n14,n15,n16,n17,n18, n,...) n
-#define new_tensor(this, size, ...) new_tensor_(this, size, NARG(__VA_ARGS__), ##__VA_ARGS__)
-
-#define FPP(array) ((fp_t*)&car(array)) // payload
 
 #if 1
 #define LOG(...) fprintf(stderr, __VA_ARGS__)
@@ -88,7 +72,7 @@ void init_with_vector(fp_t**end, word data)
         if (is_vector(v))
             init_with_vector(&ptr, v);
         else
-            *ptr++ = OL2F(v);
+            *ptr++ = ol2f(v);
     }
     *end = ptr;
 }
@@ -145,7 +129,7 @@ word* create_tensor(olvm_t* this, word* arguments)
 
     // проинициализируем готовыми данными:
     if (data != IFALSE) {
-        fp_t* ptr = FPP(array);
+        fp_t* ptr = payload(array);
         maker(ptr, &ptr, data);
     }
 
@@ -153,27 +137,9 @@ word* create_tensor(olvm_t* this, word* arguments)
 }
 
 // -=( ref )=-----------------------------------------------
-static
-int size(word dimensions)
-{
-    if (dimensions == INULL)
-        return 1;
-    return numberp(car(dimensions)) * size(cdr(dimensions));
-}
-
-static
-int offset(word dimensions, word index)
-{
-    if (dimensions == INULL)
-        return 0;
-    return offset(cdr(dimensions), cdr(index))
-        + (numberp(car(index)) - 1) * size(cdr(dimensions));
-}
-
 word* Ref(olvm_t* this, word* arguments)
 {
 	heap_t* heap = (struct heap_t*)this;
-	word* fp;
 
 	word array = car(arguments);
 	word index = cdr(arguments);
@@ -181,39 +147,42 @@ word* Ref(olvm_t* this, word* arguments)
     word dimensions = car(array);
     word array_data = cdr(array);
 
-    fp_t* ptr = FPP(array_data);
-
+	word* fp;
     fp = heap->fp;
-    word* vptr = new_inexact(ptr[offset(dimensions, index)]);
+    word* vptr = new_inexact(payload(array_data)[offset(dimensions, index)]);
     heap->fp = fp;
 
     return vptr;
 }
 
-// -=( ref )=-----------------------------------------------
+// -=( add )=-----------------------------------------------
+// todo: void add(word* a, word* b)
 word* Add(olvm_t* this, word* arguments)
 {
 	heap_t* heap = (struct heap_t*)this;
-	word* fp;
 
 	word A = car(arguments); arguments = (word*)cdr(arguments);
     word B = car(arguments); arguments = (word*)cdr(arguments);
-    assert (arguments == RNULL);
-    assert (reference_size(cdr(A)) == reference_size(cdr(B)));
+    size_t asize = size(car(A));
 
-    size_t absize = size(car(A));
-    word* C = new_tensor(this, absize * sizeof(fp_t), &A, &B);
+    //assert (reference_size(cdr(A)) == reference_size(cdr(B)));
 
+    word* C = new_tensor(this, asize * sizeof(fp_t), &A, &B);
+    fp_t* c = payload(C);
+
+    fp_t* a = payload(cdr(A));
+    // memcpy(c, a, size * sizeof())
+
+    // while (B != INULL) ...
     // Add(Tensor~ Tensor~):
-    fp_t* a = FPP(cdr(A));
-    fp_t* b = FPP(cdr(B));
-    fp_t* c = FPP(C);
-    for (int i = 0; i < absize; i++) {
+    fp_t* b = payload(cdr(B));
+    for (int i = 0; i < asize; i++) {
         c[i] = a[i] + b[i];
     }
 
-    // todo: make (Add Tensor~ Tensor)
+    // todo: make (Add Tensor~ Tensor) and (Add Tensor Tensor~)
 
+	word* fp;
     fp = heap->fp;
     C = new_pair(car(A), C);
     heap->fp = fp;
@@ -221,21 +190,5 @@ word* Add(olvm_t* this, word* arguments)
     return C;
 }
 
-// // __attribute__((used))
-// // word* dimension(olvm_t* this, word* arguments)
-// // {
-// // 	word* fp;
-// // 	heap_t* heap = (struct heap_t*)this;
 
-// // 	tensor_t* tensor = (tensor_t*) caar(arguments);
-// // 	assert (tensor->ID == TTENSOR);
-
-// //     fp = heap->fp;
-
-// // 	word* r = RNULL;
-// // 	for (int i = tensor->type; i > 0; i--)
-// // 		r = new_pair(I(tensor->dimension[i-1]), r);
-
-// //     heap->fp = fp;
-// //     return r;
-// // }
+// -=( fill )=-----------------------------------------------

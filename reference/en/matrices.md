@@ -31,11 +31,15 @@ A Matrix can be declared as a vector of vectors. Same rules as a [vector creatio
 * using `Matrix` function
   ```scheme
   ; uninializied matrix of 7 rows and 3 columns,
-  ; it's not guaranteed that the matrix elements will be initialized with zeros.
+  ; it's not guaranteed that the matrix will be initialized with zeros.
   > (Matrix 3 7)
-  #(#(0 0 0 0 0 0 0)
-    #(0 0 0 0 0 0 0)
-    #(0 0 0 0 0 0 0))
+  #(#(0 0 0 0 0 0 0) #(0 0 0 0 0 0 0) #(0 0 0 0 0 0 0))
+
+  ; fast (inexact) math matrix (if libol-algebra.so loaded),
+  ;  otherwise regular Matrix type used.
+  ; it's not guaranteed that the matrix will be initialized with zeros.
+  > (Matrix~ 2 3)
+  ((2 3) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
 
   ; inializied matrix of any applicable repeating row
   > (Matrix 4 [1 2 3])
@@ -43,19 +47,19 @@ A Matrix can be declared as a vector of vectors. Same rules as a [vector creatio
     #(1 2 3)
     #(1 2 3)
     #(1 2 3))
+
+  ; fast matrix of a repeating row
+  > (Matrix~ 2 [1 2 3])
+  ((2 3) . #u8(0 0 128 63 0 0 0 64 0 0 64 64 0 0 128 63 0 0 0 64 0 0 64 64))
+
+  ; fast (inexact) version of a regular matrix
+  > (Matrix~ [[1 2]
+              [3 4]])
+  ((2 2) . #u8(0 0 128 63 0 0 0 64 0 0 64 64 0 0 128 64))
   ```
 
   ```scheme
-  ; you can use any number as matrix arguments,
-  ; including ratios, complex, looong integers, NaN and Infinity
-  > [ [-3 3/7 16+4i]
-      [7.12 #i7.12 618970019642290147449562111]
-      [+inf.0 -inf.0 +nan.0] ]
-  #(#(-3 3/7 16+4i)
-    #(178/25 7.12 618970019642290147449562111)
-    #(+inf.0 -inf.0 +nan.0))
-
-  ; lisp notation is available, sure
+  ; Scheme and Ol notations are available, sure
   > (vector
        (vector 1 2 3)
        (vector 4 5 6)
@@ -68,8 +72,7 @@ A Matrix can be declared as a vector of vectors. Same rules as a [vector creatio
   > (infix-notation
        [ [1,2,3],
          [4,5,6],
-         [7,8,9] ]
-    )
+         [7,8,9] ])
   #(#(1 2 3) #(4 5 6) #(7 8 9))
   ```
 
@@ -77,12 +80,27 @@ A Matrix can be declared as a vector of vectors. Same rules as a [vector creatio
   ```scheme
   > (Zeros 3 4)
   #(#(0 0 0 0) #(0 0 0 0) #(0 0 0 0))
+
+  > (Zeros~ 2 3)
+  ((2 3) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+
+  > (Zeros~ 2 [3 4 5])
+  ((2 3) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+
+  > (Zeros~ (Matrix 2 2))
+  #(#(0.0 0.0) #(0.0 0.0))
   ```
 
 * as a matrix of `Ones`
   ```scheme
   > (Ones 2 7)
   #(#(1 1 1 1 1 1 1) #(1 1 1 1 1 1 1))
+
+  > (Ones~ 3 2)
+  ((3 2) . #u8(0 0 128 63 0 0 128 63 0 0 128 63 0 0 128 63 0 0 128 63 0 0 128 63))
+
+  > (Ones~ (Matrix 2 2))
+  #(#(1.0 1.0) #(1.0 1.0))
   ```
 
 * as a `Copy` of existing matrix
@@ -108,8 +126,11 @@ A Matrix can be declared as a vector of vectors. Same rules as a [vector creatio
   ; 6 elements from 2 to 3
   > (Reshape (Linspace 2 3 12) '(4 3))
   #(#(2 23/11 24/11) #(25/11 26/11 27/11) #(28/11 29/11 30/11) #(31/11 32/11 3))
-  ```
 
+  ; 
+  > (Reshape (Ones~ 6) '(3 2))
+  ((3 2) . #u8(0 0 128 63 0 0 128 63 0 0 128 63 0 0 128 63 0 0 128 63 0 0 128 63))
+  ```
 
 Matrix Info
 -----------
@@ -254,6 +275,12 @@ Next function are not stabilized yet and can be changed in feature.
     #(73 63 46 51)
     #(83 58 71 52)
     #(91 80 41 54))
+
+  ; fast (inexact) matrix product
+  > (matrix-product (Matrix~ [[1 2 3]
+                              [4 7 6]])
+                    (Matrix~ [[7 7 4]
+                              [9 8 2]]))
   ```
 
 * [Hadamard product](https://en.wikipedia.org/wiki/Hadamard_product_(matrices))
