@@ -14,14 +14,27 @@
 
    Fill ;; Fill!
    ; todo: Empty ()
+
    ;random
+   Randn Randn~ ; random from the "standard normal" distribution
+
    Iota Arange Linspace
+
+   Linspace~
 
    Index
 
+   ; Sine, Cosine, Tangent
+   ; cosecant, secant, cotangent
+   Sin ; Cos, Tan
 )
 
 (begin
+   (import
+      (otus algebra config))
+
+   ; ....
+
    (setq ~fill (dlsym algebra "Fill"))
    (setq ~fill! (dlsym algebra "FillE"))
    ;; (setq ~zeros (dlsym algebra "zeros"))
@@ -76,6 +89,11 @@
    ; fill, tensor - default functions
    (define (make-filler tensor N)
       (case-lambda
+         (()
+            (cond
+               ((function? N) (N))
+               ((eq? (type N) type-vptr) (N))
+               (else N)))
          ((array) ; copy of existing tensor
             (cond
                ((vector? array)
@@ -87,13 +105,35 @@
          (array
             (Fill (apply tensor array) N))))
 
-   (define Zeros (make-filler etensor 0))
-   (define Zeros~ (make-filler itensor #i0))
-   (define Ones (make-filler etensor 1))
-   (define Ones~ (make-filler itensor #i1))
+   (define zero (if (config 'default-exactness algebra) 0 #i0)) ;?
+
+   (define Zeros (make-filler Tensor zero))
+   (define Zeros~ (if algebra (make-filler Tensor~ #i0) Zeros))
+
+   (define one (if (config 'default-exactness algebra) 1 #i1))
+
+   (define Ones (make-filler Tensor one))
+   (define Ones~ (if algebra (make-filler Tensor~ #i1) Ones))
 
    ;; (define (Zeros! array) (Fill! array 0))
    ;; (define (Ones! array) (Fill! array 1))
+
+   ;; -=( Randn )=------------------------
+   (define ~randn (dlsym algebra "Randn"))
+
+   (import (srfi 27))
+   (import (scheme inexact))
+   (define (randn)
+      (define u (random-real))
+      (define r (sqrt (* -2 (log u))))
+      (if (eq? (random-integer 2) 1) r (negate r)))
+
+   (define Randn
+      (make-filler etensor randn))
+
+   (define Randn~ (if algebra (make-filler itensor ~randn) Randn))
+   (define Randn (if (config 'default-exactness algebra) Randn Randn~))
+
 
    ;; --------------------------------------------------------------
    (define (Iota . args)
@@ -116,15 +156,30 @@
       ((from to step)
          (Arange from to step))))
 
-   (define (Linspace from to count)
+   ;; -=( Linspace )=---------------------------
+   (define ~linspace (dlsym algebra "Linspace"))
+
+   (define (linspace from to count)
+      ;; (if (vector? from)
+      ;;    (vector-map (lambda (a b)
+      ;;          (Linspace a b count)
+      ;;    ))
       (define step (/ (- to from) (- count 1)))
       (let loop ((from from) (count count) (p #null))
          (if (zero? count)
             (make-vector (reverse p))
          else
             (loop (+ from step) (- count 1) (cons from p)))))
+   (define Linspace (case-lambda
+      ((from to count) (linspace from to count))
+      ((from to)       (linspace from to 50))
+   ))
+
+   (define Linspace~ (if algebra ~linspace Linspace))
+   (define Linspace (if (config 'default-exactness algebra) Linspace ~linspace))
 
 
+   ;; -=( Index ....
    (define (Index array F)
       (cond
          ((vector? array)
@@ -142,5 +197,37 @@
                   (Iota (size array) 1))))
          (else
             (runtime-error "error" array))))
+
+   ;; ---------------
+   ;; trigonometric functions
+   (import (scheme inexact))
+
+   (define-macro DECLARE (lambda (name fnc ~fnc)
+   `  (define (,name array)
+         (cond
+            ((scalar? array)
+               (,fnc array))
+            ((vector? array)
+               (if (scalar? (ref array 1))
+                  (vector-map ,fnc array)
+               else
+                  (vector-map ,name array)))
+            ((tensor? array)
+               (,~fnc array)))) ))
+
+   ; -=( Sin )=------------------------
+   (define ~sin (dlsym algebra "Sine"))
+   (DECLARE Sin sin ~sin)
+   (define Sin (if (config 'default-exactness algebra) Sin (if algebra ~sin Sin)))
+
+   ; -=( Cos )=------------------------
+   (define ~cos (dlsym algebra "Cosine"))
+   (DECLARE Cos cos ~cos)
+   (define Cos (if (config 'default-exactness algebra) Cos (if algebra ~cos Cos)))
+
+   ; -=( Tan )=------------------------
+   (define ~tan (dlsym algebra "Tangent"))
+   (DECLARE Tan tan ~tan)
+   (define Tan (if (config 'default-exactness algebra) Tan (if algebra ~tan Tan)))
 
 ))

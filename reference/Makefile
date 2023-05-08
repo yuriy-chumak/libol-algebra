@@ -53,7 +53,7 @@ export CHECK_REFERENCE
 
 check-reference: $(wildcard reference/en/*.md)
 	@echo "Testing reference:"
-	@ol reference/tool.lisp $(filter %.md,$^) && echo $(ok) || echo $(failed)
+	@ol reference/check.lisp $(filter %.md,$^) && echo $(ok) || echo $(failed)
 
 #echo "$$CHECK_REFERENCE" | ol - $(filter %.md,$^) && echo $(ok) || echo $(failed)
 #ol reference/tool.lisp $(filter %.md,$^) && echo $(ok) || echo $(failed)

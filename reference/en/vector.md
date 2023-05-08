@@ -3,6 +3,11 @@ Vectors
 
 Vector is a one-dimensional array.
 
+Note
+----
+
+1. A tilde (`~`) as a function suffix means to explicitly use the fast (C-optimized) function version. Please note that these functions make inexact math calculations (CPU or GPU "float" or "double" numbers).
+
 TOC
 ---
 - [Creation](#creation)

@@ -279,8 +279,10 @@ Next function are not stabilized yet and can be changed in feature.
   ; fast (inexact) matrix product
   > (matrix-product (Matrix~ [[1 2 3]
                               [4 7 6]])
-                    (Matrix~ [[7 7 4]
-                              [9 8 2]]))
+                    (Matrix~ [[7 7]
+                              [9 8]
+                              [1 6]]))
+  ((2 2) . #u8(0 0 224 65 0 0 36 66 0 0 194 66 0 0 240 66))
   ```
 
 * [Hadamard product](https://en.wikipedia.org/wiki/Hadamard_product_(matrices))

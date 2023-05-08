@@ -84,16 +84,26 @@
    ;; ; >>> a[:6:2] = 1000
 )
 
-(import (otus ffi))
+(import
+   (otus algebra config)
+   (otus ffi))
 (begin
 
-   (define Vector evector)
-   (define Matrix ematrix)
-   (define Tensor etensor)
+   (unless (config 'default-exactness algebra)
+      (print-to stderr "Warning: you'r requested inexact math usage by default,")
+      (if algebra
+         (print-to stderr "      calculated results may be inaccurate.")
+         (print-to stderr "      but the shared library is not loaded, so that kind of math won't be included.")))
 
-   (define Vector~ (if algebra ivector Vector))
-   (define Matrix~ (if algebra imatrix Matrix))
-   (define Tensor~ (if algebra itensor Tensor))
+   ; configurable exact/inexact constructors
+   (define Vector Vector)
+   (define Matrix Matrix)
+   (define Tensor Tensor)
+
+   ; configurable exact/inexact constructors
+   (define Vector~ Vector~)
+   (define Matrix~ Matrix~)
+   (define Tensor~ Tensor~)
 
    (define (Ref array . index)
       (apply (cond

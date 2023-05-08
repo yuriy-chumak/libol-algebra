@@ -4,31 +4,41 @@ typedef int bool;
 #define true 1
 #define false 0
 
+// эта функция не только создает новый тензор, но и
+// 1. вызывает GC, если для матрицы не хватает места
+// 2. сохраняет и восстанавливает Ol-объекты, если они были
+//    перемещены GC
+
 __attribute__((visibility("hidden")))
-word* new_tensor_(olvm_t* this, size_t size, size_t n, ...)
+word* new_floats_(olvm_t* this, size_t length, size_t n, ...)
 {
     heap_t* heap = (struct heap_t*)this;
-    word* fp;
 
+    size_t size = length * sizeof(fp_t);
     size_t words = (size + (W - 1)) / W;
     if ((heap->fp + words) > heap->end) {
         // do GC and save/resore pointers
         va_list ptrs;
         size_t id[n];
 
-		va_start(ptrs, n);
+        // save Ol objects before GC
+        va_start(ptrs, n);
         for (int i = 0; i < n; i++)
             id[i] = OLVM_pin(this, *(va_arg(ptrs, word*)));
         va_end(ptrs);
+
         heap->gc(this, words);
+
+        // restore OL objects after GC
         va_start(ptrs, n);
         for (int i = 0; i < n; i++)
             *(va_arg(ptrs, word*)) = OLVM_unpin(this, id[i]);
         va_end(ptrs);
     }
 
+    word* fp;
     fp = heap->fp;
-	word* floats = new_bytevector(size);
+    word* floats = new_bytevector(size);
     memset(payload(floats), 0, size); // DEBUG
     heap->fp = fp;
 
@@ -47,9 +57,7 @@ word* new_tensor_(olvm_t* this, size_t size, size_t n, ...)
 
 // ---------------------------------------------------------
 // 1. представление тензора создается в пространстве кучи Ol
-// 2. сам тензор создается в отдельной памяти
-//    ибо нехер его гонять туда-сюда во время сборки мусора.
-// 3. изначально тензор либо заполнен мусором, либо заполняем
+// 2. изначально тензор либо заполнен мусором, либо заполняем
 //    из предоставленных векторов
 
 // // TODO: проверка на хип, (а вдруг будут больше 200 размерностей)
@@ -101,56 +109,58 @@ void maker(fp_t* begin, fp_t**end, word data) {
     return;
 }
 
-// vector: (create_tensor '(N) '(N))
-// vector: (create_tensor '(N) '([x1 x2 ...]))
-// // пока что тензор умеет только создавать по размерам
-// // TODO: (new_tensor tensor dimN-1 dimN)
-word* create_tensor(olvm_t* this, word* arguments)
+// vector: (Tensor '(N) '(N))
+// vector: (Tensor '(N) '([x1 x2 ...]))
+// (???) пока что тензор умеет только создавать по размерам
+// TODO: (new_floats tensor dimN-1 dimN)
+word* Tensor(olvm_t* this, word* arguments)
 {
-	heap_t* heap = (struct heap_t*)this;
-	word* fp;
+	// heap_t* heap = (struct heap_t*)this;
+	// word* fp;
 
 	word dims = car(arguments); arguments = (word*)cdr(arguments); // dimenstions
 	word data = car(arguments); arguments = (word*)cdr(arguments); // array data?
-    assert (arguments == RNULL);
+	assert (arguments == RNULL);
 
 	// посчитаем размер нужного блока
-	unsigned dim_count = 0; // unused?
-	unsigned dim_total = 1;
-	for (word args = dims; args != INULL; args = cdr(args)) {
-        int dim = numberp(car(args));
-		dim_count++;
-		dim_total *= dim;
+//	unsigned dim_count = 0;
+//	unsigned dim_total = 1;
+//	for (word args = dims; args != INULL; args = cdr(args)) {
+//		int dim = numberp(car(args));
+//		dim_count++;
+//		dim_total *= dim;
+//	}
+	unsigned dim_total = size(dims);
+
+	word* array = new_floats(this, dim_total);
+
+	// fp = heap->fp;
+
+	// проинициализируем готовыми данными:
+	if (data != IFALSE) {
+		fp_t* ptr = payload(array);
+		maker(ptr, &ptr, data);
 	}
 
-    word* array = new_tensor(this, dim_total * sizeof(fp_t));
-
-    fp = heap->fp;
-
-    // проинициализируем готовыми данными:
-    if (data != IFALSE) {
-        fp_t* ptr = payload(array);
-        maker(ptr, &ptr, data);
-    }
-
-    return array;
+	return array;
 }
 
 // -=( ref )=-----------------------------------------------
-word* Ref(olvm_t* this, word* arguments)
+word* Ref(olvm_t* this, word arguments)
 {
-	heap_t* heap = (struct heap_t*)this;
+	word* fp;
 
-	word array = car(arguments);
+	// (Ref array i j k l m...)
+    word array = car(arguments);
 	word index = cdr(arguments);
 
+    //array is a '(dimensions . floats)
     word dimensions = car(array);
     word array_data = cdr(array);
 
-	word* fp;
-    fp = heap->fp;
+    fp = ((struct heap_t*)this)->fp;
     word* vptr = new_inexact(payload(array_data)[offset(dimensions, index)]);
-    heap->fp = fp;
+    ((struct heap_t*)this)->fp = fp;
 
     return vptr;
 }
@@ -167,7 +177,7 @@ word* Add(olvm_t* this, word* arguments)
 
     //assert (reference_size(cdr(A)) == reference_size(cdr(B)));
 
-    word* C = new_tensor(this, asize * sizeof(fp_t), &A, &B);
+    word* C = new_floats(this, asize, &A, &B);
     fp_t* c = payload(C);
 
     fp_t* a = payload(cdr(A));

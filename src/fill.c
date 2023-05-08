@@ -19,7 +19,7 @@ word* Fill(olvm_t* this, word* arguments)
     size_t asize = size(car(A));
     fp_t b = ol2f(B);
 
-    word*C = new_tensor(this, asize * sizeof(fp_t), &A, &B);
+    word*C = new_floats(this, asize, &A, &B);
 
     fill(C, asize, b);
 

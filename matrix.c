@@ -1,6 +1,6 @@
 #include "tensor.h"
 
-// todo: make function create_new_matrix (or new_matrix) like new_tensor
+// todo: make function create_new_matrix (or new_matrix) like new_floats
 
 // add
 // sub
@@ -33,7 +33,7 @@ word* mdot(olvm_t* this, word* arguments)
     if (value(caar(B)) != n)
         return RFALSE;
 
-    word* C = new_tensor(this, m * q * sizeof(fp_t), &A, &B);
+    word* C = new_floats(this, m * q, &A, &B);
 
     fp_t* a = payload(cdr(A));
     fp_t* b = payload(cdr(B));

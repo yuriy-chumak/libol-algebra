@@ -2,24 +2,25 @@
 
 (import
    (otus lisp)
+   (otus algebra config)
    (otus ffi))
 
+; * all exports are algebra internal
 (export
+   algebra ; optimized "C" code shared library
+
    ; v/m/t aka array is a basic math object.
 
    ; создать вектор (Euclidean)
-   evector ivector
-
+   evector ivector Vector Vector~
    ; создать матрицу
-   ematrix imatrix
-
+   ematrix imatrix Matrix Matrix~
    ; создать тензор
-   etensor itensor
+   etensor itensor Tensor Tensor~
 
+   ; предикаты
    scalar? vector? tensor?
-   ; TODO: rename tensor? to some internal name
 
-   algebra ; ffi
    rmap ; recursive map
    rref ; recursive ref
 
@@ -33,13 +34,13 @@
 (begin
    (define algebra (dlopen "libol-algebra.so"))
    (unless algebra
-      (print "Warning: 'libol-algebra.so' not found.
-   Please install one, otherwise fast math will be unavailable.
-   https://github.com/yuriy-chumak/libol-algebra"))
+      (print-to stderr "Warning: 'libol-algebra' shared library is not found.
+      Please install one, otherwise fast math will be unavailable.
+      https://github.com/yuriy-chumak/libol-algebra"))
 
-   (define ~create (dlsym algebra "create_tensor")) ; dims, data|0
+   (define ~create (dlsym algebra "Tensor")) ; dims, data|0
    (define ~ref (dlsym algebra "Ref"))
-   (define ~add (dlsym algebra "Add"))
+   (define ~add (dlsym algebra "Add")) ; TODO: move from core
 
 
    ; ----------------
@@ -47,6 +48,7 @@
       (number? s))
    
    (setq vector? vector?) ; lisp vector
+
    (define (tensor? t) ; c vector
       (and
          (eq? (type t) type-pair)
@@ -73,7 +75,7 @@
          0
          args))
 
-   ; inexact (cc) tensor creation
+   ; inexact (c) tensor creation
    (define (itensor . args)
       (define dimensions
          (foldr (lambda (x tail)
@@ -87,6 +89,10 @@
             #null
             args))
       (cons dimensions (~create dimensions args)))
+
+   ; public:
+   (define Tensor~ (if algebra itensor etensor))
+   (define Tensor (if (config 'default-exactness algebra) etensor Tensor~))
 
    ; -- matrix -----------------------------------
    ; создание (и инициализация, если есть чем) матрицы заданных размеров
@@ -109,6 +115,10 @@
       ((rows columns)
          (itensor rows columns))))
 
+   ; public:
+   (define Matrix~ (if algebra imatrix ematrix))
+   (define Matrix (if (config 'default-exactness algebra) ematrix Matrix~))
+
    ; -- vector -----------------------------------
    (define (evector arg)
       (if (vector? arg)
@@ -121,6 +131,10 @@
          (scalar? dim)
          (and (vector? dim) (scalar? (ref dim 1)))))
       (itensor dim))
+
+   ; public:
+   (define Vector~ (if algebra ivector evector))
+   (define Vector (if (config 'default-exactness algebra) evector Vector~))
 
    ; --------------------
    (define rmap ; TODO: tensor-map?
