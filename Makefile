@@ -3,6 +3,7 @@ export LD_LIBRARY_PATH=$(shell pwd)
 
 all: libol-algebra.so
 
+libol-algebra.so: $(wildcard src/*.h)
 libol-algebra.so: vector.c matrix.c tensor.c $(wildcard src/*.c)
 	gcc $^ -shared -fPIC -o $@ \
 	-Xlinker --export-dynamic \

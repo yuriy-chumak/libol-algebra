@@ -8,15 +8,28 @@
 
 #include <math.h>
 
+// -----------------------------------------------------------------
+// тип, который мы будем использовать для вычислений (обычно - float)
+typedef float fp_t;
+
+// float/double functions:
+#define SQRT(x)	 __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), sqrt, sqrtf)(x)
+
+#define LOG(x)	 __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), log, logf)(x)
+#define LOG10(x) __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), log10, log10f)(x)
+#define LOG2(x)	 __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), log2, log2f)(x)
+
+#define POW(x,y) __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), pow, powf)(x,y)
+
+// -----------------------------------------------------------------
 // ONLY tensors and scalars may be
 #define is_tensor(x) is_pair(x)
 #define is_scalar(x) !is_tensor(x)
 
 //#define TENSOR 0xFAFFF1ED
 
-// тип, который мы будем использовать для вычислений (обычно - float)
-typedef float fp_t;
 
+// -------------------------
 #include <stdio.h>
 #include <ol/vm.h>
 // word d2ol(struct heap_t* ol, double v);      // implemented in olvm.c
@@ -48,6 +61,20 @@ int offset(word dimensions, word index);
 
 #define ENTER_SECTION fp = ((struct heap_t*)this)->fp;
 #define LEAVE_SECTION ((struct heap_t*)this)->fp = fp;
+
+#define RETURN_TENSOR(dims, floats){\
+	ENTER_SECTION \
+	word*T = new_pair(dims, floats);\
+	LEAVE_SECTION \
+	return T; }
+
+#define CHECK(q, str) \
+	if (!(q)) {\
+		fprintf(stderr, str);\
+		return (word*)IFALSE;\
+	}
+#define CHECK_IF(sel, q, str)\
+	if (sel) CHECK(q, str);
 
 // typedef struct tensor_t
 // {

@@ -45,12 +45,6 @@ word* new_floats_(olvm_t* this, size_t length, size_t n, ...)
     return floats;
 }
 
-#if 1
-#define LOG(...) fprintf(stderr, __VA_ARGS__)
-#else
-#define LOG(...)
-#endif
-
 // TODO: check https://github.com/hfp/libxsmm/blob/master/samples/hello/hello.c
 // TODO: Matrix Multiplication
 //       https://cnugteren.github.io/tutorial/pages/page1.html
@@ -164,41 +158,5 @@ word* Ref(olvm_t* this, word arguments)
 
     return vptr;
 }
-
-// -=( add )=-----------------------------------------------
-// todo: void add(word* a, word* b)
-word* Add(olvm_t* this, word* arguments)
-{
-	heap_t* heap = (struct heap_t*)this;
-
-	word A = car(arguments); arguments = (word*)cdr(arguments);
-    word B = car(arguments); arguments = (word*)cdr(arguments);
-    size_t asize = size(car(A));
-
-    //assert (reference_size(cdr(A)) == reference_size(cdr(B)));
-
-    word* C = new_floats(this, asize, &A, &B);
-    fp_t* c = payload(C);
-
-    fp_t* a = payload(cdr(A));
-    // memcpy(c, a, size * sizeof())
-
-    // while (B != INULL) ...
-    // Add(Tensor~ Tensor~):
-    fp_t* b = payload(cdr(B));
-    for (int i = 0; i < asize; i++) {
-        c[i] = a[i] + b[i];
-    }
-
-    // todo: make (Add Tensor~ Tensor) and (Add Tensor Tensor~)
-
-	word* fp;
-    fp = heap->fp;
-    C = new_pair(car(A), C);
-    heap->fp = fp;
-
-    return C;
-}
-
 
 // -=( fill )=-----------------------------------------------

@@ -14,9 +14,9 @@
    (define (Print array)
       (cond
          ((scalar? array)
-            (print array))
+            (display array))
          ((vector? array) ; builtin array
-            (print array))
+            (display array))
          ((tensor? array) ; external data
             (define indices (car array))
             (let cycle ((index #n)
@@ -33,7 +33,11 @@
                         (cycle (append index (list i)) (cdr indices) (eq? last i)))
                      (iota last 1))
                   (display "]")
-                  (unless tail (display " "))))
-            (newline))))
+                  (unless tail (display " ")))))
+         (else
+            (display array))))
+
+   (define Print (lambda args
+      (for-each Print args) (newline)))
 
 ))
