@@ -15,96 +15,155 @@
 (begin
    ; todo: add associtiveness
    ; todo: add vectors
+   ; todo: add unary function
 
    (define-macro infix-notation (lambda args
       (define priority {
-         '+ 1 '- 1
-         '* 2 '/ 2 '^ 3
-         ': 2 '÷ 2
-         '• 2 '⨯ 2
+         '+ 2 '- 2
+         '* 3 '/ 3
+         ': 3 '÷ 3
+         '• 3 '⨯ 3 '× 3
+
+         '^ 4 '** 4 ; power
       })
       (define (operator? op)
          (priority op #false))
-      (define right-associativity? {
-         '* #t ; multiply
-         '^ #t ; power
-      })
 
-      (let* ((expr tail (letrec (
-               (math (lambda (queue) ; expression handler
-                  (define-values (a queue) (walk queue))
-                  (let loop ((a a) (queue queue))
-                     (cond
-                        ((null? queue) ; only one argument
-                           (values a queue))
-                        ((and (pair? (car queue)) (eq? (caar queue) 'unquote)) ; end of argument
-                           ; handle comma: (unquote g) (...) -> g (...)
-                           (values a (cons (cadar queue) (cdr queue))))
-                        (else
-                           (define-values (op1 queue) (walk queue))
-                           (assert (operator? op1))
-                           (define-values (b queue) (walk queue))
+      ; functions list
+      (define functions {})
 
-                           ; only one operator
-                           (if (null? queue)
-                              (values (list op1 a b) queue)
+      ; без правой ассоциативности мы никуда,
+      ; иначе матричная арифметика, например,
+      ; может стать очень тяжелой.
+      (define (right-operator? op)
+         ({
+            '* #t ; multiplication
+            '^ #t  '** #t ; power
+         } op #f))
+      (define (left-operator? op)
+         (and (operator? op) (not (right-operator? op))))
+
+      ;..
+      ; infix -> postfix
+      ; в стеке у нас только операторы, функции и левая скобка (в виде символа #eof)
+      ; https://en.wikipedia.org/wiki/Shunting_yard_algorithm
+      (define-values (stack out)
+      (let loop ((queue args) (stack '(#eof)) (out '()))
+
+         ; a right parenthesis (i.e. ")"):
+         (if (null? queue)
+         then
+            (define-values (newstack newout)
+               (let subloop ((stack stack) (out out))
+                  (if (null? stack)
+                     (runtime-error "mismatched parentheses" args)
+                  else
+                     (define top (car stack))
+                     (if (eof? top)
+                        (values (cdr stack) out) ; discard "("
+                     else
+                        (subloop (cdr stack) (cons top out))))))
+
+            (if (null? newstack)
+               (values newstack newout)
+            else
+               (define top (car newstack))
+               (if (pair? top) ; префиксная функция?
+                  (values (cdr newstack) (cons top newout))
+                  (values newstack newout)))
+
+         ; expression arguments
+         else
+            (define token (car queue))
+            (cond
+               ((pair? token) ; (
+                  (define-values (newstack newout) (loop token (cons #eof stack) out))
+                  (loop (cdr queue) newstack newout))
+
+               ((number? token)
+                  (loop (cdr queue) stack (cons token out)))
+               ((string? token)
+                  (loop (cdr queue) stack (cons token out)))
+
+               ((eq? token 'unquote)
+                  (define-values (newstack newout)
+                     (let subloop ((stack stack) (out out))
+                        (if (null? stack)
+                           stack
+                        else
+                           (define top (car stack))
+                           (if (eof? top)
+                              (values stack out)
                            else
-                              (define-values (op2 queue) (walk queue))
-                              (assert (operator? op2))
-                              (define-values (pop1 pop2) (values (priority op1) (priority op2)))
+                              (subloop (cdr stack) (cons top out))))))
+                  (loop (cdr queue) newstack newout))
 
-                              ; todo: специальный случай для правоассоциативных операций (чтобы умножение матриц работало правильно, например)
-                              (if (or (> pop2 pop1)
-                                      (and (= pop2 pop1) (right-associativity? op1)))
-                              then
-                                 (define-values (b queue) (loop b (cons op2 queue)))
-                                 (values (list op1 a b) queue)
-                              else
-                                 (loop (list op1 a b) (cons op2 queue)) )))))))
-               (walk (lambda (queue) ; arguments handler
-                  (define a (car queue))
-                  (cond
-                     ((number? a)
-                        (values a (cdr queue)))
-                     ((operator? a)
-                        (values a (cdr queue)))
-                     ; special case of "[...]" vector declaration
-                     ((eq? a 'make-vector)
-                        (walk (list 'vector (cdadr queue))))
+               ; todo: vector
+               ; todo: handle unary "-"
+               ((operator? token) ; binary operator
+                  (define-values (newstack newout)
+                     (let subloop ((stack stack) (out out))
+                        (if (null? stack)
+                           stack
+                        else
+                           (define top (car stack))
+                           (if (or
+                                 (and
+                                    (operator? top)
+                                    (> (priority top 0) (priority token 0)))
+                                 (and
+                                    (left-operator? token)
+                                    (= (priority top 0) (priority token 0))) )
+                           then
+                              (subloop (cdr stack) (cons top out))
+                           else
+                              (values stack out)))))
+                  (loop (cdr queue) (cons token newstack) newout))
 
-                     ((pair? a) ; parentheses
-                        (let*((a t (math a)))
-                           (assert (null? t))
-                           (values a (cdr queue))))
-                     ((symbol? a) ; function? (todo: check list of functions, or do (function? (eval a)))
-                        (cond
-                           ((null? (cdr queue)) ; single symbol can't be function call
-                              (values a (cdr queue)))
-                           ((and (pair? (cadr queue)) (eq? (caadr queue) 'unquote)) ; stop on comma
-                              (values a (cdr queue)))
-                           ((pair? (cadr queue))
-                              (if (eq? (caadr queue) 'unquote)
-                                 (values a (cdr queue)) ; stop on comma
-                              else
-                                 (define args (cadr queue))
-                                 (if (null? args) ; no arguments
-                                    (values (list a) (cddr queue)) ; always cddr
-                                 else
-                                    (let* ((arg args (math args)))
-                                       (values
-                                          (cons a
-                                             (let loop ((out (list arg)) (args args))
-                                                (if (null? args)
-                                                   (reverse out)
-                                                else
-                                                   (assert (pair? args))
-                                                   (let* ((arg args (math args)))
-                                                      (loop (cons arg out) args)))))
-                                          (cddr queue))))))
-                           (else
-                              (values a (cdr queue))) )) ))) )
-            (math args)) ))
-         (assert (null? tail))
-         expr)))
+               ((symbol? token) ; variable or function
+                  ; function?
+                  (if (and (not (null? (cdr queue)))
+                           (pair? (car (cdr queue)))
+                           (not (eq? (caadr queue) 'unquote)))
+                  then
+                     (loop (cdr queue) (cons (list token) stack) (cons #eof out))
+                  else
+                     (loop (cdr queue) stack (cons token out))))
+               (else
+                  (print "error"))))))
+
+      (unless (null? stack)
+         (runtime-error "invalid infix expression" args))
+
+      (define-values (in s-exp)
+      (let loop ((in (reverse out)) (stack '()))
+         (if (null? in)
+            (values in stack)
+         else
+            (define token (car in))
+            (cond
+               ((number? token)
+                  (loop (cdr in) (cons token stack)))
+               ((string? token)
+                  (loop (cdr in) (cons token stack)))
+               ((eof? token)
+                  (define-values (in s-exp)
+                     (loop (cdr in) '()))
+                  (loop in (cons s-exp stack)))
+               ((pair? token) ; function
+                  (values (cdr in) (cons (car token) (reverse stack))))
+               ((operator? token) ; binary operator
+                  (loop (cdr in) (cons (list
+                                          token
+                                          (cadr stack) (car stack))
+                                       (cddr stack))))
+               ((symbol? token)
+                  (loop (cdr in) (cons token stack)))
+               (else
+                  (runtime-error "error" out))))))
+
+      ;; (print "s-exp: " (car s-exp))
+      (car s-exp)
+   ))
 
 ))
