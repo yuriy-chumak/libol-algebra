@@ -13,17 +13,15 @@
 )
 
 (begin
-   ; todo: add associtiveness
-   ; todo: add vectors
-   ; todo: add unary function
+   ; todo: add unary function (like -)
 
    (define-macro infix-notation (lambda args
+      ;; (print "args: " args)
       (define priority {
          '+ 2 '- 2
          '* 3 '⨯ 3 '× 3
          '/ 3 ': 3 '÷ 3
          '• 3 ; dot-product
-
          '^ 4 '** 4 ; power
       })
       (define (operator? op)
@@ -42,11 +40,7 @@
       (define (postfix-function? op)
          ({
             '! #t
-            '¹ #t
-            '² #t
-            '³ #t
-            '⁴ #t
-            '⁵ #t
+            '¹ #t  '² #t  '³ #t  '⁴ #t  '⁵ #t
          } op #f))
 
       ;..
@@ -129,14 +123,19 @@
                               (values stack out)))))
                   (loop (cdr queue) (cons token newstack) newout))
 
+               ; special macro (list ...)
+               ((eq? token 'list)
+                  (loop (list (cons (cadr queue)
+                                    (map (lambda (q) (list 'unquote q)) (cddr queue))))
+                        (cons (list token) stack) (cons #eof out)))
+
                ((symbol? token) ; variable or function
-                  ; function?
                   (if (and (not (null? (cdr queue)))
                            (pair? (car (cdr queue)))
                            (not (eq? (caadr queue) 'unquote)))
-                  then
+                  then ; function
                      (loop (cdr queue) (cons (list token) stack) (cons #eof out))
-                  else
+                  else ; variable
                      (loop (cdr queue) stack (cons token out))))
                (else
                   (print "error"))))))
