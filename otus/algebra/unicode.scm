@@ -2,7 +2,7 @@
 
 (import
    (otus lisp)
-   (otus algebra core))
+   (otus algebra))
 
 (export
    ; short fractions
@@ -14,6 +14,13 @@
    ; https://www.compart.com/en/unicode/decomposition/%3Csub%3E
    ; https://www.compart.com/en/unicode/decomposition/%3Csuper%3E
    ; https://www.compart.com/en/unicode/block/U+2200
+
+   ; arithmetic
+   × ÷
+   ; exponentiations
+   ¹ ² ³ ⁴ ⁵
+
+   ;
 )
 
 (begin
@@ -38,4 +45,16 @@
 
    (define (⅟ x)
       (/ 1 x))
+
+   ; -=( Regular math )=-----------------
+   (define ÷ /)
+   (define × *)
+
+   ; -=( Exponentiations )=--------------
+   (define (¹ x) x)
+   (define (² x) (** x 2))
+   (define (³ x) (** x 3))
+   (define (⁴ x) (** x 4))
+   (define (⁵ x) (** x 5))
+
 ))

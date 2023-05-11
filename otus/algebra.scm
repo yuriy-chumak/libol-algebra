@@ -74,8 +74,6 @@
    ;; dot-product
    ;; dot @ ;⋅
 
-   ;; ;× ÷
-
    ; redefine printer
    ;; print
 
