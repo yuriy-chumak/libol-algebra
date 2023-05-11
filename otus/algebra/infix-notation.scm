@@ -20,9 +20,9 @@
    (define-macro infix-notation (lambda args
       (define priority {
          '+ 2 '- 2
-         '* 3 '/ 3
-         ': 3 '÷ 3
-         '• 3 '⨯ 3 '× 3
+         '* 3 '⨯ 3 '× 3
+         '/ 3 ': 3 '÷ 3
+         '• 3 ; dot-product
 
          '^ 4 '** 4 ; power
       })
@@ -41,6 +41,7 @@
          (and (operator? op) (not (right-operator? op))))
       (define (postfix-function? op)
          ({
+            '! #t
             '¹ #t
             '² #t
             '³ #t
