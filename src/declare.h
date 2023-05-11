@@ -55,7 +55,7 @@ word* name(olvm_t* this, word arguments)\
 	}\
 \
 	size_t asize = size(car(A));\
-	word* floats = new_floats(this, asize);\
+	word* floats = new_floats(this, asize, &A);\
 \
 	fp_t* a = payload(cdr(A));\
 	fp_t* f = payload(floats);\
@@ -82,25 +82,25 @@ word* name(olvm_t* this, word arguments)\
 		size(car(B)) == size(car(A)), #name " error: arguments sizes mismatch");\
 \
     size_t asize = size(car(A));\
-    word* floats = new_floats(this, asize);\
+    word* floats = new_floats(this, asize, &A, &B);\
 \
     fp_t* a = payload(cdr(A));\
 	fp_t* f = payload(floats);\
-    if (is_scalar(B)) { /* tensor + scalar */\
+    if (is_scalar(B)) {/* tensor, scalar */\
 		fp_t b = ol2f(B);\
 		for (int i = 0; i < asize; i++) {\
 			f[i] = fnc(a[i], b);\
 		}\
     }\
 	else\
-	if (is_tensor(B)) { /* tensor + tensor */\
+	if (is_tensor(B)) {/* tensor, tensor */\
 		fp_t* b = payload(cdr(B));\
 		for (int i = 0; i < asize; i++) {\
 			f[i] = fnc(a[i], b[i]);\
 		}\
 	}\
 \
-    /* todo: make (Add Tensor~ Tensor) and (Add Tensor Tensor~)*/\
+    /* todo: make (Name Tensor~ Tensor) and (Name Tensor Tensor~)*/\
 	RETURN_TENSOR(car(A), floats);\
 }
 
