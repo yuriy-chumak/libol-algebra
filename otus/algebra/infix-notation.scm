@@ -29,19 +29,24 @@
       (define (operator? op)
          (priority op #false))
 
-      ; functions list
-      (define functions {})
-
       ; без правой ассоциативности мы никуда,
       ; иначе матричная арифметика, например,
       ; может стать очень тяжелой.
       (define (right-operator? op)
          ({
             '* #t ; multiplication
-            '^ #t  '** #t ; power
+            '^ #t  '** #t ; powers
          } op #f))
       (define (left-operator? op)
          (and (operator? op) (not (right-operator? op))))
+      (define (postfix-function? op)
+         ({
+            '¹ #t
+            '² #t
+            '³ #t
+            '⁴ #t
+            '⁵ #t
+         } op #f))
 
       ;..
       ; infix -> postfix
@@ -98,6 +103,9 @@
                               (subloop (cdr stack) (cons top out))))))
                   (loop (cdr queue) newstack newout))
 
+               ((postfix-function? token)
+                  (loop (cdr queue) stack (cons token out)))
+
                ; todo: vector
                ; todo: handle unary "-"
                ((operator? token) ; binary operator
@@ -134,6 +142,7 @@
 
       (unless (null? stack)
          (runtime-error "invalid infix expression" args))
+      ;; (print "out: " (reverse out))
 
       (define-values (in s-exp)
       (let loop ((in (reverse out)) (stack '()))
@@ -157,6 +166,11 @@
                                           token
                                           (cadr stack) (car stack))
                                        (cddr stack))))
+               ((postfix-function? token)
+                  (loop (cdr in) (cons (list
+                                          token
+                                          (car stack))
+                                       (cdr stack))))
                ((symbol? token)
                   (loop (cdr in) (cons token stack)))
                (else
