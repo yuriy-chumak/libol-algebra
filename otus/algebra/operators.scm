@@ -9,7 +9,7 @@
 
 ; https://www.compart.com/en/unicode/block/U+2200
 (export
-   + - * / ; обычная арифметика (но с векторами)
+   + - * / : ; обычная арифметика (но с векторами)
    • ; скалярное произведение, (·∙)
    ⨯ ; векторное произведение
    ^ ** ; power of (степень числа)
@@ -20,7 +20,7 @@
    Sqrt Cbrt Root ; roots
 
    ; binary operators
-   Add Sub Mul Pow
+   Add Sub Mul Pow Div
 
    ; todo: ÷°∇●○‣◦⦾⦿
    ; todo: sort
@@ -110,6 +110,7 @@
    (define-binary-function Sub sub "Sub")
    (define-binary-function Mul mul "Mul")
    (define-binary-function Pow expt "Pow")
+   (define-binary-function Div / "Div")
 
    ; name: function name
    ; native: "C" function name
@@ -185,4 +186,5 @@
 
    (define ^ Pow)
    (define ** Pow)
+   (define : Div)
 ))
