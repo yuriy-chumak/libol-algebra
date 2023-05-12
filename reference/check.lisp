@@ -1,4 +1,6 @@
 (import (otus algebra))
+(import (otus algebra unicode))
+(import (otus algebra print))
 (define algebra-environment *toplevel*)
 
 (import (owl parse))

@@ -18,7 +18,9 @@
    (otus algebra matrix)
 
    (otus algebra operators)
-   (otus algebra infix-notation))
+   (otus algebra infix-notation)
+   (otus algebra roots)
+)
 
 (export
 
@@ -50,8 +52,6 @@
    ; map an elements by index
    Index
 
-   Add Sub
-
 
    (exports (otus algebra scalar))
    (exports (otus algebra vector))
@@ -62,6 +62,7 @@
 
    (exports (otus algebra operators))
    (exports (otus algebra infix-notation))
+   (exports (otus algebra roots))
 
    rmap ; Recursive Map, * core, * internal
 
@@ -109,14 +110,7 @@
             ((tensor? array) ~ref))
          (cons array index)))
 
-   (define Map rmap)
-   (define (Add array . rest)
-      (apply (cond
-            ((vector? array) radd)
-            ((tensor? array) ~add))
-         (cons array rest)))
-
-   (define Sub rsub)
+   (define Map rmap) ; ?
    
    ;; (define + +)
    ;; (define - -)

@@ -10,7 +10,7 @@
    ½
 
 
-   ; todo: ∛ ∜ ½ ⅓ ... ⅚ ...₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ ... ¹²³⁴⁵... ０１...
+   ; todo: ½ ⅓ ... ⅚ ...₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ ... ０１...
    ; https://www.compart.com/en/unicode/decomposition/%3Csub%3E
    ; https://www.compart.com/en/unicode/decomposition/%3Csuper%3E
    ; https://www.compart.com/en/unicode/block/U+2200
@@ -19,12 +19,14 @@
    × ÷
    ; exponentiations
    ¹ ² ³ ⁴ ⁵
+   ; roots
+   √ ∛ ∜
 
-   ;
+   ∞ ; positive Infinity
+   -∞ ; negative Infinity
 )
 
 (begin
-   (define ⅐ 1/7)
    (define ⅐ 1/7)
    (define ⅑ 1/9)
    (define ⅒ 1/10)
@@ -50,11 +52,18 @@
    (define ÷ /)
    (define × *)
 
+   (define ∞ +inf.0)
+   (define -∞ -inf.0)
+
    ; -=( Exponentiations )=--------------
    (define (¹ x) x)
    (define (² x) (** x 2))
    (define (³ x) (** x 3))
    (define (⁴ x) (** x 4))
    (define (⁵ x) (** x 5))
+
+   (define √ Sqrt)
+   (define ∛ Cbrt) ; todo: make a real cube root as set of three values []
+   (define (∜ x) (√ (√ x)))
 
 ))

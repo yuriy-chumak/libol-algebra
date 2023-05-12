@@ -36,7 +36,7 @@ Functions Reference
 
 By default all *algebra* math are exact.
 That means no loss of precision during calculations.  
-Some functions (like *sin*) can't be exact. Some functions (like *sqrt* can be exact and inexact). Some functions (like *floor*) can be exact only.
+But some functions (like *sin*) can't be exact. And some functions (like *sqrt* can be exact and inexact). Some functions (like *floor*) can be exact only.
 
 ```scheme
 > (import (otus algebra))

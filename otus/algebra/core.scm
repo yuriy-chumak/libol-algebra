@@ -21,14 +21,8 @@
    ; предикаты
    scalar? vector? tensor?
 
-   rmap ; recursive map
-   rref ; recursive ref
-
-   radd ; recursive add
-   rsub ; recursive add
-
-   ~ref ; inexact ref
-   ~add ; inexact add
+   rmap ; recursive map, todo: inexact map
+   rref ~ref ; recursive ref, inexact ref
 )
 
 (begin
@@ -40,8 +34,6 @@
 
    (define ~create (dlsym algebra "Tensor")) ; dims, data|0
    (define ~ref (dlsym algebra "Ref"))
-   (define ~add (dlsym algebra "Add")) ; TODO: move from core
-
 
    ; ----------------
    (define (scalar? s)
@@ -181,16 +173,5 @@
             array
          else
             (loop (ref array (car args)) (cdr args)))))
-
-   (define (radd array . args)
-      (if (vector? array)
-         (apply rmap (cons* + array args))
-      else
-         (cons (car array) (apply ~add (cons array args)))))
-
-      
-
-   (define (rsub . args)
-      (apply rsub (cons + args)))
 
 ))

@@ -3,10 +3,12 @@ Vectors
 
 Vector is a one-dimensional array.
 
+
 Note
 ----
 
 1. A tilde (`~`) as a function suffix means to explicitly use the fast (C-optimized) function version. Please note that these functions make inexact math calculations (CPU or GPU "float" or "double" numbers).
+
 
 TOC
 ---
@@ -66,22 +68,22 @@ A Vector can be created:
   > (make-vector '(3 4 5))
   #(3 4 5)
 
-
-  ; note: you can use any number as a vector arguments,
-  ; including negatives, ratios, complex, inexact numbers (floats),
+  ; you can use any number as a vector arguments,
+  ;  including negatives, ratios, complex, inexact numbers (floats),
   ;  looong integers, NaN and Infinity
-  ; note: #i is a short for (inexact) function
+  ; note: #i is a short for (inexact) number
   > [-3 3/7 16+4i 7.12 #i7.12 618970019642290147449562111 +inf.0]
   #(-3 3/7 16+4i 178/25 7.12 618970019642290147449562111 +inf.0)
 
-  ; note: you can use infix-notation
+  ; you can use infix-notation
   > (infix-notation
        vector(1,2,3,4,5)
     )
   #(1 2 3 4 5)
 
+  ; even for native Ol syntax
   > (infix-notation
-       [3,4,5,6,7]
+       [3 4 5 6 7]
     )
   #(3 4 5 6 7)
   ```
@@ -170,10 +172,10 @@ A Vector can be created:
   > (Linspace #i2 3 4)
   #(2.0 2.33333333 2.66666666 3.0)
 
-  ; 3 elements from 1 to 2π
+  ; 3 elements from 0 to 2π
   > (define pi #i3.14159265359)
-  > (Linspace 1 (* 2 pi) 3)
-  #(1 3.64159265 6.28318530)
+  > (Linspace 0 (* 2 pi) 3)
+  #(0 3.14159265 6.28318530)
   ```
 
 Vector Info

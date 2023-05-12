@@ -12,11 +12,15 @@
    + - * / ; обычная арифметика (но с векторами)
    • ; скалярное произведение, (·∙)
    ⨯ ; векторное произведение
-
    ^ ** ; power of (степень числа)
-   √ ; square root (квадратный корень)
 
-   ∞ ; Positive Infinity
+   ; unary operators
+   Negate
+   Square
+   Sqrt Cbrt Root ; roots
+
+   ; binary operators
+   Add Sub Mul Pow
 
    ; todo: ÷°∇●○‣◦⦾⦿
    ; todo: sort
@@ -24,7 +28,7 @@
    ; дополнительные символы:
    · ; тоже скалярное произведение
 
-   Square
+   ; folding functions
    Sum
 )
 
@@ -32,33 +36,12 @@
 
    (define • dot-product)
    (define ⨯ cross-product)
-
-   (define √ sqrt)
-   (define ∞ +inf.0)
-
-   ; 
    (define · •) ; interpunct symbol
 
    ; -=( smart math )=-------------------
    (import (otus ffi))
 
-   ; ..
-   (define ~negate (dlsym algebra "Negate"))
-   (define (Negate a)
-      (cond
-         ((scalar? a) (negate a))
-         ((vector? a) (vector-map negate a))
-         ((tensor? a) (~negate a))
-      ))
-
-   (define ~square (dlsym algebra "Square"))
-   (define (Square a)
-      (cond
-         ((scalar? a) (* a a))
-         ((vector? a) (vector-map * a a))
-         ((tensor? a) (~square a))
-      ))
-
+   ; folding functions
    (define ~sum (dlsym algebra "Sum"))
    (define (Sum a)
       (cond
@@ -83,6 +66,50 @@
    ;; здесь мы допустим некоторые условности,
    ;; в случае "скаляр + вектор" мы расширяем скаляр до вектора
    ;; хотя это и неправильно.
+
+   (define-macro define-unary-function (lambda (name fnc native)
+      `(define ,name (lambda (a)
+         (define ~fnc (dlsym algebra ,native))
+         (cond
+            ((scalar? a) (,fnc a))
+            ((vector? a) (vector-map ,fnc a))
+            ((tensor? a) (~fnc a))
+         )))
+   ))
+
+   (define-macro define-binary-function (lambda (name ol native)
+      `(define ,name (lambda (a b)
+         (define ~native (dlsym algebra ,native))
+         (cond
+            ((scalar? a)
+               (cond
+                  ((scalar? b) (,ol a b)) ; обычная функция
+                  ((vector? b) (vector-map (lambda (b) (,ol b a)) b)) ; ассоциативность
+                  ((tensor? b) (~native b a)))) ; ассоциативность
+            ((vector? a)
+               (cond
+                  ((scalar? b) (vector-map (lambda (a) (,ol a b)) a))
+                  ((vector? b) (vector-map (lambda (a b) (,ol a b)) a b))
+                  ((tensor? b) #f))) ; todo
+            ((tensor? a)
+               (cond
+                  ((scalar? b) (~native a b))
+                  ((vector? b) #f) ;todo
+                  ((tensor? b) (~native a b))))
+         )))
+   ))
+
+   (define-unary-function Negate negate "Negate")
+   (define-unary-function Square square "Square")
+   
+   (define-unary-function Sqrt sqrt "Sqrt")
+   (define-unary-function Cbrt error "Cbrt")
+   (define-unary-function Root error "Root")
+
+   (define-binary-function Add add "Add")
+   (define-binary-function Sub sub "Sub")
+   (define-binary-function Mul mul "Mul")
+   (define-binary-function Pow expt "Pow")
 
    ; name: function name
    ; native: "C" function name
@@ -150,35 +177,12 @@
             (() 1)))
    ))
 
-   ; smart plus
+   ; smart operators
    (define-left-operator + "Add" idf)
    (define-left-operator - "Sub" Negate)
    (define-right-operator * "Mul" idf)
    (define-left-operator / "Div" idf)
 
-   (define ~pow (dlsym algebra "Pow"))
-   (define (^ a b)
-      (cond
-         ((scalar? a)
-            (cond
-               ((scalar? b) (expt a b))
-               ;; ((vector? b) (vector-map (lambda (b) (,name a b)) b))
-               ;; ((tensor? b) (~native b a))
-            ))
-         ((vector? a)
-            (cond
-               ((scalar? b) (vector-map (lambda (a) (expt a b)) a))
-               ;; ((vector? b) #f) ; todo
-               ;; ((tensor? b) #f) ; todo
-            ))
-         ((tensor? a)
-            (cond
-               ((scalar? b) (~pow a b))
-               ;; ((vector? b) #f) ; todo
-               ;; ((tensor? b) #f) ; todo
-            ))
-      ))
-
-   (define ** ^)
-
+   (define ^ Pow)
+   (define ** Pow)
 ))

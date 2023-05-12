@@ -21,6 +21,9 @@ typedef float fp_t;
 
 #define POW(x,y) __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), pow, powf)(x,y)
 
+#define SQRT(x)  __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), sqrt, sqrtf)(x)
+#define CBRT(x)  __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), cbrt, cbrtf)(x)
+
 // -----------------------------------------------------------------
 // ONLY tensors and scalars may be
 #define is_tensor(x) is_pair(x)
