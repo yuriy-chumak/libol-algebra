@@ -76,7 +76,11 @@
          else
             (define token (car queue))
             (cond
-               ((pair? token) ; (
+               ((pair? token) ; (...)
+                  (define-values (newstack newout) (loop token (cons #eof stack) out))
+                  (loop (cdr queue) newstack newout))
+
+               ((null? token) ; ()
                   (define-values (newstack newout) (loop token (cons #eof stack) out))
                   (loop (cdr queue) newstack newout))
 
@@ -130,9 +134,12 @@
                         (cons (list token) stack) (cons #eof out)))
 
                ((symbol? token) ; variable or function
-                  (if (and (not (null? (cdr queue)))
-                           (pair? (car (cdr queue)))
-                           (not (eq? (caadr queue) 'unquote)))
+                  (if (or
+                         (and (not (null? (cdr queue))) ; function with arguments
+                              (pair? (car (cdr queue)))
+                              (not (eq? (caadr queue) 'unquote)))
+                         (and (not (null? (cdr queue))) ; empty function
+                              (null? (car (cdr queue)))))
                   then ; function
                      (define arguments
                         (foldr (lambda (x out)
@@ -148,7 +155,10 @@
                                  (cons x out)))
                            '()
                            (cadr queue)))
-                     (loop (list arguments) (cons (list token) stack) (cons #eof out))
+                     (loop (cons
+                              arguments
+                              (cddr queue))
+                           (cons (list token) stack) (cons #eof out))
                   else ; variable
                      (loop (cdr queue) stack (cons token out))))
                (else
