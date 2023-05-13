@@ -38,6 +38,7 @@
 
 ; =============================================================================
 (import (scheme inexact))
+(import (otus algebra unicode))
 
 (print "defines:")
 (DEFINE A₁ 12)
@@ -54,6 +55,11 @@
 (TEST "1 + 2 - 3" = 0)
 (TEST "1 - 3 + 2" = 0)
 (TEST "1 + 2 * 3 + 4" = 11)
+(TEST "(1 + 2) * (3 + 4)" = 21)
+(TEST "1 + 2 * 3 / 4" = 2.5)
+(TEST "1 + 2 * 3 / 4 + 5" = 7.5)
+(TEST "2 ** 3 ** 4" = 2417851639229258349412352)
+
 (TEST "A₁ + A₂ * A₂ / C" = 1381/111) ; 12 + 49/111
 (TEST "12 + 49/111" = 1381/111)
 (TEST "12 + 49 / 111" = 1381/111)
@@ -64,7 +70,11 @@
 (TEST "Sqrt(4)" = 2)
 (TEST "Sqrt([1 (1 + 2) 3 4])" = [(sqrt 1) (sqrt 3) (sqrt 3) (sqrt 4)])
 (TEST "Sqrt([1, (1 + 2), 3, 4])" = [(sqrt 1) (sqrt 3) (sqrt 3) (sqrt 4)])
+(TEST "√(12321)" = 111)
 (TEST "[1 2 3] + [5 6 7]" = [6 8 10])
 
 (DEFINE x 7)
-(TEST "A₁ * x * x + A₂ * Sin(x) + C" = (+ 699 (* A₂ (sin 7))))
+(TEST "A₁ * x * x + A₂ * sin(x) + C" = (+ 699 (* A₂ (sin 7))))
+
+(DEFINE one (lambda () 1))
+(TEST "7 + one() + 8" = 16)
