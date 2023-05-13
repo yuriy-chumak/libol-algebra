@@ -134,7 +134,21 @@
                            (pair? (car (cdr queue)))
                            (not (eq? (caadr queue) 'unquote)))
                   then ; function
-                     (loop (cdr queue) (cons (list token) stack) (cons #eof out))
+                     (define arguments
+                        (foldr (lambda (x out)
+                              ; handle functions in arguments
+                              (if (and (pair? x)
+                                       (eq? (car x) 'unquote)
+                                       (pair? out)
+                                       (pair? (car out))
+                                       (not (eq? (caar out) 'unquote)))
+                                 (cons
+                                    (list 'unquote (cadr x) (car out))
+                                    (cdr out))
+                                 (cons x out)))
+                           '()
+                           (cadr queue)))
+                     (loop (list arguments) (cons (list token) stack) (cons #eof out))
                   else ; variable
                      (loop (cdr queue) stack (cons token out))))
                (else
