@@ -26,7 +26,7 @@ A Vector can be created:
 
 * using native Ol syntax
   ```scheme
-  ; short notation,
+  ; short notation
   ; we'll use such notation widely
   > [1 2 3 4 5]
   #(1 2 3 4 5)
@@ -39,7 +39,7 @@ A Vector can be created:
   > (Vector 7)
   #(0 0 0 0 0 0 0)
 
-  ; fast (inexact) math vector (if libol-algebra.so loaded),
+  ; fast (inexact) math vector (if libol-algebra.so has been loaded),
   ;  otherwise regular Vector type used.
   ; it's not guaranteed that the vector will be initialized with zeros.
   > (Vector~ 7)
@@ -50,7 +50,7 @@ A Vector can be created:
   ((4) . #u8(0 0 128 63 0 0 0 64 0 0 64 64 0 0 128 64))
   ```
 
-* using regular Scheme and Ol functions
+* using regular Scheme `vector` and Ol `make-vector` functions
   ```scheme
   ; lisp notation
   > (vector 1 2 3 4 5)
@@ -64,24 +64,26 @@ A Vector can be created:
   > (make-vector 4 2/3)
   #(2/3 2/3 2/3 2/3)
 
-  ; convertion of a list to vector
+  ; convertion of list to vector
   > (make-vector '(3 4 5))
   #(3 4 5)
+  ```
 
-  ; you can use any number as a vector arguments,
-  ;  including negatives, ratios, complex, inexact numbers (floats),
-  ;  looong integers, NaN and Infinity
-  ; note: #i is a short for (inexact) number
-  > [-3 3/7 16+4i 7.12 #i7.12 618970019642290147449562111 +inf.0]
-  #(-3 3/7 16+4i 178/25 7.12 618970019642290147449562111 +inf.0)
+* you can use any number as a vector arguments,
+  including negatives, ratios, complex, inexact numbers (floats),
+  looong integers, NaN and Infinity
+  ```scheme
+  ; note: #i is a short for inexact number
+  > [-3 3/7 16+4i 7.12 #i7.12 618970019642290147449562111 +inf.0 (sqrt 16)]
+  #(-3 3/7 16+4i 178/25 7.12 618970019642290147449562111 +inf.0 4)
 
-  ; you can use infix-notation
+  ; you can use infix notation
   > (infix-notation
        vector(1,2,3,4,5)
     )
   #(1 2 3 4 5)
 
-  ; even for native Ol syntax
+  ; even for a native Ol syntax
   > (infix-notation
        [3 4 5 6 7]
     )
@@ -237,10 +239,10 @@ Mapping Functions
   > (define (rand-f100) (/ (rand! 10000) #i100))
 
   > (Fill (Vector 17) rand-i123)
-  #(18 21 122 101 121 78 53 86 48 96 65 10 4 15 74 9 2)
+  #(84 89 28 108 46 60 103 100 71 76 76 106 34 73 6 43 81)
 
   > (Fill (Vector 7) rand-f100)
-  #(7.70999999 4.82 64.51 6.32 47.89 64.6899999 10.47)
+  #(69.7199999 98.5499999 31.5199999 52.0 73.03 53.49 97.8299999)
   ```
 
 * make a same dimensional vector with dynamically computed values, based on a vector element index

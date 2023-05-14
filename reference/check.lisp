@@ -60,22 +60,23 @@
 ; fake random library
 (define-library (otus random!)
 (import (otus lisp))
-(export
-   rand!)
+(export rand! rand-reset!)
 (begin
+   (define seed '(6370020 . 100))
 
-(define rand!
-   (let* ((ss ms (values 1234 5678))
-          (seed (band (+ ss ms) #xffffffff))
-          (seed (cons (band seed #xffffff) (>> seed 24))))
+   (define rand!
       (lambda (limit)
          (let*((next (+ (car seed) (<< (cdr seed) 24)))
                (next (+ (* next 1103515245) 12345)))
             (set-car! seed (band     next     #xffffff))
             (set-cdr! seed (band (>> next 24) #xffffff))
 
-            (mod (mod (floor (/ next 65536)) 32768) limit)))))
+            (mod (mod (floor (/ next 65536)) 32768) limit))))
+   (define (rand-reset!)
+      (set-car! seed 6370020)
+      (set-cdr! seed 100))
 ))
+(import (otus random!))
 
 ; -------------------------------------------------------
 (define ok '(#true))
@@ -87,6 +88,7 @@
          ;; (print (list->string code-block))
          (fold (lambda (env sample)
                   ;; (print "----------------")
+                  (rand-reset!) ; restart random generator
                   (let*((code answer sample)
                         (answer (s/[ \n]+/ /g (list->string answer))))
                      (display  "  code: ") (display code)
@@ -100,7 +102,7 @@
                            (print green " ok" end)
                         else
                            (print "    test error:")
-                           (print "      " red answer " IS NOT EQUAL TO " actual end)
+                           (print "      " red actual " IS NOT EQUAL TO " answer end)
                            (set-car! ok #false))
 
                         env))))

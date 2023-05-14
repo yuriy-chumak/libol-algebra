@@ -1,7 +1,7 @@
 #!/usr/bin/env ol
 
 (import (otus algebra))
-(import (scheme srfi-27))
+(import (srfi 27)) ; random
 
 (define passes 99)
 (define maxdim 10)
@@ -20,7 +20,7 @@
       (define θ (Zeros M))
       (assert (Add M θ) ===> M))
    (iota passes))
-(display "+")
+(print "+")
 
 ; Ассоциативность сложения: A+(B+C) = (A+B)+C
 (for-each (lambda (i)
@@ -30,7 +30,7 @@
       (define C (Fill A rnd))
       (assert (Add A (Add B C)) ===> (Add (Add A B) C)))
    (iota passes))
-(display "+")
+(print "+")
 
 ; Коммутативность сложения: A+B = B+A
 (for-each (lambda (i)
@@ -39,7 +39,7 @@
       (define B (Fill A rnd))
       (assert (Add A B) ===> (Add B A)))
    (iota passes))
-(display "+")
+(print "+")
 
 ; Ассоциативность умножения: A(BC)=(AB)C
 (for-each (lambda (i)
@@ -50,7 +50,7 @@
       (define C (Fill A rnd))
       (assert (matrix-product A (matrix-product B C)) ===> (matrix-product (matrix-product A B) C)))
    (iota passes))
-(display "+")
+(print "+")
 
 ; Дистрибутивность умножения относительно сложения:
 (for-each (lambda (i)
@@ -64,7 +64,7 @@
       ; (B+C)A = BA+CA
       (assert (matrix-product (Add B C) A) ===> (Add (matrix-product B A) (matrix-product C A))))
    (iota passes))
-(display "+")
+(print "+")
 
 ; Свойства операции транспонирования матриц: ('t' means transpose)
 (for-each (lambda (i)
@@ -83,6 +83,6 @@
       ; det A = det At
       (assert (det A) ===> (det (transpose A))))
    (iota passes))
-(display "+")
+(print "+")
 
 (print "ok.")

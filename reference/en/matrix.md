@@ -197,7 +197,7 @@ Mapping Functions
   > (define (rand-i123) (rand! 100))
 
   > (Fill (Matrix 3 3) rand-i123)
-  #(#(5 69 15) #(83 69 14) #(74 22 25))
+  #(#(72 55 52) #(0 3 49) #(83 61 85))
   ```
 
 * make a same dimensional matrix with dynamically computed values, based on a matrix element indices

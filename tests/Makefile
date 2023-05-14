@@ -11,7 +11,7 @@ tests: $(wildcard tests/*.lisp.ok)
 
 %.lisp.ok: %.lisp
 	@printf "testing $^: "
-	@if ([ -f $^.in ] && ol $^ <$^.in || ol $^) | diff --strip-trailing-cr - $^.ok >/dev/null; then\
+	@if ([ -f $^.in ] && ol --home=tests $^ <$^.in || ol $^) | diff --strip-trailing-cr - $^.ok >/dev/null; then\
 	   printf $(ok) ;\
 	else \
 	   printf $(failed) ;\

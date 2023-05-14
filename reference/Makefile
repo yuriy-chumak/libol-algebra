@@ -22,7 +22,6 @@ define CHECK_REFERENCE
 
 	(import (lang eval))
 	(import (otus algebra))
-	(import (tests fake 27))
 
 	(define ok '(#true))
 	(for-each (lambda (filename)
