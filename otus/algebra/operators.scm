@@ -73,7 +73,7 @@
          (define ~fnc (dlsym algebra ,native))
          (cond
             ((scalar? a) (,fnc a))
-            ((vector? a) (vector-map ,fnc a))
+            ((vector? a) (rmap ,fnc a))
             ((tensor? a) (~fnc a))
          )))
    ))
@@ -85,12 +85,12 @@
             ((scalar? a)
                (cond
                   ((scalar? b) (,ol a b)) ; обычная функция
-                  ((vector? b) (vector-map (lambda (b) (,ol b a)) b)) ; ассоциативность
+                  ((vector? b) (rmap (lambda (b) (,ol b a)) b)) ; ассоциативность
                   ((tensor? b) (~native b a)))) ; ассоциативность
             ((vector? a)
                (cond
                   ((scalar? b) (vector-map (lambda (a) (,ol a b)) a))
-                  ((vector? b) (vector-map (lambda (a b) (,ol a b)) a b))
+                  ((vector? b) (rmap ,ol a b))
                   ((tensor? b) #f))) ; todo
             ((tensor? a)
                (cond
