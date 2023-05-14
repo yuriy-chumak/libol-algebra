@@ -15,6 +15,8 @@
    ; https://www.compart.com/en/unicode/decomposition/%3Csuper%3E
    ; https://www.compart.com/en/unicode/block/U+2200
 
+   ; https://www.vertex42.com/ExcelTips/unicode-symbols.html#math
+
    ; arithmetic
    × ÷
    ; exponentiations
@@ -24,6 +26,8 @@
 
    ∞ ; positive Infinity
    -∞ ; negative Infinity
+
+   ∑ ; Sum
 )
 
 (begin
@@ -66,4 +70,5 @@
    (define ∛ Cbrt) ; todo: make a real cube root as set of three values []
    (define (∜ x) (√ (√ x)))
 
+   (define ∑ Sum)
 ))

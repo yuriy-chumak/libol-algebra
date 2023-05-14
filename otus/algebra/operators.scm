@@ -13,6 +13,7 @@
    • ; скалярное произведение, (·∙)
    ⨯ ; векторное произведение
    ^ ** ; power of (степень числа)
+   − ; another "minus" sign
 
    ; unary operators
    Negate
@@ -187,4 +188,6 @@
    (define ^ Pow)
    (define ** Pow)
    (define : Div)
+
+   (define − -) ; unicode "minus" must be equal to ansi "-" sign
 ))

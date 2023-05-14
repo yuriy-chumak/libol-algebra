@@ -1,22 +1,29 @@
-libol-algebra
-=============
+(otus algebra)
+==============
 
-Trying to make a one more package for math computing in Lisp.  
-Should be used with [Ol (Otus Lisp)](https://github.com/yuriy-chumak/ol).
+A package for smart math computing in [Ol (Otus Lisp)](https://github.com/yuriy-chumak/ol).
 
 <a href="https://github.com/yuriy-chumak/libol-algebra/actions">
    <img align="right" src="https://github.com/yuriy-chumak/libol-algebra/actions/workflows/ci.yml/badge.svg">
 </a>
 
-Usage
------
 
-```shell
-$ make
-$ sudo make install
-```
+## Installing
 
-And now let's code.
+Just do `make; make install` inside the project folder.
+
+Or do `kiss install libol-algebra` with [ol-packages](https://github.com/yuriy-chumak/ol-packages) repository.
+
+If you don't need fast inexact math support (meaning optimized C code for floating point machine types) or you don't have a C compiler available,
+you can `just copy the "otus" folder` to your project.
+
+
+## Usage
+
+To access libol-algebra functions import `(otus algebra)` in your code.  
+To access unicode symbols and functions import `(otus algebra unicode)`.
+
+
 ```scheme
 $ ol
 Welcome to Otus Lisp 2.4
@@ -25,32 +32,93 @@ type ',help' to help, ',quit' to end session.
 > (dot-product [1 2 3] [8 -3 5])
 17
 > (infix-notation
-     [1,3,-5] • [4,-2,-1] )
+     [1,3,-5] • [4,-2,-1]
+  )
 3
+```
+```scheme
+> (import (otus algebra))
+> (import (otus algebra unicode))
+> (define-values (a b c) (values 5 3 -26))
+> (define D (infix-notation
+     b ² − 4 * a * c
+  ))
+> (define X₁ (infix-notation
+     (- b + √(D)) / (2 * a)
+  ))
+> (print "X₁ = " X₁)
+X₁ = 2
+> (define X₂ (infix-notation
+     (- b - √(D)) / (2 * a)
+  ))
+> (print "X₂ = " X₂)
+X₂ = -13/5
+> (print (infix-notation
+     a * (X₂)² + b * X₂ + c
+))
+0
+
 > ,quit
 bye-bye.
 ```
 
-Functions Reference
-===================
+You can shorted `infix-notation` macro with any valid symbol
+```scheme
+> (import (otus algebra))
+> (import (otus algebra unicode))
 
-By default all *algebra* math are exact.
+; let's shorten infix-notation
+> (define-macro Î (lambda args
+     `(infix-notation ,args)))
+
+; now use Î instead
+> (print (Î
+     5 * (2)² + 3 * 2 - 26
+))
+0
+
+```
+
+
+A lot of usage examples avaiable in the ["tests"](tests) folder
+and in the functions [Reference](reference/README.md).
+
+
+Very Important Notes
+====================
+
+All *algebra* objects in Ol are **indexed starting from 1**.
+From 1, as mathematicians do. Not from 0, as programmers do.  
+**Negative indices** mean "counting from the end of".
+
+```scheme
+> (ref [10 20 30 40] 1)
+10
+> (ref [10 20 30 40] 0)
+#false
+> (ref [10 20 30 40] -1)
+40
+```
+
+By default all *algebra* math **are exact**.
 That means no loss of precision during calculations.  
-But some functions (like *sin*) can't be exact. And some functions (like *sqrt* can be exact and inexact). Some functions (like *floor*) can be exact only.
+But some functions (like *sin*) can't be exact.
+And some functions (like *sqrt* can be exact and inexact). Some functions (like *floor*) can be exact only.
 
 ```scheme
 > (import (otus algebra))
-; exact math
-> (define x 1)
+
+; exact math:
+> (define X 1)
 > (infix-notation
-    ((x * 1e40 + 42) - (x * 1e40))
+    ((X * 1e40 + 42) - (X * 1e40))
   )
 42
 
-; inexact math
-> (define i (inexact 1)) ; or just #i1
+; inexact math:
+> (define I (inexact 1)) ; or just #i1
 > (infix-notation
-    ((i * 1e40 + 42) - (i * 1e40))
+    ((I * 1e40 + 42) - (I * 1e40))
   )
 0.0
 
@@ -59,26 +127,4 @@ But some functions (like *sin*) can't be exact. And some functions (like *sqrt* 
     3 ^ (2 ^ (3 ^ 2))
   )
 19323349832288915105454068722019581055401465761603328550184537628902466746415537000017939429786029354390082329294586119505153509101332940884098040478728639542560550133727399482778062322407372338121043399668242276591791504658985882995272436541441
-> (expt 3 (expt 2 (expt 3 2)))
 ```
-
-TOC (en)
----
-
-- [Vectors](reference/en/vectors.md)
-  - [Creation](reference/en/vectors.md#creation)
-  - [Vector Info](reference/en/vectors.md#vector-info)
-  - [Mapping functions](reference/en/vectors.md#mapping-functions)
-  - [Vector products](reference/en/vectors.md#vector-products)
-  - [Other functions](reference/en/vectors.md#other-functions)
-  - ...
-- [Matrices](reference/en/matrices.md)
-  - [Creation](reference/en/matrices.md#creation)
-  - [Matrix Info](reference/en/matrices.md#matrix-info)
-  - [Mapping functions](reference/en/matrices.md#mapping-functions)
-  - [Matrix products](reference/en/matrices.md#matrix-products)
-  - [Other functions](reference/en/matrices.md#other-functions)
-  - ...
-- [Tensors](reference/en/tensors.md)
-  - [Creation](reference/en/tensor.md#creation)
-  - ...
