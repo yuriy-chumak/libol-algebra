@@ -48,7 +48,15 @@
       ; в стеке у нас только операторы, функции и левая скобка (в виде символа #eof)
       ; https://en.wikipedia.org/wiki/Shunting_yard_algorithm
       (define-values (stack out)
-      (let loop ((queue args) (stack '(#eof)) (out '()))
+      ; todo: form as letrec
+      (let main ((queue args) (stack '(#eof)) (out '()))
+         ;; (print "queue: " queue)
+         ; handle unary operator
+         (if (and (pair? queue) (eq? (car queue) '-))
+            (main (cons 'negate (list (cdr queue))) stack out)
+            ;(main (cons 0 queue) stack out)
+         ; usual expression processing
+      (let loop ((queue queue) (stack stack) (out out))
 
          ; a right parenthesis (i.e. ")"):
          (if (null? queue)
@@ -74,6 +82,7 @@
 
          ; expression arguments
          else
+
             (define token (car queue))
             (cond
                ((pair? token) ; (...)
@@ -162,7 +171,7 @@
                   else ; variable
                      (loop (cdr queue) stack (cons token out))))
                (else
-                  (print "error"))))))
+                  (print "error"))))))))
 
       (unless (null? stack)
          (runtime-error "invalid infix expression" args))
