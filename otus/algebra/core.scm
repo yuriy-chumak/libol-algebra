@@ -15,15 +15,16 @@
    evector ivector Vector Vector~
    ; создать матрицу
    ematrix imatrix Matrix Matrix~
-   ; создать тензор
+   ; создать тензор (многомерную матрицу)
    etensor itensor Tensor Tensor~
 
-   ; предикаты
+   ; предикаты (для внутреннего пользования)
    scalar? vector? tensor?
 
-   rmap ; recursive map, todo: inexact map
+   ; helper functions
+   rmap ~map ; recursive map, inexact map
    rref ~ref ; recursive ref, inexact ref
-)
+   rfold)
 
 (begin
    (define algebra (dlopen "libol-algebra.so"))
@@ -34,6 +35,7 @@
 
    (define ~create (dlsym algebra "Tensor")) ; dims, data|0
    (define ~ref (dlsym algebra "Ref"))
+   (define ~map (dlsym algebra "Map"))
 
    ; ----------------
    (define (scalar? s)
@@ -129,7 +131,15 @@
    (define Vector (if (config 'default-exactness algebra) evector Vector~))
 
    ; --------------------
-   (define rmap ; TODO: tensor-map?
+   (define (rref array . args)
+      (let loop ((array array) (args args))
+         (if (null? args)
+            array
+         else
+            (loop (ref array (car args)) (cdr args)))))
+
+   (define ~map (dlsym algebra "Map"))
+   (define rmap
       (case-lambda
          ((f array)
             (cond
@@ -167,11 +177,43 @@
                (else
                   (runtime-error "TBD" f)))) ))
 
-   (define (rref array . args)
-      (let loop ((array array) (args args))
-         (if (null? args)
-            array
-         else
-            (loop (ref array (car args)) (cdr args)))))
+   (define ~fold (dlsym algebra "Fold"))
+   (define rfold
+      (case-lambda
+         ((f S array)
+            (cond
+               ((vector? array)
+                  (let loop ((S S) (array array))
+                     (if (vector? (ref array 1))
+                        (vector-fold loop S array)
+                     else
+                        (vector-fold f S array))))
+               (else
+                  (runtime-error "TBD" f))))
+         ((f S array1 array2)
+            ; TODO: test all arguments the same size
+            ; TODO: if different types - cast to the the first argument type
+            (cond
+               ((vector? array1)
+                  (let loop ((array1 array1) (array2 array2))
+                     (if (vector? (ref array1 1))
+                        (vector-map loop array1 array2)
+                     else
+                        (vector-map f array1 array2))))
+               (else
+                  (runtime-error "TBD" f))))
+         ((f S . arrays)
+            ; TODO: test all arguments the same size
+            ; TODO: if different types - cast to the the first argument type
+            (cond
+               ((vector? (car arrays))
+                  (let loop ((arrays arrays))
+                     (define (reloop . args) (loop args))
+                     (if (vector? (ref (car arrays) 1))
+                        (apply vector-map (cons reloop arrays))
+                     else
+                        (apply vector-map (cons f arrays)))))
+               (else
+                  (runtime-error "TBD" f)))) ))
 
 ))

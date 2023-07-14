@@ -62,17 +62,17 @@ X₂ = -13/5
 bye-bye.
 ```
 
-You can shorted `infix-notation` macro with any valid symbol
+You can shorten `infix-notation` macro with any valid symbol
 ```scheme
 > (import (otus algebra))
 > (import (otus algebra unicode))
 
 ; let's shorten infix-notation
-> (define-macro Î (lambda args
+> (define-macro @ (lambda args
      `(infix-notation ,args)))
 
-; now use Î instead
-> (print (Î
+; now use @ instead
+> (print (@
      5 * (2)² + 3 * 2 - 26
 ))
 0

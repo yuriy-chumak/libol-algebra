@@ -69,13 +69,13 @@
    ;; хотя это и неправильно.
 
    (define-macro define-unary-function (lambda (name fnc native)
-      `(define ,name (lambda (a)
+      `(define (,name a)
          (define ~fnc (dlsym algebra ,native))
          (cond
             ((scalar? a) (,fnc a))
-            ((vector? a) (rmap ,fnc a))
+            ((vector? a) (rmap ,name a))
             ((tensor? a) (~fnc a))
-         )))
+         ))
    ))
 
    (define-macro define-binary-function (lambda (name ol native)

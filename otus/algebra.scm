@@ -19,7 +19,6 @@
 
    (otus algebra operators)
    (otus algebra infix-notation)
-   (otus algebra roots)
 )
 
 (export
@@ -62,7 +61,6 @@
 
    (exports (otus algebra operators))
    (exports (otus algebra infix-notation))
-   (exports (otus algebra roots))
 
    rmap ; Recursive Map, * core, * internal
 
@@ -111,6 +109,7 @@
          (cons array index)))
 
    (define Map rmap) ; ?
+   (define Fold rfold)
    
    ;; (define + +)
    ;; (define - -)

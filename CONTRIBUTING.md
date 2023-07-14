@@ -1,3 +1,3 @@
 ~ in function name means optimized C code.
-Capital letter in function name mean public function
-Small letter in function name mean internal function
+A capital letter in function name means public function
+A small letter in function name means internal function
