@@ -17,8 +17,9 @@
 // }
 
 __attribute__((used))
-word* mdot(olvm_t* this, word* arguments)
+word* mdot(olvm_t* this, word* arguments) // todo: change to word arguments
 {
+	// todo: use ENTER_SECTION/LEAVE_SECTION, remove heap, add fp
     heap_t* heap = (struct heap_t*)this;
 
     word A = car(arguments); arguments = (word*)cdr(arguments); // matrix A
@@ -60,4 +61,33 @@ word* mdot(olvm_t* this, word* arguments)
     C = new_pair(new_list(TPAIR, I(m), I(q)), C);
     heap->fp = fp;
     return C;
+}
+
+// Matrix Transposition
+__attribute__((used))
+word* mtranspose(olvm_t* this, word arguments)
+{
+	word* fp;
+
+    word A = car(arguments); arguments = cdr(arguments);
+    assert (arguments == INULL);
+
+    word M = caar(A);
+    word N = car(cdar(A));
+	assert (cdr(cdar(A)) == INULL);
+
+	size_t m = value(M);
+	size_t n = value(N);
+
+	// vector
+	if (m == 1 || n == 1) {
+		// swap m and n, that's it!
+		RETURN_TENSOR(new_list(TPAIR, car(cdar(A)), caar(A)), cdr(A));
+	}
+
+	// matrix
+	word floats = cdr(A);
+	fp_t* f = payload(floats);
+	return IFALSE; // car(A);
+	// RETURN_TENSOR(car(A), f); // todo: change
 }

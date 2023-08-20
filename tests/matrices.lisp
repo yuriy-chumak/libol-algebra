@@ -11,9 +11,9 @@
    ;;          matrix2))
    ;;    matrix1))
 
-(print (transpose [[1 2]
-                   [4 5]
-                   [7 8]]))
+(print (matrix-transpose [[1 2]
+                          [4 5]
+                          [7 8]]))
 
 
 (define A [[1 2 3]

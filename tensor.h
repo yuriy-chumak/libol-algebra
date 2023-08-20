@@ -12,6 +12,10 @@
 // тип, который мы будем использовать для вычислений (обычно - float)
 typedef float fp_t;
 
+// basic numerical constants:
+#define ONE		 __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), 1.0, 1.0f)
+#define ZERO	 __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), 0.0, 0.0f)
+
 // float/double functions:
 #define SQRT(x)	 __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), sqrt, sqrtf)(x)
 
@@ -19,6 +23,7 @@ typedef float fp_t;
 #define LOG10(x) __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), log10, log10f)(x)
 #define LOG2(x)	 __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), log2, log2f)(x)
 
+#define EXP(x)	 __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), exp, expf)(x)
 #define POW(x,y) __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), pow, powf)(x,y)
 
 #define SQRT(x)  __builtin_choose_expr(__builtin_types_compatible_p(fp_t, double), sqrt, sqrtf)(x)

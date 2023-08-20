@@ -8,6 +8,7 @@
 ; * all exports are algebra internal
 (export
    algebra ; optimized "C" code shared library
+   Unavailable Unimplemented
 
    ; v/m/t aka array is a basic math object.
 
@@ -32,6 +33,13 @@
       (print-to stderr "Warning: 'libol-algebra' shared library is not found.
       Please install one, otherwise fast math will be unavailable.
       https://github.com/yuriy-chumak/libol-algebra"))
+
+   (define (Unavailable . args)
+      (runtime-error "'libol-algebra' library is not loaded!" "Function unavailable."))
+   (define (Unimplemented . args)
+      (runtime-error "Function is not implemented." "Sorry."))
+   (define (Invalid . args)
+      (runtime-error "Invalid function use" #n))
 
    (define ~create (dlsym algebra "Tensor")) ; dims, data|0
    (define ~ref (dlsym algebra "Ref"))
@@ -161,6 +169,10 @@
                         (vector-map loop array1 array2)
                      else
                         (vector-map f array1 array2))))
+               ((tensor? array1)
+                  ; todo: handle tensor+vector
+                  (f array1 array2))
+
                (else
                   (runtime-error "TBD" f))))
          ((f . arrays)

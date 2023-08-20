@@ -11,7 +11,11 @@
 (export
 
    determinant
-   transpose
+   matrix-transpose
+
+   matrix·matrix ; todo: вынести в отдельный модуль, 
+   ;matrix·vector ; todo: оптимизировать
+   ;vector·matrix ; todo: оптимизировать
 
    matrix-product
    hadamard-product
@@ -20,7 +24,7 @@
    matrix-exponential
    matrix-inverse
 
-   cracovian-product
+   ;; cracovian-product
    kronecker-product
 
    minor-matrix
@@ -30,8 +34,11 @@
 )
 
 (begin
-   (define ~mdot (dlsym algebra "mdot"))
+   (import
+      (otus algebra macros)
+      (otus algebra config))
 
+   (define ~mdot (dlsym algebra "mdot"))
 
    ; https://en.wikipedia.org/wiki/Hadamard_product_(matrices)
    (define (hadamard-product A B)
@@ -42,7 +49,9 @@
    ; https://en.wikipedia.org/wiki/Determinant
    (define determinant det)
 
-   ; 
+
+   ; ----------------------------------------------------
+   ; Matrix Transpose
    (define (transpose m)
       (define shape (Shape m))
       (list->vector
@@ -52,6 +61,23 @@
                   m))
             (iota (second shape) 1))))
 
+   ;; ; for the list of lists:
+   ;; (define (List . args) args)
+   ;; (define (transpose m)
+   ;;    (apply map List m))
+
+   (define matrix-transpose
+      (letrec ((fast (dlsym algebra "mtranspose"))
+               (lisp (lambda (array)
+                        (cond
+                           ((vector? array)
+                              (transpose array))
+                           ((tensor? array)
+                              (fast array))
+                           ((scalar? array) array) ))))
+         (if (config 'default-exactness algebra) lisp (if algebra fast lisp))))
+
+   ; ----------------------------------------------------
    ; https://en.wikipedia.org/wiki/Minor_(linear_algebra)
    (define (minor-matrix A)
       (Index A (lambda (i j) (cofactor A i j))))
@@ -89,7 +115,8 @@
    (define matrix-inverse inverse-matrix)
 
    ; long matrix multiplication version (vector of vectors)
-   (define (matrix-product A B)
+   ; todo: add specific cases for vector·matrix and matrix·vector
+   (define (matrix·matrix A B)
       (if (tensor? A)
          (cond
             ((tensor? B)
@@ -97,24 +124,23 @@
             ((vector? B)
                (~mdot A (imatrix B))))
       else
-         ; simplest implementation:
-         ; rows and columns count limited to 255
-         ;; (vector-map
+         ; simplest multiplication implementation:
+         ; /rows and columns count limited to 255/
+         ;; (map
          ;;    (lambda (row)
-         ;;       (apply vector-map
+         ;;       (apply map
          ;;          (lambda column
          ;;             (apply + (map * row column)))
          ;;          matrix2))
          ;;    matrix1))
 
-         ; universal implementation
+         ; real implementation:
          (define m (size A))
          (define n (size (ref A 1)))
          (assert (eq? (size B) n) ===> #true)
          (define q (size (ref B 1)))
          (define (at m x y)
             (ref (ref m x) y))
-
 
          (let mloop ((i m) (rows #null))
             (if (eq? i 0)
@@ -124,6 +150,7 @@
                   (-- i) ; speedup for (- i 1)
                   (cons
                      (let rloop ((j q) (row #null))
+                        ;; (print "j: " j)
                         (if (eq? j 0)
                            (list->vector row)
                         else
@@ -137,6 +164,28 @@
                                        (loop (++ k) (+ c (* (at A i k) (at B k j))))))
                                  row))))
                      rows))))))
+
+   (define matrix-product matrix·matrix)
+
+   (define (matrix*vector~ M V) ; V - транспонированный вектор (строка)
+      (define n (size V))
+      (assert (eq? (size M) n) ===> #true)
+      (define q (size (ref M 1)))
+      (define (at m x y)
+         (ref (ref m x) y))
+
+      (let rloop ((j q) (row #null))
+         (if (eq? j 0)
+            (list->vector row)
+         else
+            (rloop (-- j)
+               (cons
+                  (let loop ((k 1) (c 0))
+                     (if (less? n k)
+                        c
+                     else
+                        (loop (++ k) (+ c (* (ref V k) (at M k j))))))
+                  row)))))
 
    ; https://en.wikipedia.org/wiki/Matrix_multiplication#Powers_of_a_matrix
    ; Возведение в степень
@@ -171,10 +220,10 @@
                (else
                   (runtime-error "power is not an integer:" k))))))
 
-   ; https://en.wikipedia.org/wiki/Cracovian
-   ; "Краковское" произведение
-   (define (cracovian-product A B)
-      (matrix-product (transpose B) A))
+   ;; ; https://en.wikipedia.org/wiki/Cracovian
+   ;; ; "Краковское" произведение
+   ;; (define (cracovian-product A B)
+   ;;    (matrix-product (transpose B) A))
 
    ; https://en.wikipedia.org/wiki/Kronecker_product
    ; Произведение Кронекера

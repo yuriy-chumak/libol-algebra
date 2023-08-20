@@ -18,6 +18,7 @@
    (otus algebra matrix)
 
    (otus algebra operators)
+   (otus algebra functions)
    (otus algebra infix-notation)
 )
 
@@ -28,7 +29,7 @@
    ;; реально обрабатывать не выйдет, но будет легко читаемый код с алгоритмами работы
    ;; (заодно и легче проверяемый)
    ;; точная, но медленная предваряется "e" (exact)
-   ;; быстрая, неточная математика предваряется "f" (floating point) или "i" (inexact)
+   ;; быстрая, неточная математика предваряется "f" (floating point, fast) или "i" (inexact)
 
    ;; по умолчанию vector, matrix и tensor сделаны "exact"
 
@@ -56,10 +57,12 @@
    (exports (otus algebra vector))
    (exports (otus algebra matrix))
 
-   (exports (otus algebra shape))
    (exports (otus algebra init))
 
    (exports (otus algebra operators))
+   (exports (otus algebra functions))
+
+   (exports (otus algebra shape))
    (exports (otus algebra infix-notation))
 
    rmap ; Recursive Map, * core, * internal
@@ -108,7 +111,7 @@
             ((tensor? array) ~ref))
          (cons array index)))
 
-   (define Map rmap) ; ?
+   (define Map rmap) ; todo: проверить?
    (define Fold rfold)
    
    ;; (define + +)

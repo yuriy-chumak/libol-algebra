@@ -239,10 +239,10 @@ Mapping Functions
   > (define (rand-f100) (/ (rand! 10000) #i100))
 
   > (Fill (Vector 17) rand-i123)
-  #(84 89 28 108 46 60 103 100 71 76 76 106 34 73 6 43 81)
+  #(81 43 6 73 34 106 76 76 71 100 103 60 46 108 28 89 84)
 
   > (Fill (Vector 7) rand-f100)
-  #(69.7199999 98.5499999 31.5199999 52.0 73.03 53.49 97.8299999)
+  #(97.8299999 53.49 73.03 52.0 31.5199999 98.5499999 69.7199999)
   ```
 
 * make a same dimensional vector with dynamically computed values, based on a vector element index

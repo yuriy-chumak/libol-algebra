@@ -79,6 +79,13 @@ void init_with_vector(fp_t**end, word data)
     *end = ptr;
 }
 
+static
+void init_with_list(fp_t**end, word data)
+{
+	// ...
+	
+}
+
 // рекурсивная процедурка
 static
 void maker(fp_t* begin, fp_t**end, word data) {
@@ -87,6 +94,7 @@ void maker(fp_t* begin, fp_t**end, word data) {
     maker(begin, end, cdr(data));
 
     word dimension = car(data);
+	// todo: add list initialization
     if (is_vector(dimension))
         init_with_vector(end, dimension);
     else {

@@ -36,8 +36,11 @@ word* name(olvm_t* this, word arguments)\
 	return tensor;\
 }
 
+// ==========================================================================
 // 1
+//
 #define DECLARE1(name, fnc) \
+\
 __attribute__((used))\
 word* name(olvm_t* this, word arguments)\
 {\
@@ -46,6 +49,7 @@ word* name(olvm_t* this, word arguments)\
 	word A = car(arguments); arguments = cdr(arguments);\
 	assert (arguments == INULL);\
 \
+	/* scalar case: */ \
 	if (is_scalar(A)) {\
 		fp_t a = ol2f(A);\
         ENTER_SECTION\
@@ -64,9 +68,35 @@ word* name(olvm_t* this, word arguments)\
 	}\
 \
 	RETURN_TENSOR(car(A), floats);\
-}
+}\
+\
+__attribute__((used))\
+word* name ## E(olvm_t* this, word arguments)\
+{\
+	word* fp;\
+\
+	word A = car(arguments); arguments = cdr(arguments);\
+	assert (arguments == INULL);\
+\
+	/* scalar case: */ \
+	if (is_scalar(A)) {\
+		return (word*) IFALSE;\
+	}\
+\
+	size_t asize = size(car(A));\
+\
+	fp_t* a = payload(cdr(A));\
+	for (int i = 0; i < asize; i++) {\
+		a[i] = fnc(a[i]);\
+	}\
+\
+	return (word*) A;\
+}\
 
+
+// ==========================================================================
 // 2
+//
 #define DECLARE2(name, fnc) \
 __attribute__((used))\
 word* name(olvm_t* this, word arguments)\
@@ -86,6 +116,7 @@ word* name(olvm_t* this, word arguments)\
 \
     fp_t* a = payload(cdr(A));\
 	fp_t* f = payload(floats);\
+	/* todo: process fnc(scalar, scalar) */\
     if (is_scalar(B)) {/* tensor, scalar */\
 		fp_t b = ol2f(B);\
 		for (int i = 0; i < asize; i++) {\

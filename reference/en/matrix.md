@@ -197,7 +197,7 @@ Mapping Functions
   > (define (rand-i123) (rand! 100))
 
   > (Fill (Matrix 3 3) rand-i123)
-  #(#(72 55 52) #(0 3 49) #(83 61 85))
+  #(#(85 61 83) #(49 3 0) #(52 55 72))
   ```
 
 * make a same dimensional matrix with dynamically computed values, based on a matrix element indices
@@ -247,9 +247,9 @@ Next function are not stabilized yet and can be changed in feature.
 
 * [Transpose](https://en.wikipedia.org/wiki/Transpose)
   ```scheme
-  > (transpose [[1 2 3]
-                [4 5 6]
-                [7 8 9]])
+  > (matrix-transpose [[1 2 3]
+                       [4 5 6]
+                       [7 8 9]])
   #(#(1 4 7)
     #(2 5 8)
     #(3 6 9))

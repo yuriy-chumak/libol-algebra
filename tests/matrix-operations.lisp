@@ -73,15 +73,15 @@
       (define A (Fill (Matrix M M) rnd))
       (define B (Fill A rnd))
       ; (At)t = A
-      (assert (transpose (transpose A)) ===> A)
+      (assert (matrix-transpose (matrix-transpose A)) ===> A)
       ; (AB)t = BtAt
-      (assert (transpose (matrix-product A B)) ===> (matrix-product (transpose B) (transpose A)))
+      (assert (matrix-transpose (matrix-product A B)) ===> (matrix-product (matrix-transpose B) (matrix-transpose A)))
       ; (A^-1)t = (At)^-1
-      (assert (transpose (matrix-inverse A)) ===> (matrix-inverse (transpose A)))
+      (assert (matrix-transpose (matrix-inverse A)) ===> (matrix-inverse (matrix-transpose A)))
       ; (A+B)t = At + Bt
-      (assert (transpose (Add A B)) ===> (Add (transpose A) (transpose B)))
+      (assert (matrix-transpose (Add A B)) ===> (Add (matrix-transpose A) (matrix-transpose B)))
       ; det A = det At
-      (assert (det A) ===> (det (transpose A))))
+      (assert (det A) ===> (det (matrix-transpose A))))
    (iota passes))
 (print "+")
 

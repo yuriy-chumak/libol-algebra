@@ -23,10 +23,6 @@
    Linspace~
 
    Index
-
-   ; Sine, Cosine, Tangent
-   ; cosecant, secant, cotangent
-   Sin ; Cos, Tan
 )
 
 (begin
@@ -197,37 +193,5 @@
                   (Iota (size array) 1))))
          (else
             (runtime-error "error" array))))
-
-   ;; ---------------
-   ;; trigonometric functions
-   (import (scheme inexact))
-
-   (define-macro DECLARE (lambda (name fnc ~fnc)
-   `  (define (,name array)
-         (cond
-            ((scalar? array)
-               (,fnc array))
-            ((vector? array)
-               (if (scalar? (ref array 1))
-                  (vector-map ,fnc array)
-               else
-                  (vector-map ,name array)))
-            ((tensor? array)
-               (,~fnc array)))) ))
-
-   ; -=( Sin )=------------------------
-   (define ~sin (dlsym algebra "Sine"))
-   (DECLARE Sin sin ~sin)
-   (define Sin (if (config 'default-exactness algebra) Sin (if algebra ~sin Sin)))
-
-   ; -=( Cos )=------------------------
-   (define ~cos (dlsym algebra "Cosine"))
-   (DECLARE Cos cos ~cos)
-   (define Cos (if (config 'default-exactness algebra) Cos (if algebra ~cos Cos)))
-
-   ; -=( Tan )=------------------------
-   (define ~tan (dlsym algebra "Tangent"))
-   (DECLARE Tan tan ~tan)
-   (define Tan (if (config 'default-exactness algebra) Tan (if algebra ~tan Tan)))
 
 ))
