@@ -7,7 +7,7 @@ libol-algebra.so: $(wildcard src/*.h)
 libol-algebra.so: vector.c matrix.c tensor.c $(wildcard src/*.c)
 	gcc $^ -shared -fPIC -o $@ \
 	-Xlinker --export-dynamic \
-	-I. -fopenmp -O0 -g3 \
+	-I. -fopenmp -O3 -g3 \
 	-fopenmp
 #	-fvisibility=default
 
