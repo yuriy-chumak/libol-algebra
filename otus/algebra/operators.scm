@@ -172,31 +172,20 @@
    ; matrix and vector dot-product
    ; ??? why don't use "~mdot" ?
    (define Dot (lambda (a b)
-      (cond
-         ; no scalars are supported
-         ((vector? a)
-            (cond
-               ((vector? b)
-                  (define sa (length (Shape a)))
-                  (define sb (length (Shape b)))
-                  (case sa
-                     (1 (case sb
-                           (1 (vector·vector a b)) ; dot-product of two horizontal vectors
-                           (2 (vector·matrix a b)) ; hvector * matrix
-                           (else (runtime-error "unsupported" #n))))
-                     (2 (case sb
-                           (1 (matrix·vector a b)) ; matrix * vvector (in form of hvector)
-                           (2 (matrix·matrix a b)) ; matrix-product
-                           (else (runtime-error "unsupported" #n))))
-                     (else
-                        (runtime-error "unsupported" #f))))
-               (else
-                  (runtime-error "unsupported" #n))))
-         ((tensor? a)
-            (matrix·matrix a b))
+      (define sa (length (Shape a)))
+      (define sb (length (Shape b)))
+      (case sa
+         (1 (case sb
+               (1 (vector·vector a b)) ; dot-product of two horizontal vectors
+               (2 (vector·matrix a b)) ; hvector * matrix
+               (else (runtime-error "unsupported" #n))))
+         (2 (case sb
+               (1 (matrix·vector a b)) ; matrix * vvector (in form of hvector)
+               (2 (matrix·matrix a b)) ; matrix-product
+               (else (runtime-error "unsupported" #n))))
          (else
-            (runtime-error "unsupported" #n)))))
+            (runtime-error "unsupported" #f)))))
 
+   (define · Dot) ; interpunct symbol
    (define • Dot)
-   (define · •) ; interpunct symbol
 ))

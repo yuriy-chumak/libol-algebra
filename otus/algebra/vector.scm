@@ -97,10 +97,7 @@
          (else
             (runtime-error "Invalid arguments" #n))))
 
-   (define (dot-product a b)
-      (vector-fold + 0 (vector-map * a b)))
-
-   (define • dot-product)
+   (define dot-product vector·vector)
    (define scalar-product dot-product)
 
    ; -- cross-product ----------

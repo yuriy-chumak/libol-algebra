@@ -52,10 +52,13 @@
    
    (setq vector? vector?) ; lisp vector
 
-   (define (tensor? t) ; c vector
+   (define (tensor? t)    ; c vector
       (and
          (eq? (type t) type-pair)
          (eq? (type (cdr t)) type-bytevector)))
+
+   ;; (define (matrix? t)    ; internal
+
    ; note: we can compare sizes, btw.
 
    ; ================================================================
