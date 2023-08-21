@@ -50,30 +50,22 @@
 
    ; ----------------------------------------------------
    ; Matrix Transpose
-   (define (transpose m)
-      (define shape (Shape m))
-      (list->vector
-         (map (lambda (i)
-               (vector-map (lambda (row)
-                     (ref row i))
-                  m))
-            (iota (second shape) 1))))
-
-   ;; ; for the list of lists:
-   ;; (define (List . args) args)
-   ;; (define (transpose m)
-   ;;    (apply map List m))
-
    (define matrix-transpose
-      (letrec ((fast (dlsym algebra "mtranspose"))
-               (lisp (lambda (array)
-                        (cond
-                           ((vector? array)
-                              (transpose array))
-                           ((tensor? array)
-                              (fast array))
-                           ((scalar? array) array) ))))
-         (if (config 'default-exactness algebra) lisp (if algebra fast lisp))))
+      (define fast (dlsym algebra "mtranspose"))
+      (define lisp (lambda (M)
+         (define shape (Shape M))
+         (list->vector
+            (map (lambda (i)
+                  (vector-map (lambda (row)
+                        (ref row i))
+                     M))
+               (iota (second shape) 1)))))
+
+      (lambda (array)
+         (cond
+            ((vector? array) (lisp array))
+            ((tensor? array) (fast array))
+            ((scalar? array)       array ) )))
 
    ; ----------------------------------------------------
    ; https://en.wikipedia.org/wiki/Minor_(linear_algebra)

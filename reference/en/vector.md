@@ -7,7 +7,7 @@ Vector is a one-dimensional array.
 Note
 ----
 
-1. A tilde (`~`) as a function suffix means to explicitly use the fast (C-optimized) function version. Please note that these functions make inexact math calculations (CPU or GPU "float" or "double" numbers).
+1. A tilde (`~`) as a function suffix means to explicitly use the inexact arithmetics and fast (C-optimized) function version if available. Please note that inexact math calculations may be much faster with very big or very small numbers, but it may lose exactness.
 
 
 TOC
@@ -40,9 +40,9 @@ A Vector can be created:
   #(0 0 0 0 0 0 0)
 
   ; fast (inexact) math vector (if libol-algebra.so has been loaded),
-  ;  otherwise regular Vector type used.
+  ;   otherwise regular Vector type used (but with inexact numbers!).
   ; it's not guaranteed that the vector will be initialized with zeros.
-  > (Vector~ 7)
+  > (Vector~ 7)  ; 7 elements
   ((7) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
 
   ; fast (inexact) version of a regular vector
@@ -50,7 +50,7 @@ A Vector can be created:
   ((4) . #u8(0 0 128 63 0 0 0 64 0 0 64 64 0 0 128 64))
   ```
 
-* using regular Scheme `vector` and Ol `make-vector` functions
+* using Scheme `vector` and Ol `make-vector` functions
   ```scheme
   ; lisp notation
   > (vector 1 2 3 4 5)
@@ -61,10 +61,11 @@ A Vector can be created:
   #(#false #false #false #false #false #false #false)
 
   ; inializied vector of any applicable repeating value
+  ;   attention! all elements of such vector are same in sense of `eq?`
   > (make-vector 4 2/3)
   #(2/3 2/3 2/3 2/3)
 
-  ; convertion of list to vector
+  ; vector from list
   > (make-vector '(3 4 5))
   #(3 4 5)
   ```
@@ -73,11 +74,13 @@ A Vector can be created:
   including negatives, ratios, complex, inexact numbers (floats),
   looong integers, NaN and Infinity
   ```scheme
-  ; note: #i is a short for inexact number
+  ; note: #i is a prefix for "inexact number"
   > [-3 3/7 16+4i 7.12 #i7.12 618970019642290147449562111 +inf.0 (sqrt 16)]
   #(-3 3/7 16+4i 178/25 7.12 618970019642290147449562111 +inf.0 4)
+  ```
 
-  ; you can use infix notation
+* you can use infix notation
+  ```scheme
   > (infix-notation
        vector(1,2,3,4,5)
     )
@@ -90,7 +93,7 @@ A Vector can be created:
   #(3 4 5 6 7)
   ```
 
-* as a vector of `Zeros`
+* as a vector of zeros
   ```scheme
   > (Zeros 7)
   #(0 0 0 0 0 0 0)
@@ -107,7 +110,7 @@ A Vector can be created:
   #(0.0 0.0 0.0 0.0 0.0 0.0 0.0)
   ```
 
-* as a vector of `Ones`
+* as a vector of ones
   ```scheme
   > (Ones 11)
   #(1 1 1 1 1 1 1 1 1 1 1)

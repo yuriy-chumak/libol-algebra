@@ -1,7 +1,7 @@
 #include "tensor.h"
 
 static
-void fill(word* A, size_t count, fp_t x) {
+void fill(word A, size_t count, fp_t x) {
     fp_t* a = payload(A);
     for (int i = 0; i < count; i++) {
         a[i] = x;
@@ -10,39 +10,66 @@ void fill(word* A, size_t count, fp_t x) {
 
 word* Fill(olvm_t* this, word* arguments)
 {
-    heap_t* heap = (struct heap_t*)this;
+    word* fp;
 
     word A = car(arguments); arguments = (word*)cdr(arguments);
     word B = car(arguments); arguments = (word*)cdr(arguments);
     assert (arguments == RNULL);
 
     size_t asize = size(car(A));
-    fp_t b = ol2f(B);
+    word C = (word) new_floats(this, asize, &A, &B);
 
-    word*C = new_floats(this, asize, &A, &B);
+	if (is_inexact(B)) {
+	    fp_t b = *(inexact_t*)&car(B);
+	    fill(C, asize, b);
+	}
+	else
+	if (is_callable(B)) { // callback
+		// callback can call GC, so need to save A and C
+		size_t a = OLVM_pin(this, A);
+		size_t c = OLVM_pin(this, C);
 
-    fill(C, asize, b);
+		fp_t (*callback)() = (fp_t (*)()) car(B);
+		for (int i = 0; i < asize; i++) {
+			payload(OLVM_deref(this, c))[i] = callback();
+		}
 
-    word* fp;
-    fp = heap->fp;
-    C = new_pair(car(A), C);
-    heap->fp = fp;
+		C = OLVM_unpin(this, c);
+		A = OLVM_unpin(this, a);
+	}
 
-    return C;
+	RETURN_TENSOR(car(A), C);
 }
 
-word* FillE(olvm_t* this, word* arguments)
+word* FillE(olvm_t* this, word arguments)
 {
-    heap_t* heap = (struct heap_t*)this;
+    word* fp;
 
-    word A = car(arguments); arguments = (word*)cdr(arguments);
-    word B = car(arguments); arguments = (word*)cdr(arguments);
-    assert (arguments == RNULL);
+    word A = car(arguments); arguments = cdr(arguments);
+    word B = car(arguments); arguments = cdr(arguments);
+    assert (arguments == INULL);
 
     size_t asize = size(car(A));
-    fp_t b = ol2f(B);
+    word C = cdr(A);
 
-    word*C = (word*) cdr(A);
-    fill(C, asize, b);
-    return C;
+	if (is_inexact(B)) {
+	    fp_t b = *(inexact_t*)&car(B);
+	    fill(C, asize, b);
+	}
+	else
+	if (is_callable(B)) { // callback
+		// callback can call GC, so need to save A and C
+		size_t a = OLVM_pin(this, A);
+		size_t c = OLVM_pin(this, C);
+
+		fp_t (*callback)() = (fp_t (*)()) car(B);
+		for (int i = 0; i < asize; i++) {
+			payload(OLVM_deref(this, c))[i] = callback();
+		}
+
+		C = OLVM_unpin(this, c);
+		A = OLVM_unpin(this, a);
+	}
+
+    return (word*) A;
 }

@@ -9,10 +9,10 @@
    Copy
 
    Zeros Ones
-   ;; Zeros! Ones!
+   Zeros! Ones!
    Zeros~ Ones~
 
-   Fill ;; Fill!
+   Fill Fill!
    ; todo: Empty ()
 
    ;random
@@ -59,12 +59,27 @@
                (if (vector? (ref array 1))
                   (vector-map loop array)
                else
-                  (if (function? N)
-                     (vector-map (lambda (i) (N)) array)
-                  else
-                     (make-vector (size array) N)))))
-         ((tensor? array) ; todo:
-            (~fill array N))))
+                  (cond
+                     ((function? N)
+                        (vector-map (lambda (i) (N)) array))
+                     ((value? N)
+                        (make-vector (size array) N))
+                     (else
+                        (vector-map (lambda (i) (vm:cast N (type N))) array))))))
+         ((tensor? array)
+            (cond
+               ((inexact? N)
+                  (~fill array N))
+               ((rational? N)
+                  (~fill array (inexact N)))
+               ((function? N)
+                  (define id (vm:pin (cons
+                     (cons fft-float (list ))
+                     N)))
+                  (define callback (make-callback id))
+                  (define tensor (~fill array callback))
+                  (vm:unpin id); must free before exit
+                  tensor)))))
 
    (define (Fill! array N)
       (cond
@@ -74,11 +89,29 @@
                   (vector-for-each loop array)
                else
                   (for-each (lambda (i)
-                        (set-ref! array i N))
+                        (define x (ref array i))
+                        (define y (if (function? N) (N) N))
+                        (cond
+                           ((and (value? x) (value? y))
+                              (set-ref! array i y))
+                           ((inexact? x)
+                              (vm:set! x (if (inexact? y) y (inexact y))))))
                      (iota (size array) 1))))
             array)
          ((tensor? array)
-            (~fill! array N))))
+            (cond
+               ((inexact? N)
+                  (~fill! array N))
+               ((rational? N)
+                  (~fill! array (inexact N)))
+               ((function? N)
+                  (define id (vm:pin (cons
+                     (cons fft-float (list ))
+                     N)))
+                  (define callback (make-callback id))
+                  (define tensor (~fill! array callback))
+                  (vm:unpin id); must free before exit
+                  tensor)))))
 
    ;; --------------------------------------------------------------
    ; * internal function
@@ -106,13 +139,13 @@
    (define Zeros (make-filler Tensor zero))
    (define Zeros~ (if algebra (make-filler Tensor~ #i0) Zeros))
 
-   (define one (if (config 'default-exactness algebra) 1 #i1))
+   (define one (if (config 'default-exactness algebra) 1 #i1)) ;?
 
    (define Ones (make-filler Tensor one))
    (define Ones~ (if algebra (make-filler Tensor~ #i1) Ones))
 
-   ;; (define (Zeros! array) (Fill! array 0))
-   ;; (define (Ones! array) (Fill! array 1))
+   (define (Zeros! array) (Fill! array 0))
+   (define (Ones! array) (Fill! array 1))
 
    ;; -=( Randn )=------------------------
    (define ~randn (dlsym algebra "Randn"))

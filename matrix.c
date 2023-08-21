@@ -24,11 +24,11 @@ word* mdot(olvm_t* this, word arguments) // todo: change to word arguments
     if (value(caar(B)) != n)
         return RFALSE;
 
-    word* C = new_floats(this, m * q, &A, &B);
+    word* floats = new_floats(this, m * q, &A, &B);
 
     fp_t* a = payload(cdr(A));
     fp_t* b = payload(cdr(B));
-    fp_t* c = payload(C);
+    fp_t* c = payload(floats);
 
 	size_t i,j,k;
 #pragma omp parallel shared(a,b,c) private(i,j)
@@ -46,7 +46,7 @@ word* mdot(olvm_t* this, word arguments) // todo: change to word arguments
         }
     }
 
-	RETURN_TENSOR(new_list(TPAIR, I(m), I(q)), C);
+	RETURN_TENSOR(new_list(TPAIR, I(m), I(q)), floats);
 }
 
 // Matrix Transposition

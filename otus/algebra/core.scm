@@ -61,86 +61,8 @@
 
    ; note: we can compare sizes, btw.
 
+
    ; ================================================================
-   ; универсальные функции создания массивов
-
-   (setq shallowcopy (lambda (o) (vm:cast o (type o)))) ; * internal
-   (define (deepcopy o) ; * internal
-      (if (vector? o)
-         (vector-map deepcopy o)
-         (shallowcopy o)))
-
-   ; exact (lisp) tensor creation
-   (define (etensor . args)
-      (foldr (lambda (dim tail)
-            (if (vector? dim)
-            ;  (deepcopy dim)
-               dim
-            else
-               (list->vector (map (lambda (i) (deepcopy tail)) (iota dim)))))
-         0
-         args))
-
-   ; inexact (c) tensor creation
-   (define (itensor . args)
-      (define dimensions
-         (foldr (lambda (x tail)
-               (if (vector? x) ; вектор всегда последний
-                  (reverse (let loop ((x (ref x 1))
-                                    (out (cons (size x) #n)))
-                     (if (vector? x)
-                        (loop (ref x 1) (cons (size x) out))
-                        out)))
-                  (cons x tail)))
-            #null
-            args))
-      (cons dimensions (~create dimensions args)))
-
-   ; public:
-   (define Tensor~ (if algebra itensor etensor))
-   (define Tensor (if (config 'default-exactness algebra) etensor Tensor~))
-
-   ; -- matrix -----------------------------------
-   ; создание (и инициализация, если есть чем) матрицы заданных размеров
-   ; если первый элемент - вектор, то это матрица; иначе количество строк
-   ; если второй элемент - вектор, то это строка и ее надо размножить на количество строк
-   ; если второй элемент - число, то создаем пустую матрицу rows * cols
-   (define ematrix (case-lambda
-      ; todo: assertions
-      ((matrix)  matrix)
-      ((rows columns)
-         (if (vector? columns)
-            (list->vector (map (lambda (i) (deepcopy columns)) (iota rows)))
-         else
-            (list->vector (map (lambda (i) (make-vector columns 0)) (iota rows))))) ))
-
-   (define imatrix (case-lambda
-      ; todo: assertions
-      ((matrix) (itensor matrix))
-      ((rows columns)
-         (itensor rows columns))))
-
-   ; public:
-   (define Matrix~ (if algebra imatrix ematrix))
-   (define Matrix (if (config 'default-exactness algebra) ematrix Matrix~))
-
-   ; -- vector -----------------------------------
-   (define (evector arg)
-      (if (vector? arg)
-         arg
-      else
-         (make-vector arg 0)))
-
-   (define (ivector dim)
-      (assert (or
-         (scalar? dim)
-         (and (vector? dim) (scalar? (ref dim 1)))))
-      (itensor dim))
-
-   ; public:
-   (define Vector~ (if algebra ivector evector))
-   (define Vector (if (config 'default-exactness algebra) evector Vector~))
-
    ; --------------------
    (define (rref array . args)
       (let loop ((array array) (args args))
@@ -192,6 +114,89 @@
                (else
                   (runtime-error "TBD" f)))) ))
 
+   ; ================================================================
+   ; универсальные функции создания массивов
+
+   (setq shallowcopy (lambda (o) (vm:cast o (type o)))) ; * internal
+   (define (deepcopy o) ; * internal
+      (if (vector? o)
+         (vector-map deepcopy o)
+         (shallowcopy o)))
+
+   ; exact (lisp) tensor creation
+   (define (etensor . args)
+      (foldr (lambda (dim tail)
+            (if (vector? dim)
+            ;  (deepcopy dim)
+               dim
+            else
+               (list->vector (map (lambda (i) (deepcopy tail)) (iota dim)))))
+         0
+         args))
+
+   ; inexact (c) tensor creation
+   (define (itensor . args)
+      (define dimensions
+         (foldr (lambda (x tail)
+               (if (vector? x) ; вектор всегда последний
+                  (reverse (let loop ((x (ref x 1))
+                                    (out (cons (size x) #n)))
+                     (if (vector? x)
+                        (loop (ref x 1) (cons (size x) out))
+                        out)))
+                  (cons x tail)))
+            #null
+            args))
+      (unless (equal? dimensions '(#f))
+         (cons dimensions (~create dimensions args))))
+
+   ; public:
+   (define Tensor~ (if algebra itensor etensor))
+   (define Tensor (if (config 'default-exactness algebra) etensor Tensor~))
+
+   ; -- matrix -----------------------------------
+   ; создание (и инициализация, если есть чем) матрицы заданных размеров
+   ; если первый элемент - вектор, то это матрица; иначе количество строк
+   ; если второй элемент - вектор, то это строка и ее надо размножить на количество строк
+   ; если второй элемент - число, то создаем пустую матрицу rows * cols
+   (define ematrix (case-lambda
+      ; todo: assertions
+      ((matrix)  matrix)
+      ((rows columns)
+         (if (vector? columns)
+            (list->vector (map (lambda (i) (deepcopy columns)) (iota rows)))
+         else
+            (list->vector (map (lambda (i) (make-vector columns 0)) (iota rows))))) ))
+
+   (define imatrix (case-lambda
+      ; todo: assertions
+      ((matrix) (itensor matrix))
+      ((rows columns)
+         (itensor rows columns))))
+
+   ; public:
+   ; TODO: change like Vector
+   (define Matrix~ (if algebra imatrix ematrix))
+   (define Matrix (if (config 'default-exactness algebra) ematrix Matrix~))
+
+   ; -- vector -----------------------------------
+   (define (evector arg)
+      (if (vector? arg)
+         arg
+      else
+         (make-vector arg 0)))
+
+   (define (ivector dim)
+      (assert (or
+         (scalar? dim)
+         (and (vector? dim) (scalar? (ref dim 1)))))
+      (itensor dim))
+
+   ; public:
+   (define Vector~ (if algebra ivector (lambda args (rmap inexact (apply evector args)))))
+   (define Vector (if (config 'default-exactness algebra) evector Vector~))
+
+   ; -------------------------------------------
    ;(define ~fold (dlsym algebra "Fold"))
    (define rfold
       (case-lambda
