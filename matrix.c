@@ -7,24 +7,14 @@
 // mul
 // dot (matrix-multiplication)
 
-// word* Matrix_Product(olvm_t* this, word* arguments)
-// {
-//     heap_t* heap = (struct heap_t*)this;
-
-//     word A = car(arguments); arguments = (word*)cdr(arguments);
-//     word B = car(arguments); arguments = (word*)cdr(arguments);
-//     assert (arguments == RNULL);
-// }
-
 __attribute__((used))
-word* mdot(olvm_t* this, word* arguments) // todo: change to word arguments
+word* mdot(olvm_t* this, word arguments) // todo: change to word arguments
 {
-	// todo: use ENTER_SECTION/LEAVE_SECTION, remove heap, add fp
-    heap_t* heap = (struct heap_t*)this;
+    word* fp;
 
-    word A = car(arguments); arguments = (word*)cdr(arguments); // matrix A
-    word B = car(arguments); arguments = (word*)cdr(arguments); // matrix B
-    assert (arguments == RNULL);
+    word A = car(arguments); arguments = cdr(arguments); // matrix A
+    word B = car(arguments); arguments = cdr(arguments); // matrix B
+    assert (arguments == INULL);
     // assert matrices
 
     size_t m = value(caar(A));
@@ -56,11 +46,7 @@ word* mdot(olvm_t* this, word* arguments) // todo: change to word arguments
         }
     }
 
-    word* fp;
-    fp = heap->fp;
-    C = new_pair(new_list(TPAIR, I(m), I(q)), C);
-    heap->fp = fp;
-    return C;
+	RETURN_TENSOR(new_list(TPAIR, I(m), I(q)), C);
 }
 
 // Matrix Transposition
