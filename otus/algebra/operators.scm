@@ -168,20 +168,9 @@
 
    ; ------------------------------
    ; smart dot-product
-   ; temp functions:
-   (define vector·vector dot-product)
-
-   ; special function, not a math-compliant
-   ; todo: optimize via native code
-   (define (vector·matrix V M)
-      (ref (matrix·matrix [V] M) 1))
-
-   ; special function, not a math-compliant
-   ; todo: optimize via native code
-   (define (matrix·vector M V)
-      (ref (matrix-transpose (matrix·matrix M (matrix-transpose [V])) 1)))
 
    ; matrix and vector dot-product
+   ; ??? why don't use "~mdot" ?
    (define Dot (lambda (a b)
       (cond
          ; no scalars are supported
@@ -203,6 +192,8 @@
                         (runtime-error "unsupported" #f))))
                (else
                   (runtime-error "unsupported" #n))))
+         ((tensor? a)
+            (matrix·matrix a b))
          (else
             (runtime-error "unsupported" #n)))))
 

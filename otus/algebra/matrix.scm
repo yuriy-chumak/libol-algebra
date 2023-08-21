@@ -13,9 +13,9 @@
    determinant
    matrix-transpose
 
-   matrix·matrix ; todo: вынести в отдельный модуль, 
-   ;matrix·vector ; todo: оптимизировать
-   ;vector·matrix ; todo: оптимизировать
+   matrix·matrix ; M · M -> M
+   matrix·vector ; M · V -> V
+   vector·matrix ; V · M -> V
 
    matrix-product
    hadamard-product
@@ -37,8 +37,6 @@
    (import
       (otus algebra macros)
       (otus algebra config))
-
-   (define ~mdot (dlsym algebra "mdot"))
 
    ; https://en.wikipedia.org/wiki/Hadamard_product_(matrices)
    (define (hadamard-product A B)
@@ -114,78 +112,171 @@
 
    (define matrix-inverse inverse-matrix)
 
+
+   ; ---------------
+   ; matrix * matrix
    ; long matrix multiplication version (vector of vectors)
-   ; todo: add specific cases for vector·matrix and matrix·vector
+   (define ~mdot (dlsym algebra "mdot"))
    (define (matrix·matrix A B)
-      (if (tensor? A)
-         (cond
+      (cond
+         ((vector? A) (cond
+            ((vector? B)
+               ; simplest multiplication implementation:
+               ; /rows and columns count limited to 255/
+               ;; (map
+               ;;    (lambda (row)
+               ;;       (apply map
+               ;;          (lambda column
+               ;;             (apply + (map * row column)))
+               ;;          matrix2))
+               ;;    matrix1))
+
+               ; real implementation:
+               (define m (size A))
+               (define n (size (ref A 1)))
+               (assert (eq? (size B) n) ===> #true)
+               (define q (size (ref B 1)))
+               (define (at m x y)
+                  (ref (ref m x) y))
+
+               (let mloop ((i m) (rows #null))
+                  (if (eq? i 0)
+                     (list->vector rows)
+                  else
+                     (mloop
+                        (-- i) ; speedup for (- i 1)
+                        (cons
+                           (let rloop ((j q) (row #null))
+                              ;; (print "j: " j)
+                              (if (eq? j 0)
+                                 (list->vector row)
+                              else
+                                 (rloop
+                                    (-- j) ; speedup for (- j 1)
+                                    (cons
+                                       (let loop ((k 1) (c 0))
+                                          (if (less? n k) ; speedup for (> k n)
+                                             c
+                                          else
+                                             (loop (++ k) (+ c (* (at A i k) (at B k j))))))
+                                       row))))
+                           rows)))))
+            ((tensor? B)
+               (~mdot (imatrix A) B))
+            (else
+               (runtime-error "Invalid arguments" #n))))
+         ((tensor? A) (cond
             ((tensor? B)
                (~mdot A B))
             ((vector? B)
-               (~mdot A (imatrix B))))
-      else
-         ; simplest multiplication implementation:
-         ; /rows and columns count limited to 255/
-         ;; (map
-         ;;    (lambda (row)
-         ;;       (apply map
-         ;;          (lambda column
-         ;;             (apply + (map * row column)))
-         ;;          matrix2))
-         ;;    matrix1))
-
-         ; real implementation:
-         (define m (size A))
-         (define n (size (ref A 1)))
-         (assert (eq? (size B) n) ===> #true)
-         (define q (size (ref B 1)))
-         (define (at m x y)
-            (ref (ref m x) y))
-
-         (let mloop ((i m) (rows #null))
-            (if (eq? i 0)
-               (list->vector rows)
-            else
-               (mloop
-                  (-- i) ; speedup for (- i 1)
-                  (cons
-                     (let rloop ((j q) (row #null))
-                        ;; (print "j: " j)
-                        (if (eq? j 0)
-                           (list->vector row)
-                        else
-                           (rloop
-                              (-- j) ; speedup for (- j 1)
-                              (cons
-                                 (let loop ((k 1) (c 0))
-                                    (if (less? n k) ; speedup for (> k n)
-                                       c
-                                    else
-                                       (loop (++ k) (+ c (* (at A i k) (at B k j))))))
-                                 row))))
-                     rows))))))
+               (~mdot A (imatrix B)))
+            (else
+               (runtime-error "Invalid arguments" #n))))
+         (else
+            (runtime-error "Invalid arguments" #n))))
 
    (define matrix-product matrix·matrix)
 
-   (define (matrix*vector~ M V) ; V - транспонированный вектор (строка)
-      (define n (size V))
-      (assert (eq? (size M) n) ===> #true)
-      (define q (size (ref M 1)))
-      (define (at m x y)
-         (ref (ref m x) y))
+   ; (V*M) -> V
+   (define (vector·matrix V M)
+      ; assert V is a Vector
+      (cond
+         ((vector? M) (cond
+            ((vector? V)
+               (define n (size V))
+               (define q (size (ref M 1)))
+               (assert (eq? q n) ===> #true)
+               (define (at m x y)
+                  (ref (ref m x) y))
 
-      (let rloop ((j q) (row #null))
-         (if (eq? j 0)
-            (list->vector row)
-         else
-            (rloop (-- j)
-               (cons
-                  (let loop ((k 1) (c 0))
-                     (if (less? n k)
-                        c
-                     else
-                        (loop (++ k) (+ c (* (ref V k) (at M k j))))))
-                  row)))))
+               (let rloop ((i q) (out #null)) ; i - колонка
+                  (if (eq? i 0)
+                     (list->vector out)
+                  else
+                     (rloop (-- i)
+                        (cons
+                           (let loop ((k 1) (c 0)) ; 
+                              (if (less? n k)
+                                 c
+                              else
+                                 (loop (++ k) (+ c (* (ref V k) (at M k i))))))
+                           out)))))
+            ((tensor? V)
+               (define len (Size V))
+               (cons (list len) (cdr
+                  (~mdot (cons (list 1 len) ; vector -> 1-column matrix
+                               (cdr V))
+                         (imatrix M)))))
+            (else
+               (runtime-error "unsupported" #n))))
+         ((tensor? M) (cond
+            ((tensor? V)
+               (define len (Size V))
+               (cons (list len) (cdr
+                  (~mdot (cons (list 1 len) ; vector -> 1-column matrix
+                               (cdr V))
+                         M))))
+            ((vector? V)
+               (define len (size V))
+               (cons (list len) (cdr
+                  (~mdot (cons (list 1 len) ; vector -> 1-column matrix
+                               (~create (list len) (list V)))
+                         M))))
+            (else
+               (runtime-error "unsupported" #n))))
+         (else
+            (runtime-error "Invalid arguments" #n))))
+
+   ; (M*V) -> V
+   (define (matrix·vector M V)
+      ; assert V is a Vector
+      (cond
+         ((vector? M) (cond
+            ((vector? V)
+               (define n (size V))
+               (assert (eq? (size M) n) ===> #true)
+               (define q (size (ref M 1)))
+               (define (at m x y)
+                  (ref (ref m x) y))
+
+               (let rloop ((j q) (out #null)) ; j - строка
+                  (if (eq? j 0)
+                     (list->vector out)
+                  else
+                     (rloop (-- j)
+                        (cons
+                           (let loop ((k 1) (c 0)) ; 
+                              (if (less? n k)
+                                 c
+                              else
+                                 (loop (++ k) (+ c (* (ref V k) (at M j k))))))
+                           out)))))
+            ((tensor? V)
+               (define len (Size V))
+               (cons (list len) (cdr
+                           ; вектор -> матрица из одной колонки
+                  (~mdot (imatrix M)
+                         (cons (list len 1) ; vector -> 1-row matrix
+                               (cdr V))))))
+            (else
+               (runtime-error "unsupported" #n))))
+         ((tensor? M) (cond
+            ((tensor? V)
+               (define len (Size V))
+               (cons (list len) (cdr
+                  (~mdot M
+                         (cons (list len 1) ; vector -> 1-row matrix
+                               (cdr V))))))
+            ((vector? V)
+               (define len (size V))
+               (cons (list len) (cdr
+                  (~mdot M
+                         (cons (list len 1) ; vector -> 1-row matrix
+                               (~create (list len) (list V)))))))
+            (else
+               (runtime-error "unsupported" #n))))
+         (else
+            (runtime-error "Invalid arguments" #n))))
 
    ; https://en.wikipedia.org/wiki/Matrix_multiplication#Powers_of_a_matrix
    ; Возведение в степень
@@ -194,12 +285,14 @@
       (case k
          (0 (Index A (lambda (i j) (if (eq? i j) 1 0))))
          (1 A)
-         ;; (else ; naive algorithm
-         ;;    (let loop ((B A) (k k))
-         ;;       (if (eq? k 1)
-         ;;          B
-         ;;          (loop (matrix-product A B) (-- k)))))))
          (else ; https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+            ; naive algorithm:
+            ;;    (let loop ((B A) (k k))
+            ;;       (if (eq? k 1)
+            ;;          B
+            ;;          (loop (matrix-product A B) (-- k)))))))
+            ;; 
+            ; optimized algorithm:
             (define (expt-loop ap p out)
                (cond
                   ((eq? p 0) out)

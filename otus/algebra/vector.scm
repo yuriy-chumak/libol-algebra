@@ -2,7 +2,8 @@
 
 (import
    (otus lisp)
-   (otus algebra core))
+   (otus algebra core)
+   (otus ffi))
 
 (export
    dot-product  ; скалярное произведение
@@ -11,6 +12,8 @@
    triple-product ; смешанное произведение
    ; inner-product ??
    ; todo: псевдоскалярное произведение
+
+   vector·vector ; V · V -> V
 
    magnitude ; модуль вектора
    square-magnitude ; квадратный модуль вектора
@@ -45,7 +48,7 @@
 
    ; https://en.wikipedia.org/wiki/Determinant
    ; Определитель матрицы
-   (define (det m)
+   (define (det m) ; todo: move to some basic library
       (cond
          ((eq? (size m) 1)
             (ref (ref m 1) 1))
@@ -74,6 +77,26 @@
       ((if (eq? (band (bxor i j) 1) 0) idf negate) (minor A i j)))
 
    ; -------------------------------------------------------------
+   (define ~vdot (dlsym algebra "vdot"))
+   (define (vector·vector A B)
+      (cond
+         ((vector? A) (cond
+            ((vector? B)
+               (vector-fold + 0 (vector-map * A B)))
+            ((tensor? B)
+               (~vdot (ivector A) B))
+            (else
+               (runtime-error "Invalid arguments" #n))))
+         ((tensor? A) (cond
+            ((tensor? B)
+               (~vdot A B))
+            ((vector? B)
+               (~vdot A (ivector B)))
+            (else
+               (runtime-error "Invalid arguments" #n))))
+         (else
+            (runtime-error "Invalid arguments" #n))))
+
    (define (dot-product a b)
       (vector-fold + 0 (vector-map * a b)))
 

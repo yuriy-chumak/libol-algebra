@@ -23,6 +23,7 @@
    scalar? vector? tensor?
 
    ; helper functions
+   ~create
    rmap ~map ; recursive map, inexact map
    rref ~ref ; recursive ref, inexact ref
    rfold)
@@ -103,8 +104,7 @@
    ; если второй элемент - число, то создаем пустую матрицу rows * cols
    (define ematrix (case-lambda
       ; todo: assertions
-      ((matrix) (
-         matrix))
+      ((matrix)  matrix)
       ((rows columns)
          (if (vector? columns)
             (list->vector (map (lambda (i) (deepcopy columns)) (iota rows)))
@@ -189,7 +189,7 @@
                (else
                   (runtime-error "TBD" f)))) ))
 
-   (define ~fold (dlsym algebra "Fold"))
+   ;(define ~fold (dlsym algebra "Fold"))
    (define rfold
       (case-lambda
          ((f S array)

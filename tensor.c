@@ -117,28 +117,15 @@ void maker(fp_t* begin, fp_t**end, word data) {
 // TODO: (new_floats tensor dimN-1 dimN)
 word* Tensor(olvm_t* this, word* arguments)
 {
-	// heap_t* heap = (struct heap_t*)this;
-	// word* fp;
-
-	word dims = car(arguments); arguments = (word*)cdr(arguments); // dimenstions
-	word data = car(arguments); arguments = (word*)cdr(arguments); // array data?
+	word dims = car(arguments); arguments = (word*)cdr(arguments); // dimensions
+	word data = car(arguments); arguments = (word*)cdr(arguments); // array data
 	assert (arguments == RNULL);
 
-	// посчитаем размер нужного блока
-//	unsigned dim_count = 0;
-//	unsigned dim_total = 1;
-//	for (word args = dims; args != INULL; args = cdr(args)) {
-//		int dim = numberp(car(args));
-//		dim_count++;
-//		dim_total *= dim;
-//	}
+	// размер блока данных
 	unsigned dim_total = size(dims);
-
 	word* array = new_floats(this, dim_total);
 
-	// fp = heap->fp;
-
-	// проинициализируем готовыми данными:
+	// проинициализируем готовыми данными
 	if (data != IFALSE) {
 		fp_t* ptr = payload(array);
 		maker(ptr, &ptr, data);

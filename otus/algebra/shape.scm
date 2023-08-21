@@ -80,7 +80,8 @@
    (define (Reshape array vector-shape)
       (unless (eq? (fold * 1 (Shape array))
                    (fold * 1 vector-shape))
-         (runtime-error "new shape is not applicable" (list (Shape array) " --> " vector-shape)))
+         (runtime-error "new shape is not applicable"
+            (list (Shape array) " --> " vector-shape)))
       (cond
          ((vector? array) ; builtin array
             (list->vector (reshape (flatten array #n) vector-shape)))

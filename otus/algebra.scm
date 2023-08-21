@@ -11,7 +11,9 @@
 (import
    (otus algebra core)
    (otus algebra shape)
+
    (otus algebra init)
+   (otus algebra fold)
 
    (otus algebra scalar)
    (otus algebra vector)
@@ -58,6 +60,7 @@
    (exports (otus algebra matrix))
 
    (exports (otus algebra init))
+   (exports (otus algebra fold))
 
    (exports (otus algebra operators))
    (exports (otus algebra functions))

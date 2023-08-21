@@ -74,10 +74,9 @@ word* mtranspose(olvm_t* this, word arguments)
 
     word M = caar(A);
     word N = car(cdar(A));
-	assert (cdr(cdar(A)) == INULL);
 
-	size_t m = value(M);
-	size_t n = value(N);
+	size_t m = value(M); // rows
+	size_t n = value(N); // columns
 
 	// vector
 	if (m == 1 || n == 1) {
@@ -86,8 +85,21 @@ word* mtranspose(olvm_t* this, word arguments)
 	}
 
 	// matrix
-	word floats = cdr(A);
-	fp_t* f = payload(floats);
-	return IFALSE; // car(A);
-	// RETURN_TENSOR(car(A), f); // todo: change
+	if (cdr(cdar(A)) == INULL)
+	{
+		size_t asize = size(car(A));
+		word* floats = new_floats(this, asize, &A);
+
+		fp_t* a = payload(cdr(A));
+		fp_t* f = payload(floats);
+		for (size_t i = 0; i < asize; i++) {
+			size_t x = i % n;
+			size_t y = i / n;
+			f[x * m + y] = a[i];
+		}
+
+		RETURN_TENSOR(new_list(TPAIR, car(cdar(A)), caar(A)), floats);
+	}
+
+	return (word*) IFALSE; // invalid call
 }
