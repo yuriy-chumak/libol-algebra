@@ -4,13 +4,13 @@
 __attribute__((used))
 word* Paddings(olvm_t* this, word arguments)
 {
-    word* fp;
+	word* fp;
 
-    word A = car(arguments); arguments = cdr(arguments);
+	word A = car(arguments); arguments = cdr(arguments);
 	assert (arguments == INULL);
 
-    size_t m = value(caar(A));
-    size_t n = value(car(cdar(A)));
+	size_t m = value(caar(A));
+	size_t n = value(car(cdar(A)));
 
 	fp_t* a = payload(cdr(A));
 
@@ -63,17 +63,17 @@ word* Paddings(olvm_t* this, word arguments)
 __attribute__((used)) // (Shift matrix '(x y ...))
 word* Shift(olvm_t* this, word arguments)
 {
-    word* fp;
+	word* fp;
 
-    word A = car(arguments); arguments = cdr(arguments);
+	word A = car(arguments); arguments = cdr(arguments);
 	word S = car(arguments); arguments = cdr(arguments);
 	assert (arguments == INULL);
 
-    size_t m = value(caar(A));
-    size_t n = value(car(cdar(A)));
+	size_t m = value(caar(A));
+	size_t n = value(car(cdar(A)));
 
-    size_t asize = size(car(A));
-    word C = (word) new_floats(this, asize, &A, &S);
+	size_t asize = size(car(A));
+	word C = (word) new_floats(this, asize, &A, &S);
 
 	int x = number(car(S));
 	int y = number(cadr(S));

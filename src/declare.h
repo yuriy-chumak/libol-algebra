@@ -9,18 +9,18 @@
 __attribute__((used))\
 word* name(olvm_t* this, word arguments)\
 {\
-    word* fp;\
+	word* fp;\
 \
 	/* special case:*/\
-    if (arguments == INULL) {\
-        ENTER_SECTION\
-        word* scalar = new_inexact(fnc());\
-        LEAVE_SECTION\
+	if (arguments == INULL) {\
+		ENTER_SECTION\
+		word* scalar = new_inexact(fnc());\
+		LEAVE_SECTION\
 		return scalar;\
-    }\
+	}\
 \
-    word A = car(arguments); arguments = cdr(arguments);\
-    assert (arguments == INULL);\
+	word A = car(arguments); arguments = cdr(arguments);\
+	assert (arguments == INULL);\
 \
 	size_t asize = size(car(A));\
 	word* floats = new_floats(this, asize, &A);\
@@ -52,9 +52,9 @@ word* name(olvm_t* this, word arguments)\
 	/* scalar case: */ \
 	if (is_scalar(A)) {\
 		fp_t a = ol2f(A);\
-        ENTER_SECTION\
+		ENTER_SECTION\
 		word* scalar = new_inexact(fnc(a));\
-        LEAVE_SECTION\
+		LEAVE_SECTION\
 		return scalar;\
 	}\
 \
@@ -101,28 +101,28 @@ word* name ## E(olvm_t* this, word arguments)\
 __attribute__((used))\
 word* name(olvm_t* this, word arguments)\
 {\
-    word* fp;\
+	word* fp;\
 \
 	word A = car(arguments); arguments = cdr(arguments);\
-    word B = car(arguments); arguments = cdr(arguments);\
-    assert (arguments == INULL);\
+	word B = car(arguments); arguments = cdr(arguments);\
+	assert (arguments == INULL);\
 \
 	CHECK (is_tensor(A), #name " error: left operand must be a tensor.");\
 	CHECK_IF (is_tensor(B),\
 		size(car(B)) == size(car(A)), #name " error: arguments sizes mismatch");\
 \
-    size_t asize = size(car(A));\
-    word* floats = new_floats(this, asize, &A, &B);\
+	size_t asize = size(car(A));\
+	word* floats = new_floats(this, asize, &A, &B);\
 \
-    fp_t* a = payload(cdr(A));\
+	fp_t* a = payload(cdr(A));\
 	fp_t* f = payload(floats);\
 	/* todo: process fnc(scalar, scalar) */\
-    if (is_scalar(B)) {/* tensor, scalar */\
+	if (is_scalar(B)) {/* tensor, scalar */\
 		fp_t b = ol2f(B);\
 		for (int i = 0; i < asize; i++) {\
 			f[i] = fnc(a[i], b);\
 		}\
-    }\
+	}\
 	else\
 	if (is_tensor(B)) {/* tensor, tensor */\
 		fp_t* b = payload(cdr(B));\
@@ -131,7 +131,7 @@ word* name(olvm_t* this, word arguments)\
 		}\
 	}\
 \
-    /* todo: make (Name Tensor~ Tensor) and (Name Tensor Tensor~)*/\
+	/* todo: make (Name Tensor~ Tensor) and (Name Tensor Tensor~)*/\
 	RETURN_TENSOR(car(A), floats);\
 }
 

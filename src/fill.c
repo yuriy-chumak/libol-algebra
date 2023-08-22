@@ -2,26 +2,26 @@
 
 static
 void fill(word A, size_t count, fp_t x) {
-    fp_t* a = payload(A);
-    for (int i = 0; i < count; i++) {
-        a[i] = x;
-    }
+	fp_t* a = payload(A);
+	for (int i = 0; i < count; i++) {
+		a[i] = x;
+	}
 }
 
 word* Fill(olvm_t* this, word* arguments)
 {
-    word* fp;
+	word* fp;
 
-    word A = car(arguments); arguments = (word*)cdr(arguments);
-    word B = car(arguments); arguments = (word*)cdr(arguments);
-    assert (arguments == RNULL);
+	word A = car(arguments); arguments = (word*)cdr(arguments);
+	word B = car(arguments); arguments = (word*)cdr(arguments);
+	assert (arguments == RNULL);
 
-    size_t asize = size(car(A));
-    word C = (word) new_floats(this, asize, &A, &B);
+	size_t asize = size(car(A));
+	word C = (word) new_floats(this, asize, &A, &B);
 
 	if (is_inexact(B)) {
-	    fp_t b = *(inexact_t*)&car(B);
-	    fill(C, asize, b);
+		fp_t b = *(inexact_t*)&car(B);
+		fill(C, asize, b);
 	}
 	else
 	if (is_callable(B)) { // callback
@@ -43,18 +43,18 @@ word* Fill(olvm_t* this, word* arguments)
 
 word* FillE(olvm_t* this, word arguments)
 {
-    word* fp;
+	word* fp;
 
-    word A = car(arguments); arguments = cdr(arguments);
-    word B = car(arguments); arguments = cdr(arguments);
-    assert (arguments == INULL);
+	word A = car(arguments); arguments = cdr(arguments);
+	word B = car(arguments); arguments = cdr(arguments);
+	assert (arguments == INULL);
 
-    size_t asize = size(car(A));
-    word C = cdr(A);
+	size_t asize = size(car(A));
+	word C = cdr(A);
 
 	if (is_inexact(B)) {
-	    fp_t b = *(inexact_t*)&car(B);
-	    fill(C, asize, b);
+		fp_t b = *(inexact_t*)&car(B);
+		fill(C, asize, b);
 	}
 	else
 	if (is_callable(B)) { // callback
@@ -71,5 +71,5 @@ word* FillE(olvm_t* this, word arguments)
 		A = OLVM_unpin(this, a);
 	}
 
-    return (word*) A;
+	return (word*) A;
 }
