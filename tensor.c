@@ -123,7 +123,7 @@ word* Tensor(olvm_t* this, word* arguments)
 
 	// размер блока данных
 	unsigned dim_total = size(dims);
-	word* array = new_floats(this, dim_total);
+	word* array = new_floats(this, dim_total, &data);
 
 	// проинициализируем готовыми данными
 	if (data != IFALSE) {

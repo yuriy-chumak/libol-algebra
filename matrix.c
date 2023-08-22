@@ -31,20 +31,14 @@ word* mdot(olvm_t* this, word arguments) // todo: change to word arguments
     fp_t* c = payload(floats);
 
 	size_t i,j,k;
-#pragma omp parallel shared(a,b,c) private(i,j)
-    for (i = 0; i < m; i++) {
-        for (j = 0; j < q; j++) {
-            fp_t S = 0;
-#pragma omp parallel shared(a,b,c) firstprivate(i,j) private(k) reduction(+:S)
-            for (k = 0; k < n; k++) {
-                fp_t f1 = a[i*n + k];
-                fp_t f2 = b[k*q + j];
-                S += a[i*n + k] * b[k*q + j];
-            }
+	memset(c, 0, m * q * sizeof(fp_t)); // clear with "0.0"
 
-            c[i*q + j] = S;
-        }
-    }
+	#pragma omp parallel for private(i,j,k) shared(a,b,c) \
+			schedule(static)
+    for (i = 0; i < m; i++)
+        for (j = 0; j < q; j++)
+            for (k = 0; k < n; k++)
+				c[i*q + j] += a[i*n + k] * b[k*q + j];
 
 	RETURN_TENSOR(new_list(TPAIR, I(m), I(q)), floats);
 }

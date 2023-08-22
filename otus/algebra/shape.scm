@@ -22,6 +22,9 @@
    ; todo: repeat_linear, repeat_interleave, expand
    Reshape
    Flatten ; convert array to 1-dimensional
+
+   ; todo: move to other library
+   Paddings Shift
 )
 
 (begin
@@ -88,4 +91,12 @@
          ((tensor? array) ; external data
             (cons vector-shape (cdr array)))))
 
+
+   ; todo: move to other library
+   (setq ~paddings (dlsym algebra "Paddings"))
+   (define Paddings ~paddings)
+
+   (setq ~shift (dlsym algebra "Shift"))
+   (define Shift ~shift)
+   ; todo: Shift!
 ))

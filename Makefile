@@ -1,14 +1,22 @@
 # https://www.gnu.org/prep/standards/html_node/Standard-Targets.html
+.PHONY: all debug release
+
 export LD_LIBRARY_PATH=$(shell pwd)
 
 all: libol-algebra.so
 
+release: CFLAGS += -O3 -g0
+release: libol-algebra.so
+
+debug: CFLAGS += -O0 -g3
+debug: libol-algebra.so
+
 libol-algebra.so: $(wildcard src/*.h)
 libol-algebra.so: vector.c matrix.c tensor.c $(wildcard src/*.c)
-	gcc $^ -shared -fPIC -o $@ \
+	gcc $^ -fPIC $(CFLAGS) \
+	-fopenmp -I. -include "omp.h" \
 	-Xlinker --export-dynamic \
-	-I. -fopenmp -O3 -g3 \
-	-fopenmp
+	-shared -o $@
 #	-fvisibility=default
 
 install: libol-algebra.so
