@@ -12,7 +12,7 @@ define CHECK_REFERENCE
 endef
 export CHECK_REFERENCE
 
-check-reference: reference/README.md $(wildcard reference/en/*.md)
+check-reference: reference/README.md $(wildcard reference/en/**/*.md)
 	@echo "Testing reference:"
 	@ol reference/check.lisp $(filter %.md,$^) && echo $(ok) || echo $(failed)
 

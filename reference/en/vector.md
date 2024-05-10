@@ -26,52 +26,51 @@ A Vector can be created:
 
 * using native Ol syntax
   ```scheme
-  ; short notation
+  ; shortest notation,
   ; we'll use such notation widely
   > [1 2 3 4 5]
   #(1 2 3 4 5)
   ```
 
-* using `Vector` function
+* using algebra `Vector` function
   ```scheme
-  ; uninializied vector of N elements,
+  ; uninitialized vector of N elements,
   ; it's not guaranteed that the vector will be initialized with zeros.
   > (Vector 7)
   #(0 0 0 0 0 0 0)
 
-  ; fast (inexact) math vector (if libol-algebra.so has been loaded),
-  ;   otherwise regular Vector type used (but with inexact numbers!).
+  ; fast (inexact) math vector,
   ; it's not guaranteed that the vector will be initialized with zeros.
   > (Vector~ 7)  ; 7 elements
   '((7) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
 
-  ; fast (inexact) version of a regular vector
+  ; fast (inexact) copy of a regular vector
   > (Vector~ [1 2 3 4])
   '((4) . #u8(0 0 128 63 0 0 0 64 0 0 64 64 0 0 128 64))
   ```
 
 * using Scheme `vector` and Ol `make-vector` functions
   ```scheme
-  ; lisp notation
+  ; scheme notation
   > (vector 1 2 3 4 5)
   #(1 2 3 4 5)
 
-  ; uninializied vector of N elements
+  ; uninitialized vector of N elements
   > (make-vector 7)
   #(#false #false #false #false #false #false #false)
 
-  ; inializied vector of any applicable repeating value
-  ;   attention! all elements of such vector are same in sense of `eq?`
+  ; initialized vector of any applicable repeating value
+  ;  attention! all elements of such vector are the same in sense of `eq?`
   > (make-vector 4 2/3)
   #(2/3 2/3 2/3 2/3)
 
-  ; vector from list
+  ; vector from the list
   > (make-vector '(3 4 5))
   #(3 4 5)
   ```
 
 * you can use any number as a vector arguments,
-  including negatives, ratios, complex, inexact numbers (floats),
+  including negatives, ratios, complex, inexact numbers (*floats*),
   looong integers, NaN and Infinity
   ```scheme
   ; note: #i is a prefix for "inexact number"
@@ -79,15 +78,15 @@ A Vector can be created:
   #(-3 3/7 16+4i 178/25 7.12 618970019642290147449562111 +inf.0 4)
   ```
 
-* you can use infix notation
+* you can use infix notation, sure
   ```scheme
-  > (infix-notation
+  > (\\
        vector(1 2 3 4 5)
     )
   #(1 2 3 4 5)
 
   ; even for a native Ol syntax
-  > (infix-notation
+  > (\\
        [3 4 5 6 7]
     )
   #(3 4 5 6 7)
@@ -101,9 +100,12 @@ A Vector can be created:
   > (Zeros [1 2 3 4])
   #(0 0 0 0)
 
-  ; fast zeros vector
+  ; fast vector with inexact zeros
   > (Zeros~ 4)
   '((4) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+
+  > (Print (Zeros~ 4))
+  [0.0 0.0 0.0 0.0]
 
   ; regular vector with inexact zeros
   > (Zeros~ (Vector 7))
@@ -118,9 +120,12 @@ A Vector can be created:
   > (Ones [3 4 3 4 3 4])
   #(1 1 1 1 1 1)
 
-  ; fast vector
+  ; fast vector with inexact ones
   > (Ones~ 3)
   '((3) . #u8(0 0 128 63 0 0 128 63 0 0 128 63))
+
+  > (Print (Ones~ 3))
+  [1.0 1.0 1.0]
 
   ; regular vector with inexact ones
   > (Ones~ (Vector 8))

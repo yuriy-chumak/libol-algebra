@@ -8,6 +8,8 @@
 (import (lang sexp))
 (import (scheme repl))
 
+(import (only (otus algebra core) tensor?))
+
 ; color markers
 (define red "\x1B;[22;31m")
 (define green "\x1B;[22;32m")
@@ -18,28 +20,31 @@
 (greedy+ (let-parse* (
       (text (let-parse* (
                (text (lazy* byte))
-               (skip (word "```scheme" #f)))
+               (skip (word "```scheme\n" #f)))
             text))
       (code (let-parse* (
                (code (lazy* byte))
-               (skip (word "  ```" #f)))
+               (skip (word "```\n" #f)))
             code)))
-   (append code '(#\newline)))))
+   (append code '(#\newline #\newline)))))
 
-(define sample
-(greedy+ (let-parse* (
-      (code (greedy+ (let-parse* (
-               (skip (greedy+ whitespace-or-comment))
-               (prefix (word "> " #t)) ; строка запроса
-               (code sexp-parser)
-               (skip (greedy+ (imm #\newline)))) ; trailing newlines
-         code)))
-      (answer (let-parse* (
-            (skip (greedy+ whitespace)) ; leading spaces
-            (text (lazy+ rune))
-            (skip (word "\n\n" #t)))  ; обязательный маркер конца примера
-         text)))
-   (cons code answer))))
+(define samples
+(either
+   (greedy+ (let-parse* (
+         (code (greedy+ (let-parse* (
+                  (skip (greedy* whitespace-or-comment))
+                  (prefix (word "> " #t)) ; строка запроса
+                  (code sexp-parser)
+                  (skip (greedy+ (imm #\newline)))) ; trailing newlines
+            code)))
+         (answer (let-parse* (
+               (skip (greedy* whitespace)) ; leading spaces
+               (text (lazy+ rune))
+               (skip (word "\n\n" #t)))  ; обязательный маркер конца примера
+            text)))
+      (cons code answer)))
+   (epsilon '())
+))
 
 ; evaluator
 (import (lang eval))
@@ -95,11 +100,12 @@
                   ;; (print "----------------")
                   (rand-reset!) ; restart random generator
                   (let*((code answer sample)
-                        (answer (s/[ \n]+/ /g (list->string answer))))
+                        (answer (s/[ \n]+$//
+                                (s/[ \n]+/ /g (list->string answer)))))
                      ; (display  "  code: ") (write code) (newline)
                      ; handle special case with "Print"
                      (define stdout-new
-                        (when (eq? (ref (car code) 1) 'Print)
+                        (when (member (ref (car code) 1) '(print Print))
                            (define bak (dup stdout))
                            (define port (open-output-string))
                            (dup port stdout)
@@ -115,8 +121,14 @@
                                  (get-output-string port)))
                            else
                               ; common case with returned value
+                              (define bak (dup stdout))
                               (define buffer (open-output-string))
-                              (write-simple test buffer)
+                              (dup buffer stdout)
+                              (if (tensor? test)
+                                 (Print test)
+                                 (write-simple test))
+                              (dup bak stdout)
+                              (close-port bak)
                               (get-output-string buffer)) ))
 
                            ;; (when stdout-new
@@ -133,7 +145,7 @@
 
                         env))))
             (interaction-environment)
-            (car (try-parse sample code-block #f))))
+            (car (try-parse samples code-block #f))))
       (car (try-parse parser (force (file->bytestream filename)) #f)))
       (if (car ok)
          (print green " ok" end)))
