@@ -21,7 +21,6 @@
 
    (otus algebra operators)
    (otus algebra functions)
-   (otus algebra infix-notation)
 )
 
 (export
@@ -66,7 +65,6 @@
    (exports (otus algebra functions))
 
    (exports (otus algebra shape))
-   (exports (otus algebra infix-notation))
 
    rmap ; Recursive Map, * core, * internal
 
@@ -88,8 +86,7 @@
 )
 
 (import
-   (otus algebra config)
-   (otus ffi))
+   (otus algebra config))
 (begin
 
    (unless (config 'default-exactness algebra)

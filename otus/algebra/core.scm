@@ -2,8 +2,7 @@
 
 (import
    (otus lisp)
-   (otus algebra config)
-   (otus ffi))
+   (otus algebra config))
 
 ; * all exports are algebra internal
 (export

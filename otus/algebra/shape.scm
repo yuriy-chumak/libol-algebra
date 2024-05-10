@@ -2,8 +2,7 @@
 
 (import
    (otus lisp)
-   (otus algebra core)
-   (otus ffi))
+   (otus algebra core))
 
 (export
    ; The dimension of the array.

@@ -10,7 +10,6 @@
 )
 
 (begin
-   (import (otus ffi))
 
    (define-macro define-unary-function (lambda (name olf native)
    `  (define ,name

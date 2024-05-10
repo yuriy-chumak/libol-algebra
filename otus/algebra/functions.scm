@@ -3,8 +3,7 @@
 
 (import
    (otus lisp)
-   (otus algebra core)
-   (otus ffi))
+   (otus algebra core))
 
 (export
    ; trigonometric functions

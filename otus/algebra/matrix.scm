@@ -5,8 +5,7 @@
    (otus algebra core)
    (otus algebra init)
    (otus algebra vector)
-   (otus algebra shape)
-   (otus ffi))
+   (otus algebra shape))
 
 (export
 

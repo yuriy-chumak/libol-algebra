@@ -3,8 +3,7 @@
 (import
    (otus lisp)
    (otus algebra core)
-   (otus algebra shape)
-   (otus ffi))
+   (otus algebra shape))
 
 (export
    rfoldr

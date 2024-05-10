@@ -43,7 +43,6 @@
    (define ⨯ cross-product)
 
    ; -=( smart math )=-------------------
-   (import (otus ffi)) 
    (import (otus algebra config))
 
    ; folding functions
