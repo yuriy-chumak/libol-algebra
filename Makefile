@@ -1,5 +1,5 @@
 # https://www.gnu.org/prep/standards/html_node/Standard-Targets.html
-.PHONY: all debug release
+.PHONY: all debug release check-reference
 
 export LD_LIBRARY_PATH=$(shell pwd)
 
@@ -36,7 +36,14 @@ uninstall:
 
 
 check: check-reference
-	LD_LIBRARY_PATH=`pwd` $(MAKE) --always-make --quiet tests
+	# exact math check
+	LD_LIBRARY_PATH=`pwd` OTUS_ALGEBRA_DEFAULT_EXACTNESS=1 \
+	                      OTUS_ALGEBRA_NO_STARTUP_WARNINGS=1 \
+	    $(MAKE) --always-make --quiet tests
+	# inexact math check
+	LD_LIBRARY_PATH=`pwd` OTUS_ALGEBRA_DEFAULT_EXACTNESS=0 \
+	                      OTUS_ALGEBRA_NO_STARTUP_WARNINGS=1 \
+	    $(MAKE) --always-make --quiet tests
 	@echo "Well done."
 
 -include tests/Makefile
