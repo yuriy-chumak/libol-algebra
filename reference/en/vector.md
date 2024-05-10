@@ -43,11 +43,11 @@ A Vector can be created:
   ;   otherwise regular Vector type used (but with inexact numbers!).
   ; it's not guaranteed that the vector will be initialized with zeros.
   > (Vector~ 7)  ; 7 elements
-  ((7) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+  '((7) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
 
   ; fast (inexact) version of a regular vector
   > (Vector~ [1 2 3 4])
-  ((4) . #u8(0 0 128 63 0 0 0 64 0 0 64 64 0 0 128 64))
+  '((4) . #u8(0 0 128 63 0 0 0 64 0 0 64 64 0 0 128 64))
   ```
 
 * using Scheme `vector` and Ol `make-vector` functions
@@ -82,7 +82,7 @@ A Vector can be created:
 * you can use infix notation
   ```scheme
   > (infix-notation
-       vector(1,2,3,4,5)
+       vector(1 2 3 4 5)
     )
   #(1 2 3 4 5)
 
@@ -103,7 +103,7 @@ A Vector can be created:
 
   ; fast zeros vector
   > (Zeros~ 4)
-  ((4) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+  '((4) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
 
   ; regular vector with inexact zeros
   > (Zeros~ (Vector 7))
@@ -120,7 +120,7 @@ A Vector can be created:
 
   ; fast vector
   > (Ones~ 3)
-  ((3) . #u8(0 0 128 63 0 0 128 63 0 0 128 63))
+  '((3) . #u8(0 0 128 63 0 0 128 63 0 0 128 63))
 
   ; regular vector with inexact ones
   > (Ones~ (Vector 8))
@@ -189,7 +189,7 @@ Vector Info
 * `Shape` (size of a vector)
   ```scheme
   > (Shape [7 7 7 7])
-  (4)
+  '(4)
   ```
 
 * `Size` (number of elements in a vector)
@@ -232,7 +232,7 @@ Mapping Functions
   #(-33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33)
 
   > (Fill (Vector~ 3) 1.2)
-  ((3) . #u8(154 153 153 63 154 153 153 63 154 153 153 63))
+  '((3) . #u8(154 153 153 63 154 153 153 63 154 153 153 63))
   ```
 
 * make a same dimensional vector with dynamically computed values
@@ -287,12 +287,12 @@ Vector Products
 
   ; using infix notation and a short operator:
   > (infix-notation
-       vector(1,3,-5) • vector(4,-2,-1)
+       vector(1 3 -5) • vector(4 -2 -1)
     )
   3
 
   > (infix-notation
-       [1,3,-5] • [4,-2,-1]
+       [1 3 -5] • [4 -2 -1]
     )
   3
   ```
@@ -305,7 +305,7 @@ Vector Products
 
   ; using infix notation and short operators
   > (infix-notation
-       [-2,3,1] ⨯ [0,4,0]
+       [-2 3 1] ⨯ [0 4 0]
     )
   #(-4 0 -8)
   ```
@@ -318,7 +318,7 @@ Vector Products
 
   ; using infix notation and short operators
   > (infix-notation
-       [-2,3,1] • ([0,4,0] ⨯ [-1,3,3])
+       [-2 3 1] • ([0 4 0] ⨯ [-1 3 3])
     )
   -20
   ```

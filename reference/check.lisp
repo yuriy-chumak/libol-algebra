@@ -1,6 +1,7 @@
 (import (otus algebra))
 (import (otus algebra unicode))
 (import (otus algebra print))
+(import (math infix-notation))
 (define algebra-environment *toplevel*)
 
 (import (owl parse))
@@ -78,11 +79,15 @@
 ))
 (import (otus random!))
 
+(define dup (case-lambda
+   ((p) (syscall 32 p))
+   ((p1 p2) (syscall 32 p1 p2))))
+
 ; -------------------------------------------------------
 (define ok '(#true))
 
 (for-each (lambda (filename)
-   (print "testing " filename "...")
+   (for-each display (list "testing " filename "..."))
    (for-each (lambda (code-block)
          ;; (print "code-block")
          ;; (print (list->string code-block))
@@ -91,15 +96,36 @@
                   (rand-reset!) ; restart random generator
                   (let*((code answer sample)
                         (answer (s/[ \n]+/ /g (list->string answer))))
-                     (display  "  code: ") (display code)
+                     ; (display  "  code: ") (write code) (newline)
+                     ; handle special case with "Print"
+                     (define stdout-new
+                        (when (eq? (ref (car code) 1) 'Print)
+                           (define bak (dup stdout))
+                           (define port (open-output-string))
+                           (dup port stdout)
+                           [port bak]))
                      (vector-apply (eval code env) (lambda (ok? test env)
-                        ; (print "test: " test)
-                        (define buffer (open-output-string))
-                        (display-to buffer test)
-                        (define actual (get-output-string buffer))
+                        (define actual (s/[ \n]+$// ; remove trailing newline
+                           (if stdout-new
+                              ; handle special case with "Print"
+                              (vector-apply stdout-new (lambda (port bak)
+                                 ;; todo: flush
+                                 (dup bak stdout)
+                                 (close-port bak)
+                                 (get-output-string port)))
+                           else
+                              ; common case with returned value
+                              (define buffer (open-output-string))
+                              (write-simple test buffer)
+                              (get-output-string buffer)) ))
+
+                           ;; (when stdout-new
+                           ;;    (print)
+                           ;;    (print "actual: <" actual ">")
+                           ;;    (print "answer: <" answer ">"))
 
                         (if (string=? answer actual)
-                           (print green " ok" end)
+                           #t ;(print green " ok" end)
                         else
                            (print "    test error:")
                            (print "      " red actual " IS NOT EQUAL TO " answer end)
@@ -108,6 +134,8 @@
                         env))))
             (interaction-environment)
             (car (try-parse sample code-block #f))))
-      (car (try-parse parser (force (file->bytestream filename)) #f))))
+      (car (try-parse parser (force (file->bytestream filename)) #f)))
+      (if (car ok)
+         (print green " ok" end)))
    *vm-args*)
 (exit (car ok))
