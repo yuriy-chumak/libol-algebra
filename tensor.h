@@ -40,8 +40,6 @@ typedef float fp_t;
 // -------------------------
 #include <stdio.h>
 #include <ol/vm.h>
-// word d2ol(struct heap_t* ol, double v);   // implemented in olvm.c
-double OL2D(word arg); float OL2F(word arg); // implemented in olvm.c
 #define ol2f(num)\
     __builtin_choose_expr( __builtin_types_compatible_p\
         (fp_t, double), OL2D(num), OL2F(num) )
