@@ -1,0 +1,44 @@
+name: CI Check (Win64)
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  win64-check:
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04 ]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Install MinGW toolchain
+      run: 'sudo apt install gcc-mingw-w64-x86-64 -y'
+
+    - name: Install 32-bit subsystem
+      run: 'sudo dpkg --add-architecture i386; sudo apt update'
+
+    - name: Install wine (32- and 64-bit both)
+      run: 'sudo apt install wine32 wine64'
+
+    - uses: actions/checkout@v3
+      with:
+        repository: yuriy-chumak/ol
+        ref: master
+    - run: make ol.exe
+
+    - name: Start Virtual Framebuffer for Wine
+      run: 'sudo apt install xvfb; Xvfb :0 -screen 0 1024x768x16 &'
+
+    - name: Create wine prefix
+      run: 'wine cmd /c echo Wine environment created for %PROCESSOR_IDENTIFIER%'
+
+    - name: Copy ol.exe to Wine folder
+      run: cp ol.exe ~/.wine/drive_c/windows/ol.exe
+
+    - uses: actions/checkout@v3
+    - name: Check reference
+      run: |
+        wine ol.exe --version
+        make check-win64-reference

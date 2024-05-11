@@ -45,6 +45,17 @@ libol-algebra.so: $(wildcard src/*.h)
 libol-algebra.so: vector.c matrix.c tensor.c $(wildcard src/*.c)
 	$(call libol-algebra,$^,$@)
 
+libol-algebra.dll:CC := x86_64-w64-mingw32-gcc
+libol-algebra.dll:CFLAGS += -Iwin32 \
+                            -DOLVM_PIN_PROTOTYPES \
+						    -DOLVM_FCONV_PROTOTYPES -DOLVM_INEXACTS=1
+libol-algebra.dll:$(wildcard src/*.h)
+libol-algebra.dll:win32/DllMain.c
+libol-algebra.dll:vector.c matrix.c tensor.c $(wildcard src/*.c)
+	mkdir -p win32/ol
+	cp $(DESTDIR)$(PREFIX)/include/ol/vm.h win32/ol/vm.h
+	$(call libol-algebra,$^,$@)
+
 # #####################################
 # check
 check: check-reference

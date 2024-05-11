@@ -28,7 +28,11 @@
    rfold)
 
 (begin
-   (define algebra (dlopen "libol-algebra.so"))
+   (define algebra (or
+      (dlopen "libol-algebra.so") ; Linux
+      (dlopen "libol-algebra.dll"); Windows
+      (dlopen "libol-algebra.so") ; macOS
+   ))
    (unless algebra
       (print-to stderr "Warning: 'libol-algebra' shared library is not found.
       Please install one, otherwise fast math will be unavailable.
