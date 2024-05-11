@@ -3,6 +3,10 @@
 
 A package for a smart math computing in the [Ol (Otus Lisp)](https://github.com/yuriy-chumak/ol).
 
+[![Github build linux status](https://github.com/yuriy-chumak/libol-algebra/workflows/CI Check (Linux)/badge.svg)](https://github.com/yuriy-chumak/libol-algebra/actions/workflows/check-linux.yml)
+[![Github build macos status](https://github.com/yuriy-chumak/libol-algebra/workflows/CI Check (MacOS)/badge.svg)](https://github.com/yuriy-chumak/libol-algebra/actions/workflows/check-macos.yml)
+
+
 <a href="https://github.com/yuriy-chumak/libol-algebra/actions">
    <img align="right" src="https://github.com/yuriy-chumak/libol-algebra/actions/workflows/ci.yml/badge.svg">
 </a>
