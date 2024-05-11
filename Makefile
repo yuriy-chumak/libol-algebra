@@ -3,7 +3,7 @@
 
 export LD_LIBRARY_PATH=$(shell pwd)
 
-all: libol-algebra.so
+all: release
 
 release: CFLAGS += -O3 -g0
 release: libol-algebra.so
@@ -11,13 +11,10 @@ release: libol-algebra.so
 debug: CFLAGS += -O0 -g3
 debug: libol-algebra.so
 
-libol-algebra.so: $(wildcard src/*.h)
-libol-algebra.so: vector.c matrix.c tensor.c $(wildcard src/*.c)
-	gcc $^ -fPIC $(CFLAGS) \
-	-fopenmp -I. -include "omp.h" \
-	-Xlinker --export-dynamic \
-	-shared -o $@
-#	-fvisibility=default
+# #####################################
+# install
+DESTDIR?=
+PREFIX ?= /usr
 
 install: libol-algebra.so
 	@echo Installing libol-algebra libraries...
@@ -34,8 +31,24 @@ uninstall:
 	-rm -rf $(DESTDIR)$(PREFIX)/lib/ol/otus/algebra.scm
 	-rm -rf $(DESTDIR)$(PREFIX)/lib/libol-algebra.so
 
+# #####################################
+# build
+define libol-algebra
+	$(CC) $1 -fPIC $(CFLAGS) \
+	-fopenmp -I. -include "omp.h" \
+	-Xlinker --export-dynamic \
+	-shared -o $2
+#	-fvisibility=default
+endef
 
+libol-algebra.so: $(wildcard src/*.h)
+libol-algebra.so: vector.c matrix.c tensor.c $(wildcard src/*.c)
+	$(call libol-algebra,$^,$@)
+
+# #####################################
+# check
 check: check-reference
+	$(MAKE) -B debug
 	# exact math check
 	LD_LIBRARY_PATH=`pwd` OTUS_ALGEBRA_DEFAULT_EXACTNESS=1 \
 	                      OTUS_ALGEBRA_NO_STARTUP_WARNINGS=1 \
