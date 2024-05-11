@@ -27,6 +27,8 @@ jobs:
         repository: yuriy-chumak/ol
         ref: master
     - run: make ol.exe
+    - run: sudo mkdir -p ${DESTDIR}${PREFIX:-/usr}/include/ol
+    - run: sudo cp includes/ol/vm.h ${DESTDIR}${PREFIX:-/usr}/include/ol/
 
     - name: Start Virtual Framebuffer for Wine
       run: 'sudo apt install xvfb; Xvfb :0 -screen 0 1024x768x16 &'
