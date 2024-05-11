@@ -26,4 +26,4 @@ jobs:
       run: |
         ol --version
         export LD_LIBRARY_PATH=.
-        make all check
+        make check-reference

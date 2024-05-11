@@ -3,13 +3,9 @@
 
 A package for a smart math computing in the [Ol (Otus Lisp)](https://github.com/yuriy-chumak/ol).
 
-[![Github build linux status](https://github.com/yuriy-chumak/libol-algebra/workflows/CI Check (Linux)/badge.svg)](https://github.com/yuriy-chumak/libol-algebra/actions/workflows/check-linux.yml)
-[![Github build macos status](https://github.com/yuriy-chumak/libol-algebra/workflows/CI Check (MacOS)/badge.svg)](https://github.com/yuriy-chumak/libol-algebra/actions/workflows/check-macos.yml)
-
-
-<a href="https://github.com/yuriy-chumak/libol-algebra/actions">
-   <img align="right" src="https://github.com/yuriy-chumak/libol-algebra/actions/workflows/ci.yml/badge.svg">
-</a>
+[![Github build linux status](https://github.com/yuriy-chumak/libol-algebra/workflows/CI%20Check%20(Linux)/badge.svg)](https://github.com/yuriy-chumak/libol-algebra/actions/workflows/check-linux.yml)
+[![Github build macos status](https://github.com/yuriy-chumak/libol-algebra/workflows/CI%20Check%20(MacOS)/badge.svg)](https://github.com/yuriy-chumak/libol-algebra/actions/workflows/check-macos.yml)
+[![Github build win64 status](https://github.com/yuriy-chumak/libol-algebra/workflows/CI%20Check%20(Win64)/badge.svg)](https://github.com/yuriy-chumak/libol-algebra/actions/workflows/check-win64.yml)
 
 
 ## Installing
@@ -17,8 +13,8 @@ A package for a smart math computing in the [Ol (Otus Lisp)](https://github.com/
 Possible options:
  - Just `make; make install` inside the project folder,
  - Or `kiss install libol-algebra` using [ol-packages](https://github.com/yuriy-chumak/ol-packages) repository,
- - If you don't need the fast inexact math support (meaning optimized C code for floating point machine types) or you don't have the C compiler available,
- you can just `copy the "otus" folder` to your project.
+ - If you don't need the fast inexact math support (the optimized C code for floating point machine types) or you don't have the C compiler available,
+ you can just *copy the "otus" folder* to your project.
 
 
 ## Usage
