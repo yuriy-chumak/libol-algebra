@@ -96,6 +96,8 @@
    \\operators
    \\right-operators
    \\postfix-functions
+   ; equation overrides
+   = equal?
 )
 
 (import
@@ -237,4 +239,43 @@
       '⁰ #t
    }))
    
+   (define /= =)
+   (define = (case-lambda
+      ; most likely case
+      ((a b)
+         (if (and (Array? a) (Array? b))
+            (if (equal? (Shape a) (Shape b))
+               (call/cc (lambda (ret)
+                  (rmap (lambda (a b)
+                           (unless (= a b) (ret #false)))
+                     a b)
+                  #true)))
+         else
+            (= a b)))
+      ; other cases
+      ((a) #true)
+      ((a . args)
+         (if (all Array? (cons a args))
+            (call/cc (lambda (ret)
+               ; all shapes must be equal
+               (define shapes (map Shape args))
+               (define shape-a (car shapes))
+               (for-each (lambda (shape)
+                     (unless (equal? shape shape-a) (ret #false)))
+                  (cdr shapes))
+            
+               ; and all elements too
+               (apply rmap (cons (lambda args
+                        (unless (apply = args) (ret #false)))
+                  args))
+               #true))
+         else
+            (apply = (cons a args))))
+   ))
+
+   (define /equal? equal?)
+   (define (equal? a b)
+      (if (and (Array? a) (Array? b))
+         (= a b)
+         (/equal? a b)))
 ))
