@@ -110,7 +110,8 @@
 
    ; array? / scalar?
    (define (Array? obj)
-      (or vector? tensor?))
+      (or (vector? obj)
+          (tensor? obj)))
    (define Scalar? scalar?)
 
    ; configurable exact/inexact constructors
@@ -181,36 +182,41 @@
          (format-number number k 10)
          (cons* #\space (format-number number k 10))))
 
+   (define (cook-array this obj k)
+      ; this is a fast native tensor, render it!
+      (define indices (Shape obj))
+      (define (format index indices first? tl)
+         (if (null? indices)
+         then
+            (define number (apply Ref (cons obj index)))
+            (if first?
+               (format-number number tl 10)
+               (cons* #\space (format-number number tl 10)))
+
+         else
+            (define last (car indices))
+            (define (cycle)
+               (let loop ((i 1))
+                  (if (> i last)
+                     (cons #\] tl) ; done
+                     (format (append index (list i))
+                           (cdr indices)
+                           (= i 1)
+                           (delay (loop (+ i 1)))))))
+            (if first?
+               (cons* #\[ (cycle))
+               (cons* #\space #\[ (cycle)))))
+         (format '() indices #true k))
+
    (define repl:write {
+      ; ()
       1 (lambda (this obj k)
          (if (tensor? obj)
-         then
-            ; this is a fast native tensor, render it!
-            (define indices (car obj))
-            (define (format index indices first? tl)
-               (if (null? indices)
-               then
-                  (define number (apply ~ref (cons obj index)))
-                  (if first?
-                     (format-number number tl 10)
-                     (cons* #\space (format-number number tl 10)))
-
-               else
-                  (define last (car indices))
-                  (define (cycle)
-                     (let loop ((i 1))
-                        (if (> i last)
-                           (cons #\] tl) ; done
-                           (format (append index (list i))
-                                 (cdr indices)
-                                 (= i 1)
-                                 (delay (loop (+ i 1)))))))
-                  (if first?
-                     (cons* #\[ (cycle))
-                     (cons* #\space #\[ (cycle)))))
-            (format '() indices #true k)
-         else
+            (cook-array this obj k)
             ((write-format-ff 1) this obj k)))
+      ; []
+      2 (lambda (this obj k)
+         (cook-array this obj k))
 
       ; no need to quote tensors
       'self-quoting? (lambda (this obj)
