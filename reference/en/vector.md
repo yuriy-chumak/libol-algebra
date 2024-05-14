@@ -42,11 +42,11 @@ A Vector can be created:
   ; fast (inexact) math vector,
   ; it's not guaranteed that the vector will be initialized with zeros.
   > (Vector~ 7)  ; 7 elements
-  '((7) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+  [0.0 0.0 0.0 0.0 0.0 0.0 0.0]
 
   ; fast (inexact) copy of a regular vector
   > (Vector~ [1 2 3 4])
-  '((4) . #u8(0 0 128 63 0 0 0 64 0 0 64 64 0 0 128 64))
+  [1.0 2.0 3.0 4.0]
   ```
 
 * using Scheme `vector` and Ol `make-vector` functions
@@ -102,14 +102,15 @@ A Vector can be created:
 
   ; fast vector with inexact zeros
   > (Zeros~ 4)
-  '((4) . #u8(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
-
-  > (Print (Zeros~ 4))
   [0.0 0.0 0.0 0.0]
 
   ; regular vector with inexact zeros
   > (Zeros~ (Vector 7))
   #(0.0 0.0 0.0 0.0 0.0 0.0 0.0)
+
+  ; inexact vector with inexact zeros
+  > (Zeros (Vector~ 7))
+  [0.0 0.0 0.0 0.0 0.0 0.0 0.0]
   ```
 
 * as a vector of ones
@@ -122,9 +123,6 @@ A Vector can be created:
 
   ; fast vector with inexact ones
   > (Ones~ 3)
-  '((3) . #u8(0 0 128 63 0 0 128 63 0 0 128 63))
-
-  > (Print (Ones~ 3))
   [1.0 1.0 1.0]
 
   ; regular vector with inexact ones
@@ -237,7 +235,7 @@ Mapping Functions
   #(-33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33)
 
   > (Fill (Vector~ 3) 1.2)
-  '((3) . #u8(154 153 153 63 154 153 153 63 154 153 153 63))
+  [1.200000047 1.200000047 1.200000047]
   ```
 
 * make a same dimensional vector with dynamically computed values

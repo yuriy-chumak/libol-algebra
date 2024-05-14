@@ -21,7 +21,9 @@
 
    (otus algebra operators)
    (otus algebra functions)
-)
+
+   ; math notations:
+   (math infix-notation))
 
 (export
 
@@ -33,18 +35,24 @@
    ;; быстрая, неточная математика предваряется "f" (floating point, fast) или "i" (inexact)
 
    ;; по умолчанию vector, matrix и tensor сделаны "exact"
-
+   
+   Array?
+   Scalar?
+   
    ; create a Vector
    Vector ; exact vector (lisp)
    Vector~ ; inexact vector (c)
+;   Vector? ; helper function
 
    ; create a Matrix
    Matrix ; exact matrix (lisp)
    Matrix~ ; inexact matrix (c)
+;   Matrix?
 
-   ; create a Tensor
-   Tensor ; exact tensor (lisp)
-   Tensor~ ; inexact tensor (c)
+   ;; ; create a Tensor
+   ;; Tensor ; exact tensor (lisp)
+   ;; Tensor~ ; inexact tensor (c)
+   ;; Tensor?
 
    ; get an element
    Ref
@@ -77,12 +85,17 @@
    ;; dot-product
    ;; dot @ ;⋅
 
-   ; redefine printer
-   ;; print
-
    ;; ; todo:
    ;; ; >>> # from start to position 6, exclusive, set every 2nd element to 1000
    ;; ; >>> a[:6:2] = 1000
+
+   ; REPL upgrade:
+   repl:write
+   ; (math infix-notation) upgrade:
+   \\ infix-notation
+   \\operators
+   \\right-operators
+   \\postfix-functions
 )
 
 (import
@@ -95,6 +108,11 @@
          (print-to stderr "      calculated results may be inaccurate.")
          (print-to stderr "      but the shared library is not loaded, so that kind of math won't be included.")))
 
+   ; array? / scalar?
+   (define (Array? obj)
+      (or vector? tensor?))
+   (define Scalar? scalar?)
+
    ; configurable exact/inexact constructors
    (define Vector Vector)
    (define Matrix Matrix)
@@ -105,6 +123,7 @@
    (define Matrix~ Matrix~)
    (define Tensor~ Tensor~)
 
+   ; todo: make returning rows from matrices, etc
    (define (Ref array . index)
       (apply (cond
             ((vector? array) rref)
@@ -126,31 +145,90 @@
    ;; (define dot dot-product)
    ;; (define @ dot)
 
-   (define (pp array dims)
-      (if (null? dims)
-      then
-         (display array)
-         (display " ")
-      else
-         (display "[ ")
-         (for-each (lambda (i)
-               (pp (ref array i) (cdr dims)))
-            (iota (car dims)))
-         (display "] ")))
+   ;; ;; ???
+   ;; ;; TODO: update
+   ;; (define (pp array dims)
+   ;;    (if (null? dims)
+   ;;    then
+   ;;       (display array)
+   ;;       (display " ")
+   ;;    else
+   ;;       (display "[ ")
+   ;;       (for-each (lambda (i)
+   ;;             (pp (ref array i) (cdr dims)))
+   ;;          (iota (car dims)))
+   ;;       (display "] ")))
 
-   (define (print-ftensor tensor)
-      (define dim (Shape tensor))
-      (pp tensor dim))
+   ;; (define (print-ftensor tensor)
+   ;;    (define dim (Shape tensor))
+   ;;    (pp tensor dim))
 
-   (define ::print print)
-   (define (print . args)
-      (for-each (lambda (arg)
-            (cond
-               ((tensor? arg)
-                  (print-ftensor arg))
-               (else
-                  (display arg))))
-         args)
-      (display (string #\newline)))
+   ;; (define ::print print)
+   ;; (define (print . args)
+   ;;    (for-each (lambda (arg)
+   ;;          (cond
+   ;;             ((tensor? arg)
+   ;;                (print-ftensor arg))
+   ;;             (else
+   ;;                (display arg))))
+   ;;       args)
+   ;;    (display (string #\newline)))
 
+   ;; upgrade REPL interactive output
+   (define self-quoting? (write-format-ff 'self-quoting?))
+   (define (cook-number number first? k)
+      (if first?
+         (format-number number k 10)
+         (cons* #\space (format-number number k 10))))
+
+   (define repl:write {
+      1 (lambda (this obj k)
+         (if (tensor? obj)
+         then
+            ; this is a fast native tensor, render it!
+            (define indices (car obj))
+            (define (format index indices first? tl)
+               (if (null? indices)
+               then
+                  (define number (apply ~ref (cons obj index)))
+                  (if first?
+                     (format-number number tl 10)
+                     (cons* #\space (format-number number tl 10)))
+
+               else
+                  (define last (car indices))
+                  (define (cycle)
+                     (let loop ((i 1))
+                        (if (> i last)
+                           (cons #\] tl) ; done
+                           (format (append index (list i))
+                                 (cdr indices)
+                                 (= i 1)
+                                 (delay (loop (+ i 1)))))))
+                  (if first?
+                     (cons* #\[ (cycle))
+                     (cons* #\space #\[ (cycle)))))
+            (format '() indices #true k)
+         else
+            ((write-format-ff 1) this obj k)))
+
+      ; no need to quote tensors
+      'self-quoting? (lambda (this obj)
+                        (if (tensor? obj)
+                           #true
+                           (self-quoting? this obj)))
+
+   })
+
+   ; update math infix-notation with unicode operators
+   (define \\operators (ff-replace \\operators {
+      ; todo.
+   }))
+   (define \\postfix-functions (ff-replace \\postfix-functions {
+      ; power
+      '¹ #t  '² #t  '³ #t
+      '⁴ #t  '⁵ #t  '⁶ #t  '⁷ #t  '⁸ #t  '⁹ #t
+      '⁰ #t
+   }))
+   
 ))

@@ -102,10 +102,10 @@
                   (let*((code answer sample)
                         (answer (s/[ \n]+$//
                                 (s/[ \n]+/ /g (list->string answer)))))
-                     ; (display  "  code: ") (write code) (newline)
+                     ;; (display  "  code: ") (write code) (newline)
                      ; handle special case with "Print"
                      (define stdout-new
-                        (when (member (ref (car code) 1) '(print Print))
+                        (when (member (ref (last code) 1) '(print Print))
                            (define bak (dup stdout))
                            (define port (open-output-string))
                            (dup port stdout)

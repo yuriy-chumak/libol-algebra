@@ -12,13 +12,13 @@ define CHECK_REFERENCE
 endef
 export CHECK_REFERENCE
 
-check-reference: reference/README.md $(wildcard reference/en/**/*.md)
+check-reference: README.md reference/README.md $(wildcard reference/**/*.md)
 	@echo "Testing reference:"
 	@ol reference/check.lisp $(filter %.md,$^)\
 	   && (echo $(ok); exit 0)\
 	   || (echo $(failed); exit 1)
 
-check-win64-reference: reference/README.md $(wildcard reference/en/**/*.md)
+check-win64-reference: README.md reference/README.md $(wildcard reference/en/**/*.md)
 	# win64 reference check #
 	$(MAKE) libol-algebra.dll
 	WINEPATH='Z:\usr\lib\gcc\x86_64-w64-mingw32\10-win32;Z:\usr\x86_64-w64-mingw32\lib' \
