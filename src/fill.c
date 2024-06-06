@@ -29,9 +29,10 @@ word* Fill(olvm_t* this, word* arguments)
 		size_t a = OLVM_pin(this, A);
 		size_t c = OLVM_pin(this, C);
 
-		fp_t (*callback)() = (fp_t (*)()) car(B);
+		fp_t (*callback)() = (fp_t (*)())car(B);
 		for (int i = 0; i < asize; i++) {
-			payload(OLVM_deref(this, c))[i] = callback();
+			fp_t f = callback();
+			payload(OLVM_deref(this, c))[i] = f;
 		}
 
 		C = OLVM_unpin(this, c);

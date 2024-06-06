@@ -42,7 +42,8 @@ define libol-algebra
 endef
 
 libol-algebra.so: $(wildcard src/*.h)
-libol-algebra.so: vector.c matrix.c tensor.c $(wildcard src/*.c)
+libol-algebra.so: vector.c matrix.c tensor.c $(wildcard src/*.c) \
+                                             $(wildcard src/**/*.c)
 	$(call libol-algebra,$^,$@)
 
 libol-algebra.dll:CC := x86_64-w64-mingw32-gcc
@@ -51,21 +52,39 @@ libol-algebra.dll:CFLAGS += -Iwin32 \
 						    -DOLVM_FCONV_PROTOTYPES -DOLVM_INEXACTS=1
 libol-algebra.dll:$(wildcard src/*.h)
 libol-algebra.dll:win32/DllMain.c
-libol-algebra.dll:vector.c matrix.c tensor.c $(wildcard src/*.c)
+libol-algebra.dll:vector.c matrix.c tensor.c $(wildcard src/*.c) \
+                                             $(wildcard src/**/*.c)
 	mkdir -p win32/ol
 	cp $(DESTDIR)$(PREFIX)/include/ol/vm.h win32/ol/vm.h
 	$(call libol-algebra,$^,$@)
 
 # #####################################
 # check
+red=\033[1;31m
+green=\033[1;32m
+yellow=\033[1;33m
+done=\033[0m
+
 check: check-reference
 	$(MAKE) -B debug
 	# exact math check
-	LD_LIBRARY_PATH=`pwd` OTUS_ALGEBRA_DEFAULT_EXACTNESS=1 \
+	@printf "\n$(yellow)NO library, EXACTNESS = 1$(done)\n"
+	LD_LIBRARY_PATH=/ OTUS_ALGEBRA_DEFAULT_EXACTNESS=1 \
 	                      OTUS_ALGEBRA_NO_STARTUP_WARNINGS=1 \
 	    $(MAKE) --always-make --quiet tests
 	# inexact math check
-	LD_LIBRARY_PATH=`pwd` OTUS_ALGEBRA_DEFAULT_EXACTNESS=0 \
+	@printf "\n$(yellow)NO library, EXACTNESS = 0$(done)\n"
+	LD_LIBRARY_PATH=/ OTUS_ALGEBRA_DEFAULT_EXACTNESS=0 \
+	                      OTUS_ALGEBRA_NO_STARTUP_WARNINGS=1 \
+	    $(MAKE) --always-make --quiet tests
+	# exact math check
+	@printf "\n$(yellow)YES library, EXACTNESS = 1$(done)\n"
+	LD_LIBRARY_PATH=. OTUS_ALGEBRA_DEFAULT_EXACTNESS=1 \
+	                      OTUS_ALGEBRA_NO_STARTUP_WARNINGS=1 \
+	    $(MAKE) --always-make --quiet tests
+	@printf "\n$(yellow)YES library, EXACTNESS = 0$(done)\n"
+	# inexact fast math check
+	LD_LIBRARY_PATH=. OTUS_ALGEBRA_DEFAULT_EXACTNESS=0 \
 	                      OTUS_ALGEBRA_NO_STARTUP_WARNINGS=1 \
 	    $(MAKE) --always-make --quiet tests
 	@echo "Well done."

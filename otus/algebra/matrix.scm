@@ -30,6 +30,8 @@
    cofactor-matrix
    adjoint-matrix ; adjugate
    inverse-matrix
+
+   Transpose
 )
 
 (begin
@@ -155,16 +157,16 @@
             ((tensor? B)
                (~mdot (imatrix A) B))
             (else
-               (runtime-error "Invalid arguments" #n))))
+               (runtime-error "Invalid arguments"))))
          ((tensor? A) (cond
             ((tensor? B)
                (~mdot A B))
             ((vector? B)
                (~mdot A (imatrix B)))
             (else
-               (runtime-error "Invalid arguments" #n))))
+               (runtime-error "Invalid arguments"))))
          (else
-            (runtime-error "Invalid arguments" #n))))
+            (runtime-error "Invalid arguments"))))
 
    (define matrix-product matrix·matrix)
 
@@ -199,7 +201,7 @@
                                (cdr V))
                          (imatrix M)))))
             (else
-               (runtime-error "unsupported" #n))))
+               (runtime-error "unsupported"))))
          ((tensor? M) (cond
             ((tensor? V)
                (define len (Size V))
@@ -211,12 +213,12 @@
                (define len (size V))
                (cons (list len) (cdr
                   (~mdot (cons (list 1 len) ; vector -> 1-column matrix
-                               (~create (list len) (list V)))
+                               (~new (list len) (list V)))
                          M))))
             (else
-               (runtime-error "unsupported" #n))))
+               (runtime-error "unsupported"))))
          (else
-            (runtime-error "Invalid arguments" #n))))
+            (runtime-error "Invalid arguments"))))
 
    ; (M*V) -> V
    (define (matrix·vector M V)
@@ -250,7 +252,7 @@
                          (cons (list len 1) ; vector -> 1-row matrix
                                (cdr V))))))
             (else
-               (runtime-error "unsupported" #n))))
+               (runtime-error "unsupported"))))
          ((tensor? M) (cond
             ((tensor? V)
                (define len (Size V))
@@ -263,11 +265,11 @@
                (cons (list len) (cdr
                   (~mdot M
                          (cons (list len 1) ; vector -> 1-row matrix
-                               (~create (list len) (list V)))))))
+                               (~new (list len) (list V)))))))
             (else
-               (runtime-error "unsupported" #n))))
+               (runtime-error "unsupported"))))
          (else
-            (runtime-error "Invalid arguments" #n))))
+            (runtime-error "Invalid arguments"))))
 
    ; https://en.wikipedia.org/wiki/Matrix_multiplication#Powers_of_a_matrix
    ; Возведение в степень
@@ -346,4 +348,5 @@
       #false
    )
 
+   (define Transpose matrix-transpose) ; TEMP
 ))

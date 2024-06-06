@@ -1,7 +1,6 @@
 (import (otus algebra))
 (import (otus algebra unicode))
 (import (otus algebra print))
-(import (math infix-notation))
 (define algebra-environment *toplevel*)
 
 (import (owl parse))
@@ -102,6 +101,7 @@
                   (let*((code answer sample)
                         (answer (s/[ \n]+$//
                                 (s/[ \n]+/ /g (list->string answer)))))
+                     (write-char #\. stderr)
                      ;; (display  "  code: ") (write code) (newline)
                      ; handle special case with "Print"
                      (define stdout-new
@@ -124,17 +124,18 @@
                               (define bak (dup stdout))
                               (define buffer (open-output-string))
                               (dup buffer stdout)
-                              (if (tensor? test)
+                              ;; (if (tensor? test)
+                                 ;; (print-to stderr "test: " test)
                                  (Print test)
-                                 (write-simple test))
+                              ;;    (write-simple test))
                               (dup bak stdout)
                               (close-port bak)
                               (get-output-string buffer)) ))
 
                            ;; (when stdout-new
-                           ;;    (print)
-                           ;;    (print "actual: <" actual ">")
-                           ;;    (print "answer: <" answer ">"))
+                        ;; (print)
+                        ;; (print "actual: <" actual ">")
+                        ;; (print "answer: <" answer ">")
 
                         (if (string=? answer actual)
                            #t ;(print green " ok" end)

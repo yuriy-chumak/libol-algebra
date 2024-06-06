@@ -23,7 +23,7 @@
    ; arithmetic
    × ÷
    ; exponentiations
-   ¹ ² ³ ⁴ ⁵
+   ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁰
    ; roots
    √ ∛ ∜
 
@@ -34,11 +34,16 @@
 
    ; superscript
    ; ⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ ᵝ ᵞ ᵟ ᵋ ᶿ ᶥ ᶹ ᵠ ᵡ   ⁽ ⁺ ⁻ ⁼ ⁾  ⱽ   ᵎ ᵔ ᵕ ᵙ ᵜ
+   ; ⁰ⁱ⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿ
    ; ᶛ ᶜ ᶝ ᶞ ᶟ ᶠ ᶡ ᶢ ᶣ ᶤ ᶥ ᶦ ᶧ ᶨ ᶩ ᶪ ᶫ ᶬ ᶭ ᶮ ᶯ ᶰ ᶱ ᶲ ᶳ ᶴ ᶵ ᶶ ᶷ ᶸ ᶹ ᶺ ᶻ ᶼ ᶽ ᶾ
    ; ᐜ ᐝ ᐞ ᐟ ᐠ ᐡ ᐢ ᐣ ᐤ ᐥ ᐦ ᐧ ᐨ ᐩ ᐪ ᑉ ᑊ ᑋ ᒃ ᒄ ᒡ ᒢ ᒻ ᒼ ᒽ ᒾ ᓐ ᓑ ᓒ ᓪ ᓫ ᔅ ᔆ ᔇ ᔈ ᔉ ᔊ ᔋ ᔥ ᔾ ᔿ ᕀ ᕁ ᕐ ᕑ ᕝ ᕪ ᕻ ᕯ ᕽ ᖅ ᖕ ᖖ ᖟ ᖦ ᖮ ᗮ ᘁ ᙆ ᙇ ᙚ ᙾ ᙿ
    ; ᣔ ᣕ ᣖ ᣗ ᣘ ᣙ ᣚ ᣛ ᣜ ᣝ ᣞ ᣟ ᣳ ᣴ ᣵ
+   ; ᴬ ᴮ ꟲ ᴰ ᴱ ꟳ ᴳ ᴴ ᴵ ᴶ ᴷ ᴸ ᴹ ᴺ ᴼ ᴾ ꟴ ᴿ ᵀ ᵁ ⱽ ᵂ
+   ᵀ
    ; subscript
    ; ₀ ₁ ₂ ₃ ₄ ₅ ₆ ₇ ₈ ₉ ₐ ₑ ₕ ᵢ ⱼ ₖ ₗ ₘ ₙ ₒ ₚ ᵣ ₛ ₜ ᵤ ᵥ ₓ ᵦ ᵧ ᵨ ᵩ ᵪ  ₍₊ ₋ ₌ ₎
+   ; indices
+   ; ₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎
 )
 
 (begin
@@ -76,10 +81,16 @@
    (define (³ x) (** x 3))
    (define (⁴ x) (** x 4))
    (define (⁵ x) (** x 5))
+   (define (⁶ x) (** x 6))
+   (define (⁷ x) (** x 7))
+   (define (⁸ x) (** x 8))
+   (define (⁹ x) (** x 9))
+   (define (⁰ x) 1)
 
    (define √ Sqrt)
    (define ∛ Cbrt) ; todo: make a real cube root as set of three values []
    (define (∜ x) (√ (√ x)))
 
    (define ∑ Sum)
+   (define ᵀ Transpose)
 ))

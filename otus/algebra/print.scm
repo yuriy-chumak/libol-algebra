@@ -2,8 +2,8 @@
 
 (import
    (otus lisp)
-   (otus algebra core))
-
+   (otus algebra core) ; is it required?
+   (otus algebra))
 (export
    Print
 )
@@ -12,18 +12,17 @@
 
    (define (Print array)
       (cond
-         ((scalar? array)
-            (display array))
-         ((vector? array) ; builtin array
-            (display array))
-         ((tensor? array) ; external data
-            (define indices (car array))
+         ;; ((vector? array) ; builtin array
+         ;;    (display array))
+         ((or (vector? array)
+              (tensor? array)) ; external data
+            (define indices (Shape array))
             (let cycle ((index #n)
                         (indices indices)
                         (tail #false))
                (if (null? indices)
                then
-                  (display (apply ~ref (cons array index)))
+                  (display (apply Ref (cons array index)))
                   (unless tail (display " "))
                else
                   (display "[")
@@ -34,7 +33,7 @@
                   (display "]")
                   (unless tail (display " ")))))
          (else
-            (display array))))
+            (write-simple array))))
 
    (define Print (lambda args
       (for-each Print args) (newline)))

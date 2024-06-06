@@ -7,7 +7,11 @@ Vector is a one-dimensional array.
 Note
 ----
 
-1. A tilde (`~`) as a function suffix means to explicitly use the inexact arithmetics and fast (C-optimized) function version if available. Please note that inexact math calculations may be much faster with very big or very small numbers, but it may lose exactness.
+1. A tilde (`~`) as a function suffix means to explicitly use the inexact arithmetics and fast (C-optimized) function version if available. Please note that inexact math calculations may be much faster with very big or very small numbers, but it may (and will) lose exactness.
+
+1. All vectors are **indexed starting from 1 (one)**, just as mathematicians do! Not from 0 (zero), like programmers.
+
+1. Negative index means "counting from the end of".
 
 
 TOC
@@ -29,15 +33,15 @@ A Vector can be created:
   ; shortest notation,
   ; we'll use such notation widely
   > [1 2 3 4 5]
-  #(1 2 3 4 5)
+  [1 2 3 4 5]
   ```
 
 * using algebra `Vector` function
-  ```scheme
+  ```scheme-
   ; uninitialized vector of N elements,
   ; it's not guaranteed that the vector will be initialized with zeros.
   > (Vector 7)
-  #(0 0 0 0 0 0 0)
+  [0 0 0 0 0 0 0]
 
   ; fast (inexact) math vector,
   ; it's not guaranteed that the vector will be initialized with zeros.
@@ -50,36 +54,36 @@ A Vector can be created:
   ```
 
 * using Scheme `vector` and Ol `make-vector` functions
-  ```scheme
+  ```scheme-
   ; scheme notation
   > (vector 1 2 3 4 5)
-  #(1 2 3 4 5)
+  [1 2 3 4 5]
 
   ; uninitialized vector of N elements
   > (make-vector 7)
-  #(#false #false #false #false #false #false #false)
+  [#false #false #false #false #false #false #false]
 
   ; initialized vector of any applicable repeating value
   ;  attention! all elements of such vector are the same in sense of `eq?`
   > (make-vector 4 2/3)
-  #(2/3 2/3 2/3 2/3)
+  [2/3 2/3 2/3 2/3]
 
   ; vector from the list
   > (make-vector '(3 4 5))
-  #(3 4 5)
+  [3 4 5]
   ```
 
 * you can use any number as a vector arguments,
   including negatives, ratios, complex, inexact numbers (*floats*),
   looong integers, NaN and Infinity
-  ```scheme
+  ```scheme-
   ; note: #i is a prefix for "inexact number"
   > [-3 3/7 16+4i 7.12 #i7.12 618970019642290147449562111 +inf.0 (sqrt 16)]
   #(-3 3/7 16+4i 178/25 7.12 618970019642290147449562111 +inf.0 4)
   ```
 
 * you can use infix notation, sure
-  ```scheme
+  ```scheme-
   > (\\
        vector(1 2 3 4 5)
     )
@@ -93,7 +97,7 @@ A Vector can be created:
   ```
 
 * as a vector of zeros
-  ```scheme
+  ```scheme-
   > (Zeros 7)
   #(0 0 0 0 0 0 0)
 
@@ -114,7 +118,7 @@ A Vector can be created:
   ```
 
 * as a vector of ones
-  ```scheme
+  ```scheme-
   > (Ones 11)
   #(1 1 1 1 1 1 1 1 1 1 1)
 
@@ -131,7 +135,7 @@ A Vector can be created:
   ```
 
 * as a deep `Copy` of existing vector
-  ```scheme
+  ```scheme-
   > (define V₁ [1 2.3 #i2.3 4 5e8])
 
   > (Copy V₁)
@@ -141,7 +145,7 @@ A Vector can be created:
 * as a copy of existing vector using [vector mapping functions](#mapping-functions)
 
 * as a vector of consecutive values, using `Iota` functon
-  ```scheme
+  ```scheme-
   ; from 0 with step 1
   > (Iota 5)
   #(0 1 2 3 4)
@@ -156,7 +160,7 @@ A Vector can be created:
   ```
 
 * as a vector of consecutive values, using `Arange` function
-  ```scheme
+  ```scheme-
   ; from 0 to 4 with step 1
   > (Arange 4)
   #(0 1 2 3)
@@ -171,7 +175,7 @@ A Vector can be created:
   ```
 
 * as a vector of consecutive values, using `Linspace` function
-  ```scheme
+  ```scheme-
   ; 4 elements from 2 to 3
   > (Linspace 2 3 4)
   #(2 7/3 8/3 3)
@@ -190,19 +194,19 @@ Vector Info
 -----------
 
 * `Shape` (size of a vector)
-  ```scheme
+  ```scheme-
   > (Shape [7 7 7 7])
   '(4)
   ```
 
 * `Size` (number of elements in a vector)
-  ```scheme
+  ```scheme-
   > (Size [2 2 2 2 2])
   5
   ```
 
 * `Ref`erencing vector elements, counting starts from 1
-  ```scheme
+  ```scheme-
   ; from the begin of a vector
   > (Ref [11 12 13 14 15] 1)
   11
@@ -230,7 +234,7 @@ Mapping Functions
 -----------------
 
 * make a same dimensional vector with any applicable repeating value
-  ```scheme
+  ```scheme-
   > (Fill (Vector 17) -33)
   #(-33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33 -33)
 
@@ -239,7 +243,7 @@ Mapping Functions
   ```
 
 * make a same dimensional vector with dynamically computed values
-  ```scheme
+  ```scheme-
   > (import (otus random!))
   > (define (rand-i123) (rand! 123))
   > (define (rand-f100) (/ (rand! 10000) #i100))
@@ -252,7 +256,7 @@ Mapping Functions
   ```
 
 * make a same dimensional vector with dynamically computed values, based on a vector element index
-  ```scheme
+  ```scheme-
   > (Index (Vector 8)
        (lambda (i)
           (if (zero? (modulo i 2)) i 0)))
@@ -260,7 +264,7 @@ Mapping Functions
   ```
 
 * make a vector with dynamically computed values, based on a vector(s) elements
-  ```scheme
+  ```scheme-
   ; `Map` accepts any number of vectors, all vectors must have same dimension (is sense of `Shape`) and `Size`.
 
   > (define (sqr x) (* x x))
@@ -276,7 +280,7 @@ Vector Products
 ---------------
 
 * Dot (scalar) product
-  ```scheme
+  ```scheme-
   ; `dot-product` accepts two vectors with same dimension and size
   > (dot-product [1 3 -5] [4 -2 -1])
   3
@@ -301,7 +305,7 @@ Vector Products
   ```
 
 * Cross Product
-  ```scheme
+  ```scheme-
   ; `cross-product` accepts two vectors with same dimension and size
   > (cross-product [-2 3 1] [0 4 0])
   #(-4 0 -8)
@@ -314,7 +318,7 @@ Vector Products
   ```
 
 * Triple product
-  ```scheme
+  ```scheme-
   ; `triple-product` accepts three vectors with same dimension and size
   > (triple-product [-2 3 1] [0 4 0] [-1 3 3])
   -20
@@ -331,7 +335,7 @@ Other Functions
 ---------------
 
 * Magnitude
-  ```scheme
+  ```scheme-
   > (magnitude [1 2 3 7])
   32257/4064
 
@@ -340,7 +344,7 @@ Other Functions
   ```
 
 * Square magnitude
-  ```scheme
+  ```scheme-
   > (square-magnitude [1 2 3 7])
   63
 

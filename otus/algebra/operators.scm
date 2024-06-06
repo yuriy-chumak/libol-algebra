@@ -30,7 +30,7 @@
    ; todo: sort
 
    ; дополнительные символы:
-   · ; тоже скалярное произведение
+   • · ; тоже скалярное произведение
 
    ; folding functions
    Sum
@@ -177,13 +177,13 @@
          (1 (case sb
                (1 (vector·vector a b)) ; dot-product of two horizontal vectors
                (2 (vector·matrix a b)) ; hvector * matrix
-               (else (runtime-error "unsupported" #n))))
+               (else (runtime-error "unsupported"))))
          (2 (case sb
                (1 (matrix·vector a b)) ; matrix * vvector (in form of hvector)
                (2 (matrix·matrix a b)) ; matrix-product
-               (else (runtime-error "unsupported" #n))))
+               (else (runtime-error "unsupported"))))
          (else
-            (runtime-error "unsupported" #f)))))
+            (runtime-error "unsupported")))))
 
    (define · Dot) ; interpunct symbol
    (define • Dot)

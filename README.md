@@ -42,16 +42,14 @@ type ',help' to help, ',quit' to end session.
 
 Infix notation inside Lisp (`\\` is a short for macro `infix-notation`):
 ```scheme
-> (import (math infix-notation))
 > (\\
      [1 3 -5] ⨯ [4 -2 -1]
   )
-#(-13 -19 -14)
+[-13 -19 -14]
 ```
 
 Some unicode math symbols (don't forget spaces between regular and unicode math letters):
 ```scheme
-> (import (math infix-notation))
 > (import (otus algebra unicode))
 
 > (define-values (a b c) (values 5 3 -26))

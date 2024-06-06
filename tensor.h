@@ -40,7 +40,7 @@ typedef float fp_t;
 // -------------------------
 #include <stdio.h>
 #include <ol/vm.h>
-#define ol2f(num)\
+#define ol2fp(num)\
     __builtin_choose_expr( __builtin_types_compatible_p\
         (fp_t, double), OL2D(num), OL2F(num) )
 
@@ -72,7 +72,7 @@ int offset(word dimensions, word index);
 	ENTER_SECTION \
 	word*T = new_pair(dims, floats);\
 	LEAVE_SECTION \
-	return T; }
+	return (word) T; }
 
 #define CHECK(q, str) \
 	if (!(q)) {\

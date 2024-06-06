@@ -8,7 +8,7 @@
 // dot (matrix-multiplication)
 
 __attribute__((used))
-word* mdot(olvm_t* this, word arguments) // todo: change to word arguments
+word mdot(olvm_t* this, word arguments) // todo: change to word arguments
 {
 	word* fp;
 
@@ -22,7 +22,7 @@ word* mdot(olvm_t* this, word arguments) // todo: change to word arguments
 	size_t q = value(car(cdar(B)));
 
 	if (value(caar(B)) != n)
-		return RFALSE;
+		return IFALSE;
 
 	word* floats = new_floats(this, m * q, &A, &B);
 
@@ -45,7 +45,7 @@ word* mdot(olvm_t* this, word arguments) // todo: change to word arguments
 
 // Matrix Transposition
 __attribute__((used))
-word* mtranspose(olvm_t* this, word arguments)
+word mtranspose(olvm_t* this, word arguments)
 {
 	word* fp;
 
@@ -81,5 +81,5 @@ word* mtranspose(olvm_t* this, word arguments)
 		RETURN_TENSOR(new_list(TPAIR, car(cdar(A)), caar(A)), floats);
 	}
 
-	return (word*) IFALSE; // invalid call
+	return IFALSE; // invalid call
 }

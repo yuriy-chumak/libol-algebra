@@ -4,7 +4,8 @@
 (import (otus lisp))
 (begin
    (define (getenv str)
-      (let ((value (syscall 1016 str)))
+      (let*((str (c-string str))
+            (value (syscall 1016 str)))
          (if (string? value) value "")))
 
    (define string-ci= string-ci=?)
@@ -17,14 +18,13 @@
             ((string-ci= value "False") #F)
             (else default))))
 
+   ; algebra config
    (define config {
       ; exactness of Vector, Matrix, Linspace, etc.
       'default-exactness        ; EXACT by default
-            (bool "OTUS_ALGEBRA_DEFAULT_EXACTNESS" #T) 
+            (bool "OTUS_ALGEBRA_DEFAULT_EXACTNESS" #T)
 
       ; no warning for 'libol-algebra not found' and others
       'no-startup-warnings      ; show warnings by default
             (bool "OTUS_ALGEBRA_NO_STARTUP_WARNINGS" #F)
    })))
-
-; todo: make Vector, Matrix, etc... config dependent 

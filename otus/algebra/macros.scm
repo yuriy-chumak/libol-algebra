@@ -33,7 +33,7 @@
                               ((vector? a)
                                  (cond
                                     ((vector? b) (rmap ,olf a b))
-                                    ((tensor? b) Unimplemented) ; todo
+                                    ((tensor? b) (rmap ,olf a b))
                                     ((scalar? b) (rmap (lambda (a) (,olf a b)) a)) ))
                               ((tensor? a)
                                  (cond

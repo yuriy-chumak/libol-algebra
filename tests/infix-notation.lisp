@@ -48,6 +48,7 @@
 
 (print "evaluations:")
 ; simple
+; TODO: remove "" from examples below
 (TEST "1" = 1)
 (TEST "1 + 2" = 3)
 (TEST "1 + 2 + 3" = 6)

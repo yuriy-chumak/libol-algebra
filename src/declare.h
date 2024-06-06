@@ -51,7 +51,7 @@ word* name(olvm_t* this, word arguments)\
 \
 	/* scalar case: */ \
 	if (is_scalar(A)) {\
-		fp_t a = ol2f(A);\
+		fp_t a = ol2fp(A);\
 		ENTER_SECTION\
 		word* scalar = new_inexact(fnc(a));\
 		LEAVE_SECTION\
@@ -118,7 +118,7 @@ word* name(olvm_t* this, word arguments)\
 	fp_t* f = payload(floats);\
 	/* todo: process fnc(scalar, scalar) */\
 	if (is_scalar(B)) {/* tensor, scalar */\
-		fp_t b = ol2f(B);\
+		fp_t b = ol2fp(B);\
 		for (int i = 0; i < asize; i++) {\
 			f[i] = fnc(a[i], b);\
 		}\

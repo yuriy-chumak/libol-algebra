@@ -85,16 +85,16 @@
             ((tensor? B)
                (~vdot (ivector A) B))
             (else
-               (runtime-error "Invalid arguments" #n))))
+               (runtime-error "Invalid arguments"))))
          ((tensor? A) (cond
             ((tensor? B)
                (~vdot A B))
             ((vector? B)
                (~vdot A (ivector B)))
             (else
-               (runtime-error "Invalid arguments" #n))))
+               (runtime-error "Invalid arguments"))))
          (else
-            (runtime-error "Invalid arguments" #n))))
+            (runtime-error "Invalid arguments"))))
 
    (define dot-product vector·vector)
    (define scalar-product dot-product)

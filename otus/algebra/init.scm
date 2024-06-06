@@ -6,7 +6,7 @@
    (otus ffi))
 
 (export
-   Copy
+   Copy Copy~
 
    Zeros Ones
    Zeros! Ones!
@@ -39,6 +39,7 @@
    ;; (setq ~onesE (dlsym algebra "onesE"))
 
 
+   ; makes deep copy of array
    (define (Copy array)
       (cond
          ((vector? array) ; deep copy
@@ -51,7 +52,8 @@
             (cons (car array)
                   (vm:cast (cdr array) type-bytevector)))))
 
-   ; internal
+   (define Copy~ Tensor~) ; makes an inexact copy of any array
+
    (define (Fill array N)
       (cond
          ((vector? array)
@@ -123,7 +125,7 @@
                ((function? N) (N))
                ((eq? (type N) type-vptr) (N))
                (else N)))
-         ((array) ; copy of existing tensor
+         ((array) ; copy of existing array
             (cond
                ((vector? array)
                   (Fill array N))
@@ -136,13 +138,13 @@
 
    (define zero (if (config 'default-exactness algebra) 0 #i0)) ;?
 
-   (define Zeros (make-filler Tensor zero))
-   (define Zeros~ (if algebra (make-filler Tensor~ #i0) Zeros))
+   (define Zeros (make-filler Array zero))
+   (define Zeros~ (if algebra (make-filler Array~ #i0) Zeros))
 
    (define one (if (config 'default-exactness algebra) 1 #i1)) ;?
 
-   (define Ones (make-filler Tensor one))
-   (define Ones~ (if algebra (make-filler Tensor~ #i1) Ones))
+   (define Ones (make-filler Array one))
+   (define Ones~ (if algebra (make-filler Array~ #i1) Ones))
 
    (define (Zeros! array) (Fill! array 0))
    (define (Ones! array) (Fill! array 1))
@@ -157,11 +159,10 @@
       (define r (sqrt (* -2 (log u))))
       (if (eq? (random-integer 2) 1) r (negate r)))
 
-   (define Randn
-      (make-filler etensor randn))
-
-   (define Randn~ (if algebra (make-filler itensor ~randn) Randn))
-   (define Randn (if (config 'default-exactness algebra) Randn Randn~))
+   (define Randn~ (if algebra (make-filler array~ ~randn)
+                              (make-filler iarray randn)))
+   (define Randn (if (config 'default-exactness algebra)
+                              (make-filler earray randn) Randn~))
 
 
    ;; --------------------------------------------------------------

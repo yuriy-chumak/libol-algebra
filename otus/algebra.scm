@@ -32,25 +32,27 @@
    ;; реально обрабатывать не выйдет, но будет легко читаемый код с алгоритмами работы
    ;; (заодно и легче проверяемый)
    ;; точная, но медленная предваряется "e" (exact)
-   ;; быстрая, неточная математика предваряется "f" (floating point, fast) или "i" (inexact)
+   ;; быстрая, неточная математика предваряется "i" (inexact) или "f" (floating point, fast)
 
-   ;; по умолчанию vector, matrix и tensor сделаны "exact"
-   
-   Array?
    Scalar?
-   
+
+   ; same as Tensor/Tensor~
+   Array
+   Array~
+   Array?
+
    ; create a Vector
    Vector ; exact vector (lisp)
    Vector~ ; inexact vector (c)
-;   Vector? ; helper function
+   Vector? ; is a vector?
 
    ; create a Matrix
    Matrix ; exact matrix (lisp)
    Matrix~ ; inexact matrix (c)
 ;   Matrix?
 
-   ;; ; create a Tensor
-   ;; Tensor ; exact tensor (lisp)
+   ; create a Tensor
+   Tensor ; exact tensor (lisp)
    ;; Tensor~ ; inexact tensor (c)
    ;; Tensor?
 
@@ -72,6 +74,7 @@
    (exports (otus algebra operators))
    (exports (otus algebra functions))
 
+   Shape Size
    (exports (otus algebra shape))
 
    rmap ; Recursive Map, * core, * internal
@@ -91,11 +94,13 @@
 
    ; REPL upgrade:
    repl:write
+
    ; (math infix-notation) upgrade:
    \\ infix-notation
    \\operators
    \\right-operators
    \\postfix-functions
+
    ; equation overrides
    = equal?
 )
@@ -104,27 +109,22 @@
    (otus algebra config))
 (begin
 
+   ; startup notification
    (unless (config 'default-exactness algebra)
-      (print-to stderr "Warning: you'r requested inexact math usage by default,")
-      (if algebra
-         (print-to stderr "      calculated results may be inaccurate.")
-         (print-to stderr "      but the shared library is not loaded, so that kind of math won't be included.")))
+      (unless (config 'no-startup-warnings #f)
+         (print-to stderr "Warning: you'r requested inexact math usage by default,")
+         (if algebra
+            (print-to stderr "      calculated results may be inaccurate.")
+            (print-to stderr "      but the shared library is not loaded, so that kind of math won't be included."))))
 
    ; array? / scalar?
    (define (Array? obj)
       (or (vector? obj)
           (tensor? obj)))
-   (define Scalar? scalar?)
-
-   ; configurable exact/inexact constructors
-   (define Vector Vector)
-   (define Matrix Matrix)
-   (define Tensor Tensor)
-
-   ; configurable exact/inexact constructors
-   (define Vector~ Vector~)
-   (define Matrix~ Matrix~)
-   (define Tensor~ Tensor~)
+   (define Scalar? number?)
+   (define (Vector? obj) ()) ; TBD.
+   ;Matrix?
+   ;Tensor?
 
    ; todo: make returning rows from matrices, etc
    (define (Ref array . index)
@@ -192,8 +192,8 @@
          then
             (define number (apply Ref (cons obj index)))
             (if first?
-               (format-number number tl 10)
-               (cons* #\space (format-number number tl 10)))
+               (format-any number tl)
+               (cons* #\space (format-any number tl)))
 
          else
             (define last (car indices))

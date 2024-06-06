@@ -74,7 +74,7 @@ void init_with_vector(fp_t**end, word data)
         if (is_vector(v))
             init_with_vector(&ptr, v);
         else
-            *ptr++ = ol2f(v);
+            *ptr++ = ol2fp(v);
     }
     *end = ptr;
 }
@@ -111,11 +111,10 @@ void maker(fp_t* begin, fp_t**end, word data) {
     return;
 }
 
-// vector: (Tensor '(N) '(N))
-// vector: (Tensor '(N) '([x1 x2 ...]))
-// (???) пока что тензор умеет только создавать по размерам
-// TODO: (new_floats tensor dimN-1 dimN)
-word* Tensor(olvm_t* this, word* arguments)
+// vector: (New '(N) '(N))
+// vector: (New '(N) '([x1 x2 ...]))
+//   TODO: (new_floats tensor dimN-1 dimN)
+word* New(olvm_t* this, word* arguments)
 {
 	word dims = car(arguments); arguments = (word*)cdr(arguments); // dimensions
 	word data = car(arguments); arguments = (word*)cdr(arguments); // array data
@@ -148,10 +147,29 @@ word* Ref(olvm_t* this, word arguments)
     word array_data = cdr(array);
 
     fp = ((struct heap_t*)this)->fp;
+	// fprintf(stderr, "offset(dimensions, index) = %ld\n", offset(dimensions, index));
     word* vptr = new_inexact(payload(array_data)[offset(dimensions, index)]);
     ((struct heap_t*)this)->fp = fp;
 
     return vptr;
+}
+
+// -=( ref )=-----------------------------------------------
+word* PutE(olvm_t* this, word arguments)
+{
+	word* fp;
+
+	// (Ref array i j k l m...)
+	word value = car(arguments); arguments = cdr(arguments);
+    word array = car(arguments);
+	word index = cdr(arguments);
+
+    //array is a '(dimensions . floats)
+    word dimensions = car(array);
+    word array_data = cdr(array);
+
+    payload(array_data)[offset(dimensions, index)] = ol2fp(value);
+    return (R)ITRUE;
 }
 
 // -=( fill )=-----------------------------------------------
