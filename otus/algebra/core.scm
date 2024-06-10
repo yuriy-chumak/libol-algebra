@@ -75,26 +75,6 @@
          (eq? (type (cdr t)) type-bytevector)))
 
    ; ================================================================
-   ; shape and size
-   (define (shape array) ; c array shape
-      (let loop ((el (ref array 1)) (dim (list (size array))))
-         (if (not (vector? el)) then
-            (reverse dim)
-         else
-            (loop (ref el 1) (cons (size el) dim)))))
-
-   (define (Shape array)
-      (cond
-         ((vector? array) ; builtin array
-            (shape array))
-         ((tensor? array) ; external data
-            (car array))))
-
-
-   (define (Size array)
-      (fold * 1 (Shape array)))
-
-   ; ================================================================
    ; универсальные функции создания массивов
 
    ; inexact (lisp) array creation
@@ -153,6 +133,108 @@
    (define Array~ (if algebra array~ iarray))
    (define Array (if (config 'default-exactness) earray Array~))
 
+   ; ================================================================
+   ; shape and size
+   (define (shape array) ; c array shape
+      (let loop ((el (ref array 1)) (dim (list (size array))))
+         (if (not (vector? el)) then
+            (reverse dim)
+         else
+            (loop (ref el 1) (cons (size el) dim)))))
+
+   (define (Shape array)
+      (cond
+         ((vector? array) ; builtin array
+            (shape array))
+         ((tensor? array) ; external data
+            (car array))))
+
+
+   (define (Size array)
+      (fold * 1 (Shape array)))
+
+   ; ================================================================
+   ; -=( Map )=------
+   ;            Одна из базовейших функций алгебры
+
+   (define ~map (dlsym algebra "Map"))
+   (define rmap
+      (case-lambda
+         ((f) [])
+         ((f array)
+            (cond
+               ((vector? array)
+                  (let loop ((array array))
+                     (if (vector? (ref array 1))
+                        (vector-map loop array)
+                     else
+                        (vector-map f array))))
+               ((tensor? array)
+                  (~map f array))
+               (else
+                  (runtime-error "Map accepts only arrays"))))
+         ((f array1 array2)
+            (if (equal? (Shape array1) (Shape array2))
+               (cond
+                  ((vector? array1)
+                     (cond
+                        ; vector & vector
+                        ((vector? array2)
+                           (let loop ((array1 array1) (array2 array2))
+                              (if (vector? (ref array1 1))
+                                 (vector-map loop array1 array2)
+                              else
+                                 (vector-map f array1 array2))))
+                        ; vector & tensor
+                        ((tensor? array2)
+                           (~map f (array~ array1) array2))
+                        (else
+                           (runtime-error "Map accepts only arrays"))))
+                  ((tensor? array1)
+                     (cond
+                        ; tensor & vector
+                        ((vector? array2)
+                           (~map f array1 (array~ array2)))
+                        ; tensor & tensor
+                        ((tensor? array2)
+                           (~map f array1 array2))
+                        (else
+                           (runtime-error "Map accepts only arrays"))))
+                  (else
+                     (runtime-error "Map accepts only arrays")))
+               (runtime-error "Both arrays must have same shapes")))
+         ((f . arrays) ; ???, todo: change to (f array1 . arrays)
+            ; all shapes must be equal
+            (define shapes (map Shape arrays))
+            (define shape-a (car shapes))
+            (for-each (lambda (shape)
+                  (unless (equal? shape shape-a)
+                     (runtime-error "All arrays must have same shapes")))
+               (cdr shapes))
+            ; TODO: if some array is tensor, cast all to the tensors
+            (cond
+               ((some tensor? arrays)
+                  (apply ~map (cons f (map (lambda (array)
+                                             (if (tensor? array) array (array~ array)))
+                                          arrays))))
+               ((vector? (car arrays))
+                  (let loop ((arrays arrays))
+                     (define (reloop . arrays) (loop arrays))
+                     (if (vector? (ref (car arrays) 1))
+                        (apply vector-map (cons reloop arrays))
+                     else
+                        (apply vector-map (cons f arrays)))))
+               (else
+                  (runtime-error "Map accepts only arrays")))) ))
+
+   ; - rref -------------------
+   (define (rref array . args) ; todo: move it to another place
+      (let loop ((array array) (args args))
+         (if (null? args)
+            array
+         else
+            (loop (ref array (car args)) (cdr args)))))
+
    ; -- vector -----------------------------------
    (define (evector arg)
       (if (vector? arg)
@@ -160,8 +242,8 @@
       else
          (make-vector arg 0)))
 
-   (define (ivector dim)
-      (lambda args (rmap inexact (apply evector args))))
+   (define (ivector arg)
+      (rmap inexact (evector arg)))
 
    (define (vector~ dim)
       (assert (or
@@ -214,120 +296,6 @@
    (define Tensor Array)
 
    ; ================================================================
-   ; --------------------
-   (define (rref array . args) ; todo: move it to another place
-      (let loop ((array array) (args args))
-         (if (null? args)
-            array
-         else
-            (loop (ref array (car args)) (cdr args)))))
 
-   ; -=( Map )=-----------------------
-   ; todo: move to standalone library?
-   (define ~map (dlsym algebra "Map"))
-   (define rmap
-      (case-lambda
-         ((f array)
-            (cond
-               ((vector? array)
-                  (let loop ((array array))
-                     (if (vector? (ref array 1))
-                        (vector-map loop array)
-                     else
-                        (vector-map f array))))
-               ((tensor? array)
-                  (~map f array))
-               (else
-                  (runtime-error "Map accepts only arrays"))))
-         ((f array1 array2)
-            (if (equal? (Shape array1) (Shape array2))
-               (cond
-                  ((vector? array1)
-                     (cond
-                        ; vector & vector
-                        ((vector? array2)
-                           (let loop ((array1 array1) (array2 array2))
-                              (if (vector? (ref array1 1))
-                                 (vector-map loop array1 array2)
-                              else
-                                 (vector-map f array1 array2))))
-                        ; vector & tensor
-                        ((tensor? array2)
-                           (~map f (array~ array1) array2))
-                        (else
-                           (runtime-error "Map accepts only arrays"))))
-                  ((tensor? array1)
-                     (cond
-                        ; tensor & vector
-                        ((vector? array2)
-                           (~map f array1 (array~ array2)))
-                        ; tensor & tensor
-                        ((tensor? array2)
-                           (~map f array1 array2))
-                        (else
-                           (runtime-error "Map accepts only arrays"))))
-                  (else
-                     (runtime-error "Map accepts only arrays")))
-               (runtime-error "Both arrays must have same shapes")))
-         ((f . arrays) ; ???, todo: change to (f array1 . arrays)
-            ; all shapes must be equal
-            (define shapes (map Shape arrays))
-            (define shape-a (car shapes))
-            (for-each (lambda (shape)
-                  (unless (equal? shape shape-a)
-                     (runtime-error "ERR")))
-               (cdr shapes))
-            ; TODO: if different types - cast to the the first argument type
-            (cond
-               ((vector? (car arrays))
-                  (let loop ((arrays arrays))
-                     (define (reloop . arrays) (loop arrays))
-                     (if (vector? (ref (car arrays) 1))
-                        (apply vector-map (cons reloop arrays))
-                     else
-                        (apply vector-map (cons f arrays)))))
-               (else
-                  (runtime-error "TBD")))) ))
-
-
-   ; -------------------------------------------
-   ;(define ~fold (dlsym algebra "Fold"))
-   (define rfold
-      (case-lambda
-         ((f S array)
-            (cond
-               ((vector? array)
-                  (let loop ((S S) (array array))
-                     (if (vector? (ref array 1))
-                        (vector-fold loop S array)
-                     else
-                        (vector-fold f S array))))
-               (else
-                  (runtime-error "TBD"))))
-         ((f S array1 array2)
-            ; TODO: test all arguments the same size
-            ; TODO: if different types - cast to the the first argument type
-            (cond
-               ((vector? array1)
-                  (let loop ((array1 array1) (array2 array2))
-                     (if (vector? (ref array1 1))
-                        (vector-map loop array1 array2)
-                     else
-                        (vector-map f array1 array2))))
-               (else
-                  (runtime-error "TBD"))))
-         ((f S . arrays)
-            ; TODO: test all arguments the same size
-            ; TODO: if different types - cast to the the first argument type
-            (cond
-               ((vector? (car arrays))
-                  (let loop ((arrays arrays))
-                     (define (reloop . args) (loop args))
-                     (if (vector? (ref (car arrays) 1))
-                        (apply vector-map (cons reloop arrays))
-                     else
-                        (apply vector-map (cons f arrays)))))
-               (else
-                  (runtime-error "TBD")))) ))
 
 ))

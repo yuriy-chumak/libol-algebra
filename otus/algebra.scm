@@ -58,11 +58,6 @@
 
    ; get an element
    Ref
-   ; map an elements by value
-   Map
-   ; map an elements by index
-   Index
-
 
    (exports (otus algebra scalar))
    (exports (otus algebra vector))
@@ -133,7 +128,6 @@
             ((tensor? array) ~ref))
          (cons array index)))
 
-   (define Map rmap) ; todo: проверить?
    (define Fold rfold)
    
    ;; (define + +)
