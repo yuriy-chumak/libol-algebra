@@ -97,7 +97,7 @@
    \\postfix-functions
 
    ; equation overrides
-   = equal?
+   = ≠ equal?
 )
 
 (import
@@ -233,39 +233,39 @@
       '⁰ #t
    }))
    
-   (define /= =)
+   ; universal comparator
    (define = (case-lambda
-      ; most likely case
+      ; likely case
       ((a b)
          (if (and (Array? a) (Array? b))
             (if (equal? (Shape a) (Shape b))
-               (call/cc (lambda (ret)
-                  (rmap (lambda (a b)
-                           (unless (= a b) (ret #false)))
-                     a b)
-                  #true)))
-         else
+               (if (tensor? a)
+                  (if (tensor? b)
+                     (equal? a b)
+                     (equal? a (array~ b)))
+                  (if (tensor? b)
+                     (equal? (array~ a) b)
+                     (call/cc (lambda (ret)
+                        (rmap (lambda (a b)
+                                 (unless (= a b) (ret #false)))
+                           a b)
+                        #true)))))
             (= a b)))
       ; other cases
       ((a) #true)
       ((a . args)
-         (if (all Array? (cons a args))
+         (if (each Array? (cons a args))
             (call/cc (lambda (ret)
-               ; all shapes must be equal
-               (define shapes (map Shape args))
-               (define shape-a (car shapes))
-               (for-each (lambda (shape)
-                     (unless (equal? shape shape-a) (ret #false)))
-                  (cdr shapes))
-            
-               ; and all elements too
-               (apply rmap (cons (lambda args
-                        (unless (apply = args) (ret #false)))
-                  args))
+               (for-each (lambda (b)
+                     (unless (= a b)
+                        (ret #false)))
+                  args)
                #true))
-         else
             (apply = (cons a args))))
    ))
+
+   (define (≠ . args)
+      (not (apply = args)))
 
    (define /equal? equal?)
    (define (equal? a b)
