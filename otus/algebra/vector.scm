@@ -47,6 +47,7 @@
 
    ; https://en.wikipedia.org/wiki/Determinant
    ; Определитель матрицы
+   ; TODO: https://mathworld.wolfram.com/Hyperdeterminant.html
    (define (det m) ; todo: move to some basic library
       (cond
          ((eq? (size m) 1)
