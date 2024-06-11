@@ -8,7 +8,7 @@ void fill(word A, size_t count, fp_t x) {
 	}
 }
 
-word* Fill(olvm_t* this, word* arguments)
+word Fill(olvm_t* this, word* arguments)
 {
 	word* fp;
 

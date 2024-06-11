@@ -42,7 +42,7 @@ word* name(olvm_t* this, word arguments)\
 #define DECLARE1(name, fnc) \
 \
 __attribute__((used))\
-word* name(olvm_t* this, word arguments)\
+word name(olvm_t* this, word arguments)\
 {\
 	word* fp;\
 \
@@ -55,7 +55,7 @@ word* name(olvm_t* this, word arguments)\
 		ENTER_SECTION\
 		word* scalar = new_inexact(fnc(a));\
 		LEAVE_SECTION\
-		return scalar;\
+		return (word) scalar;\
 	}\
 \
 	size_t asize = size(car(A));\
