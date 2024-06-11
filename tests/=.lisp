@@ -62,6 +62,22 @@
 (assert (≠ [] [] [] [] [1] [] [] [] [] [] [] []))
 (assert (≠ [1] [] [] [] [] [] [] [] [] [] [] []))
 
+; ~
+(assert (= [1 2 3] (Array~ [1 2 3])))
+(assert (= [1 2 3] (Array~ [1 2 3]) (Array~ [1 2 3])))
+(assert (= [1 2 3] (Array~ [1 2 3])
+           [1 2 3] (Array~ [1 2 3])
+           [1 2 3] (Array~ [1 2 3])
+           [1 2 3] (Array~ [1 2 3])
+           [1 2 3] (Array~ [1 2 3])
+           [1 2 3] (Array~ [1 2 3])))
+
+(assert (≡ [1 2 3] [1 2 3]))
+(assert (≢ [1 2 3] (Array~ [1 2 3])))
+(assert (≡ [#i1 #i2 #i3] [#i1 #i2 #i3]))
+(assert (≢ [#e1 #e2 #e3] [#i1 #i2 #i3]))
+
+
 
 ; well, done.
 (print "ok.")

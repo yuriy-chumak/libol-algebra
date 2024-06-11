@@ -97,7 +97,8 @@
    \\postfix-functions
 
    ; equation overrides
-   = ≠ equal?
+   = ≠ ≡ ≢
+   equal?
 )
 
 (import
@@ -233,10 +234,10 @@
       '⁰ #t
    }))
    
-   ; universal comparator
-   (define = (case-lambda
-      ; likely case
-      ((a b)
+   ; ===========================================
+   ; universal comparator(s)
+   (define ≈
+      (define (≈ a b)
          (if (and (Array? a) (Array? b))
             (if (equal? (Shape a) (Shape b))
                (if (tensor? a)
@@ -251,22 +252,60 @@
                            a b)
                         #true)))))
             (= a b)))
+
+   (case-lambda
+      ; likely case
+      ((a b) (≈ a b))
       ; other cases
       ((a) #true)
       ((a . args)
-         (if (each Array? (cons a args))
-            (call/cc (lambda (ret)
-               (for-each (lambda (b)
-                     (unless (= a b)
-                        (ret #false)))
-                  args)
-               #true))
-            (apply = (cons a args))))
+         (call/cc (lambda (ret)
+            (for-each (lambda (b)
+                  (unless (≈ a b)
+                     (ret #false)))
+               args)
+            #true)))
    ))
 
    (define (≠ . args)
-      (not (apply = args)))
+      (not (apply ≈ args)))
 
+   (define ≡
+      (define (≡ a b)
+         (cond
+            ((and (vector? a) (vector? b))
+               (if (equal? (Shape a) (Shape b))
+                  (call/cc (lambda (ret)
+                     (rmap (lambda (a b)
+                              (unless (eqv? a b) (ret #false)))
+                        a b)
+                     #true))))
+            ((and (tensor? a) (tensor? b))
+               (equal? a b))
+            ((and (string? a) (string? b))
+               (string=? a b))
+            (else
+               (eqv? a b))))
+
+   (case-lambda
+      ; likely case
+      ((a b) (≡ a b))
+      ; other cases
+      ((a) #true)
+      ((a . args)
+         (call/cc (lambda (ret)
+            (for-each (lambda (b)
+                  (unless (≡ a b)
+                     (ret #false)))
+               args)
+            #true)))
+   ))
+
+   (define (≢ . args)
+      (not (apply ≡ args)))
+
+
+   (define = ≈)
    (define /equal? equal?)
    (define (equal? a b)
       (if (and (Array? a) (Array? b))
