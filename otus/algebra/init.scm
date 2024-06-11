@@ -21,13 +21,14 @@
    Iota Arange Linspace
 
    Linspace~
-
-   Index
 )
 
 (begin
    (import
       (otus algebra config))
+
+   (define (Iota . args)
+      (list->vector (apply iota args)))
 
    ; ....
 
@@ -39,7 +40,10 @@
    ;; (setq ~onesE (dlsym algebra "onesE"))
 
 
-   ; makes deep copy of array
+   ; inexact copy of any array
+   (define Copy~ Array~)
+
+   ; deep copy of array
    (define (Copy array)
       (cond
          ((vector? array) ; deep copy
@@ -52,7 +56,6 @@
             (cons (car array)
                   (vm:cast (cdr array) type-bytevector)))))
 
-   (define Copy~ Tensor~) ; makes an inexact copy of any array
 
    (define (Fill array N)
       (cond
@@ -166,8 +169,6 @@
 
 
    ;; --------------------------------------------------------------
-   (define (Iota . args)
-      (list->vector (apply iota args)))
 
    ; (Arange count)
    ; (Arange from to)
@@ -206,26 +207,7 @@
    ))
 
    (define Linspace~ (if algebra ~linspace Linspace))
-   (define Linspace (if (config 'default-exactness algebra) Linspace ~linspace))
+   (define Linspace (if (config 'default-exactness) Linspace ~linspace))
 
-
-   ;; -=( Index ....
-   (define (Index array F)
-      (cond
-         ((vector? array)
-            (define (vm array index)
-               (if (vector? array)
-                  (vector-map vm array
-                     (vector-map (lambda (i)
-                           (append index (list i)))
-                        (Iota (size array) 1)))
-               else
-                  (apply F index)))
-            (vector-map vm array
-               (vector-map (lambda (i)
-                     (list i))
-                  (Iota (size array) 1))))
-         (else
-            (runtime-error "error" array))))
 
 ))

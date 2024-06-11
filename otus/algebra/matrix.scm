@@ -4,6 +4,7 @@
    (otus lisp)
    (otus algebra core)
    (otus algebra init)
+   (otus algebra fold)
    (otus algebra vector)
    (otus algebra shape))
 
@@ -82,9 +83,9 @@
 
    ; Алгебраическое дополнение
    (define (adjoint-matrix A) ; (adjugate M)
-      (Index A (lambda (i j)
+      (Index (lambda (i j)
          ((if (eq? (band (bxor i j) 1) 0) idf negate)
-            (det (minor A j i))))))
+            (det (minor A j i)))) A))
 
    ; Обратная матрица
    (define (inverse-matrix A)
