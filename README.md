@@ -12,10 +12,11 @@ A package for a smart math computing in the [Ol (Otus Lisp)](https://github.com/
 
 The main purpose of this library is to provide a comfortable way to perform complex math evaluations in a programming environment. Yet another math library? Yes and Not.
 
-The Otus Lisp (Ol) and `(otus algebra)` may provide you very human friendly runtime environment with:
- * *exact* calculations on demand (if your task allows) without losing the readability of the program text
- * the same calculation results regardless of the platform used [*](#note-1)
- * easy switching between fast inexact and ordinary exact calculation modes
+The Otus Lisp (`ol`) and `(otus algebra)` library may provide you very human friendly runtime environment with:
+ * *exact* calculations without losing the readability of the program text
+ * the same calculation results regardless of the platform used ([*](#note-1))
+ * *inexact* calculations on demand
+ * easy switching between *fast inexact* and *ordinary exact* calculation modes
 
 
 ## Installing
@@ -23,10 +24,13 @@ The Otus Lisp (Ol) and `(otus algebra)` may provide you very human friendly runt
 You have a choice to:
  - `make; make install` inside the project folder,
  - `kiss install libol-algebra` using [ol-packages](https://github.com/yuriy-chumak/ol-packages) repository,
- - If you don't need the fast inexact math support (the optimized C code for floating point machine types) or you don't have the C compiler available (huh?), just *copy the "otus" folder* to the your project folder.
+ - If you don't need the *fast inexact* math support (the optimized C code for floating point machine types) or you don't have the C compiler available (huh?), just `copy the "otus" folder` to the your project path.
 
 
 ## Usage
+
+A lot of examples available on the [Reference](reference/README.md) page
+and in the ["tests"](tests) folder.
 
 ```scheme
 $ ol
@@ -40,15 +44,16 @@ type ',help' to help, ',quit' to end session.
 17
 ```
 
-Infix notation inside Lisp (`\\` is a short for macro `infix-notation`):
+Use infix notation inside Lisp (`\\` is a short for macro `infix-notation`) freely:
 ```scheme
-> (\\
-     [1 3 -5] ⨯ [4 -2 -1]
-  )
+> (\\  [1 3 -5] ⨯ [4 -2 -1] )
 [-13 -19 -14]
+
+> (\\  (2 + 3) * 4 - 1 )
+19
 ```
 
-Some unicode math symbols (don't forget spaces between regular and unicode math letters):
+Some unicode math symbols (don't forget spaces between regular and unicode math letters) are available:
 ```scheme
 > (import (otus algebra unicode))
 
@@ -78,9 +83,7 @@ X₂ = -13/5
 ))
 0
 ```
-
-A lot of examples available on the [Reference](reference/README.md) page
-and in the ["tests"](tests) folder.
+> Don't forget for whitespaces around numbers and math operators.
 
 
 Very Important Notes

@@ -98,7 +98,7 @@
 
    ; equation overrides
    = ≠ ≡ ≢
-   equal?
+   eqv? equal?
 )
 
 (import
@@ -311,4 +311,10 @@
       (if (and (Array? a) (Array? b))
          (= a b)
          (/equal? a b)))
+
+   (define /eqv? eqv?)
+   (define (eqv? a b)
+      (if (and (Array? a) (Array? b))
+         (≡ a b)
+         (/eqv? a b)))
 ))

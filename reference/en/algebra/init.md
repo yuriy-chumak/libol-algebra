@@ -4,7 +4,7 @@
 Makes a deep copy of array. Do not change the type of array.
 ```scheme
 > (Copy [1 2 3])
-#(1 2 3)
+[1 2 3]
 ```
 
 ## Copy~

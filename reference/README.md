@@ -4,22 +4,25 @@ README
 * [Terminology](#terminology)
 * [Indicing](#indicing)
 * [Infix Notation](#infix-notation)
-* [Print and Examples](#print-and-examples)
+* [Examples and `Print`](#examples-and-print)
 * [~ (tilde suffix)](#tilde-suffix)
 * [Vector vs Vector~](#vector-vs-vector)
+* [Equal To and Not Equal To (=, ≠, ≡, and ≢)](#equal-to-and-not-equal-to)
 * [Other Conventions](#other-function-naming-conventions)
 * Skip to [Library Reference](#library-reference)
 
 
 ## Terminology
 
-The `(otus algebra)` library operates slightly different terms for the objects it uses than Lisp or Python. All *algebra* objects are divides into:
+The `(otus algebra)` library operates slightly different terms for the objects it uses than Lisp, Lua, C, or Python.  
+All *algebra* objects are divides into:
 * *Scalars*, the any kind of *numbers* - integers, rational (`17/3`), complex (`3+7i`); in decimal, binary, octal, or hexadecimal notation
-  - the `Scalar?` predicate returns `#true` for all and only scalars
-* *Arrays*, any complex objects that allow indexed access to their parts (using the `Ref` function)
-  - the `Array?` predicate returns `#true` for all and only arrays
+  - the `Scalar?` predicate returns `#true` for all and only *scalar*s
+* *Arrays*, any smart objects that allow indexed access to their parts (using the `Ref` function)
+  - the `Array?` predicate returns `#true` for all and only *array*s
+* All other *non-math objects* (*string*s, *boolean*s, *list*s, etc.)
 
-All objects that mathematicians call *vector*, *matrix*, *hypermatix*, etc. are the *Arrays* in terms of *algebra* library. Ol *vectors* (started with lower-case 'v') are internal Ol objects that may be, or may not be the Array (from the capital 'A').
+All objects that mathematicians call *vector*, *matrix*, *hypermatix*, etc. are the *Array*s in terms of *algebra* library. Ol *vector*s (started with lower-case 'v') are internal Ol objects that may be, or may not be the *Array* (from the capital 'A').
 
 
 ## Indicing
@@ -34,20 +37,22 @@ All math objects in Ol are **indexed starting from 1 (one)**, just as mathematic
 12
 ```
 
+
 ## Infix Notation
 
-You can use traditional infix math notation freely, if you want. Just use `\\` macro (which is short for `infix-notation`).
+You can use traditional infix math notation freely, if you want. Just use `\\` macro (which is short for `infix-notation` macro name).
 
 ```scheme
 > (\\  2 * (3 + 4) )
 14
 
-> (infix-notation
+> (infix-notation  ; the same as \\
      [1 2 3] + [4 5 6] )
 [5 7 9]
 ```
 
-## Print and Examples
+
+## Examples and `Print`
 
 Examples in this and subsequent reference docs are provided in form named "REPL" using prompt symbol "> ", which shows the behavior like if someone were typing code in an interactive ol session.
 
@@ -67,11 +72,12 @@ Please pay attention that `print`ed values of fast (*inexact*) algebra arrays di
 [1.0 2.0 3.0]
 ```
 
-## Naming and ~ (tilde) suffix
 
-Names of algebra functions typically begins with capital letter, and Lisp functions with lower case.
+## Naming and `~` (tilde) suffix
 
-The `(otus algebra)` library operates on two major kind of numbers - *exact* numbers and *inexact* numbers. *Exact* numbers do not loose their precision during math transformations. But *inexact* numbers may do.
+Names of algebra functions begins with capital letter, and Lisp functions with lower case.
+
+The `(otus algebra)` library operates on two major kind of numbers: *exact* numbers and *inexact* numbers. *Exact* numbers do not loose their precision during math transformations. But *inexact* numbers may do.
 
 ```scheme
 ; exact number
@@ -129,20 +135,8 @@ By default, `(otus algebra)` uses *exact* math. You can change default behavior 
    (import (scheme process-context))
    (set-environment-variable! "OTUS_ALGEBRA_DEFAULT_EXACTNESS" "0" #t)
    ```
-
- * At least, which is not a recommended way, using next lisp startup code before loading the algebra library:
-   ```scheme
-   (define-library (otus algebra config)
-   (import (otus lisp))  (export config)
-   (begin
-      (define config {
-         'default-exactness #F
-      }) ))
-   ; and now load library
-   (import (otus algebra))
-   ```
-
 The default exactness cannot be changed once the `(otus algebra)` library is loaded.
+
 
 ## Vector vs Vector~
 
@@ -154,11 +148,39 @@ The default exactness cannot be changed once the `(otus algebra)` library is loa
 
 So, briefly: *Maker* works as exact or inexact depending on *default-exactness* option, *Maker*~ always works as inexact, but depends on fast library existent.
 
+
+## Equal To and Not Equal To
+
+You can compare objects using `=` and `≠` signs. These operators don't distinct exact and inexact arrays and tries to compare them in usual way. It may produce false results, if you mix *exact* and *inexact* math.
+```scheme
+> 3.3
+33/10
+
+> #i3.3
+3.29999999
+
+> (= 3.3 #i3.3)
+#true
+
+> (= [1 2 3] (Array~ [1 2 3]))
+#true
+```
+
+If you want to keep under control such comparisons, you must use `≡` and `≢` signs. These operators compare only objects with same type - *exact*s with *exact*s, and *inexact*s with *inexact*s.
+```scheme
+> (≡ 3.3 #i3.3)
+#false
+
+> (≡ [1 2 3] (Array~ [1 2 3]))
+#false
+```
+
+
 ## Other function naming conventions
 
 The `(otus algebra)` functions begin with a capital letter to distinguish them from the ol functions which are in a lowercase.
 
-# !
+#### !
 ~~Mutators (typically ends with "`!`" suffix) applicable only to *enums* (positive and negative values) and *inexact*s. Mutators are dangerous and giving no real benefit. Use them only if you really understand what you are doing.~~
 
 ~~Fast vectors, matrices and tensors are supported, of course, without any restrictions.~~
@@ -181,8 +203,7 @@ The `(otus algebra)` functions begin with a capital letter to distinguish them f
   ```
 
 
-Library Reference
-=================
+## Library Reference
 
 - [Vectors](reference/en/vector.md)
   - [Creation](reference/en/vector.md#creation)
@@ -202,12 +223,16 @@ Library Reference
   - [Creation](reference/en/tensor.md#creation)
   - ...
 
+
+## Q/A
+
+* *Why inexact number `#i1e14` prints as `1.0e14`, but `#i1e15` as `10.0e14`?*  
+  Because of nature of imprecise hardware calculations.
+
+
 ## Notes
 
 #### note 1
-Why inexact number `#i1e14` prints as `1.0e14`, but `#i1e15` as `10.0e14`? Because of nature of imprecise hardware  calculations.
-
-#### note 2
 Some native Lisp objects are supported too:
 * *Strings*, any unicode or regular (ansi) strings emphasized with `"`
   - the `string?` predicate returns `#true` for all and only strings
